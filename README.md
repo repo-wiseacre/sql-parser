@@ -10,25 +10,25 @@ parser.
 
 ## Building From Source
 
-[Maven](http://maven.apache.org) is used to build, test, and deploy.
+[Maven](http://maven.apache.org) is used to build, test and deploy.
 
-Run tests and create jars
+### Run tests and build jars:
 
     mvn package
 
-The resulting jar files are in the `target` directory.
+The resulting jar files are in `target/`.
 
-Generate the documentation
+### Generate the documentation
 
     mvn javadoc:javadoc
 
-The resulting Javadoc HTML files are in `target/site/apidocs`.
+The resulting HTML files are in `target/site/apidocs/`.`
 
 
 ## Using From Maven
 
-The FoundationDB SQL Parser is in the standard Maven Central repository. Any
-Maven project can use it directly by adding the appropriate entries to the
+The SQL Parser is in the standard Maven Central repository. Any Maven based
+project can use it directly by adding the appropriate entries to the
 `dependencies` section of its `pom.xml` file:
 
 Note:
@@ -50,15 +50,14 @@ Note:
 ## Installing From Binaries
 
 Pre-built jars can be downloaded directly from the
-[release page](https://github.com/foundationdb/sql-parser/releases).
-Expand the package into a into a convenient directory using the appropriate
-utility (e.g. `unzip` or `tar`).
+[release page](https://github.com/foundationdb/sql-parser/releases)
+and extracted using `tar` or `unzip`.
 
-The SQL Parser is licensed under the Apache License, Version 2.0. The full text
+The SQL Parser is available under the Apache License, Version 2.0. The full text
 can be found in the `LICENSE.txt` file.
 
 
-## Working with the SQL Parser
+## Working With The SQL Parser
 
 The following example demonstrates a simple usage:
 
@@ -87,20 +86,19 @@ More advanced usages will generally parse a statement and then pass a custom
 [accept()](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/QueryTreeNode.html#accept%28com.foundationdb.sql.parser.Visitor%29) method.
 
 To compile and run the example from the command line, copy the code into a
-file named `ParserHello.java` and ensure the parser jar file, found in
-the root directory of the binary package, is in your `classpath`.
-
-For example,
-
-    $ export CLASSPATH="fdb-sql-parser-1.0.16.jar:."
+file named `ParserHello.java`. Then compile and run it, making sure to include
+the parser in the `classpath`.
 
 Compile:
 
-    $ javac ParserHello.java
+```sh
+    $ javac -cp fdb-sql-parser-1.0.16.jar ParserHello.java
+```
 
 Run (output trimmed):
 
-    $ java ParserHello "SELECT a FROM b"
+```sh
+    $ javac -cp fdb-sql-parser-1.0.16.jar: ParserHello.java "SELECT a FROM b"
     com.foundationdb.sql.parser.CursorNode@5889dee2
     statementType: SELECT
     resultSet:
@@ -116,7 +114,7 @@ Run (output trimmed):
             [0]:
             com.foundationdb.sql.parser.FromBaseTable@18317b1d
             tableName: b
-
+```
 
 ## More Information
 
