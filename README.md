@@ -50,14 +50,11 @@ project can use it directly by adding the appropriate entries to the
 ```
 
 
-## Installing From Binaries
+## Using From Binaries
 
-Pre-built jars can be downloaded directly from the
+Packaged jars can be downloaded directly from the
 [release page](https://github.com/foundationdb/sql-parser/releases)
 and extracted using `tar` or `unzip`.
-
-The SQL Parser is available under the Apache License, Version 2.0. The full text
-can be found in the `LICENSE.txt` file.
 
 
 ## Working With The SQL Parser
@@ -119,10 +116,27 @@ resultSet:
         tableName: b
 ```
 
-## More Information
 
-To get in touch,
+## Contributing
 
-- Visit our Q&A site at [community.foundationdb.com](http://community.foundationdb.com)
-- Hop on #foundationdb on irc.freenode.net
+1. Fork
+2. Branch
+3. Commit
+4. Pull Request
+
+Thanks! Please make sure any changes come with new tests.
+
+
+### Contact
+
+* Community: http://community.foundationdb.com
+* IRC: #FoundationDB on irc.freenode.net
+
+
+### License
+
+Apache License, Version 2.0
+Copyright (c) 2012-13 FoundationDB, LLC  
+It is free software and may be redistributed under the terms specified
+in the LICENSE.xt and NOTICE files.
 
