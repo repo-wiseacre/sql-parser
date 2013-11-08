@@ -26,7 +26,7 @@ Generate the documentation:
 $ mvn javadoc:javadoc
 ```
 
-The resulting HTML files are in `target/site/apidocs/`.`
+The resulting HTML files are in `target/site/apidocs/`.
 
 
 ## Using From Maven
@@ -53,13 +53,13 @@ project can use it directly by adding the appropriate entries to the
 ## Using From Binaries
 
 Packaged jars can be downloaded directly from the
-[release page](https://github.com/foundationdb/sql-parser/releases)
+[Releases page](https://github.com/foundationdb/sql-parser/releases)
 and extracted using `tar` or `unzip`.
 
 
 ## Working With The SQL Parser
 
-The following example demonstrates a simple usage:
+A simple example:
 
 ```java
 import com.foundationdb.sql.parser.SQLParser;
@@ -127,13 +127,13 @@ resultSet:
 Thanks! Please make sure any changes come with new tests.
 
 
-### Contact
+## Contact
 
 * Community: http://community.foundationdb.com
 * IRC: #FoundationDB on irc.freenode.net
 
 
-### License
+## License
 
 Apache License, Version 2.0
 Copyright (c) 2012-13 FoundationDB, LLC  
