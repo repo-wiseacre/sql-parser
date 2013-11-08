@@ -14,13 +14,17 @@ used independently. It is derived from the Apache Derby parser.
 
 Run tests and build jars:
 
-    mvn package
+```
+mvn package
+```
 
 The resulting jar files are in `target/`.
 
-Generate the documentation
+Generate the documentation:
 
-    mvn javadoc:javadoc
+```
+mvn javadoc:javadoc
+```
 
 The resulting HTML files are in `target/site/apidocs/`.`
 
@@ -90,29 +94,29 @@ parser in the `classpath`.
 
 Compile:
 
-```sh
-    $ javac -cp fdb-sql-parser-1.0.16.jar ParserHello.java
+```
+$ javac -cp fdb-sql-parser-1.0.16.jar ParserHello.java
 ```
 
 Run (output trimmed):
 
-```sh
-    $ javac -cp fdb-sql-parser-1.0.16.jar:. ParserHello "SELECT a FROM b"
-    com.foundationdb.sql.parser.CursorNode@5889dee2
-    statementType: SELECT
-    resultSet:
-        com.foundationdb.sql.parser.SelectNode@4387f4d7
-        resultColumns:
-            [0]:
-            com.foundationdb.sql.parser.ResultColumn@5123968
-            name: a
-            expression:
-                com.foundationdb.sql.parser.ColumnReference@6f76dd71
-                columnName: a
-        fromList:
-            [0]:
-            com.foundationdb.sql.parser.FromBaseTable@18317b1d
-            tableName: b
+```
+$ javac -cp fdb-sql-parser-1.0.16.jar:. ParserHello "SELECT a FROM b"
+com.foundationdb.sql.parser.CursorNode@5889dee2
+statementType: SELECT
+resultSet:
+    com.foundationdb.sql.parser.SelectNode@4387f4d7
+    resultColumns:
+        [0]:
+        com.foundationdb.sql.parser.ResultColumn@5123968
+        name: a
+        expression:
+            com.foundationdb.sql.parser.ColumnReference@6f76dd71
+            columnName: a
+    fromList:
+        [0]:
+        com.foundationdb.sql.parser.FromBaseTable@18317b1d
+        tableName: b
 ```
 
 ## More Information
