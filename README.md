@@ -3,22 +3,22 @@
 ## Overview
 
 The FoundationDB SQL Parser is a complete, production-quality Java parser for
-the SQL language. It defines the SQL grammar as implemented by the FoundationDB
-SQL Layer but can be used independently. It is derived from the Apache Derby
-parser.
+the SQL language. It defines the SQL grammar as implemented by the
+[FoundationDB SQL Layer](http://github.com/FoundationDB/sql-layer) but can be
+used independently. It is derived from the Apache Derby parser.
 
 
 ## Building From Source
 
 [Maven](http://maven.apache.org) is used to build, test and deploy.
 
-### Run tests and build jars:
+Run tests and build jars:
 
     mvn package
 
 The resulting jar files are in `target/`.
 
-### Generate the documentation
+Generate the documentation
 
     mvn javadoc:javadoc
 
@@ -31,8 +31,7 @@ The SQL Parser is in the standard Maven Central repository. Any Maven based
 project can use it directly by adding the appropriate entries to the
 `dependencies` section of its `pom.xml` file:
 
-Note:
-
+> Note:  
 > This project was recently renamed from `akiban-sql-parser` and can be
 > found as such in Maven Central until the next release.
 
@@ -85,9 +84,9 @@ More advanced usages will generally parse a statement and then pass a custom
 [Visitor](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/Visitor.html) to the
 [accept()](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/QueryTreeNode.html#accept%28com.foundationdb.sql.parser.Visitor%29) method.
 
-To compile and run the example from the command line, copy the code into a
-file named `ParserHello.java`. Then compile and run it, making sure to include
-the parser in the `classpath`.
+To try the example from the command line, copy the code into a file named
+`ParserHello.java`. Then compile and run it, making sure to include the
+parser in the `classpath`.
 
 Compile:
 
@@ -120,6 +119,6 @@ Run (output trimmed):
 
 To get in touch,
 
-    - Visit our Q&A site at [community.foundationdb.com](http://community.foundationdb.com)
-    - Hop on #foundationdb on irc.freenode.net
+- Visit our Q&A site at [community.foundationdb.com](http://community.foundationdb.com)
+- Hop on #foundationdb on irc.freenode.net
 
