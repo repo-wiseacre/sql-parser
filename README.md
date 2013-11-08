@@ -14,16 +14,16 @@ used independently. It is derived from the Apache Derby parser.
 
 Run tests and build jars:
 
-```
-mvn package
+```sh
+$ mvn package
 ```
 
 The resulting jar files are in `target/`.
 
 Generate the documentation:
 
-```
-mvn javadoc:javadoc
+```sh
+$ mvn javadoc:javadoc
 ```
 
 The resulting HTML files are in `target/site/apidocs/`.`
@@ -94,13 +94,13 @@ parser in the `classpath`.
 
 Compile:
 
-```
+```sh
 $ javac -cp fdb-sql-parser-1.0.16.jar ParserHello.java
 ```
 
 Run (output trimmed):
 
-```
+```sh
 $ javac -cp fdb-sql-parser-1.0.16.jar:. ParserHello "SELECT a FROM b"
 com.foundationdb.sql.parser.CursorNode@5889dee2
 statementType: SELECT
