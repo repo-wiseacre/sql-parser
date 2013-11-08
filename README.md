@@ -97,7 +97,7 @@ Compile:
 Run (output trimmed):
 
 ```sh
-    $ javac -cp fdb-sql-parser-1.0.16.jar: ParserHello.java "SELECT a FROM b"
+    $ javac -cp fdb-sql-parser-1.0.16.jar:. ParserHello "SELECT a FROM b"
     com.foundationdb.sql.parser.CursorNode@5889dee2
     statementType: SELECT
     resultSet:
