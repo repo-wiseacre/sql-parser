@@ -42,6 +42,17 @@ resultSet:
 			value: abc
 			type: CHAR(3) NOT NULL
 		[3]:		
+		com.foundationdb.sql.parser.ResultColumn@4ae6961a
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.CharConstantNode@688869ba
+			value: abc's
+			type: CHAR(5) NOT NULL
+		[4]:		
 		com.foundationdb.sql.parser.ResultColumn@4e5394c
 		exposedName: null
 		name: null
@@ -53,7 +64,29 @@ resultSet:
 			value: ab
 			c
 			type: CHAR(4) NOT NULL
-		[4]:		
+		[5]:		
+		com.foundationdb.sql.parser.ResultColumn@4e5394d
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.CharConstantNode@6514af1d
+			value: a@z
+			type: CHAR(3) NOT NULL
+		[6]:		
+		com.foundationdb.sql.parser.ResultColumn@4e5394e
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.CharConstantNode@6514af1e
+			value: @
+			type: CHAR(1) NOT NULL
+		[7]:		
 		com.foundationdb.sql.parser.ResultColumn@30f30132
 		exposedName: null
 		name: null
@@ -64,7 +97,7 @@ resultSet:
 			com.foundationdb.sql.parser.CharConstantNode@21d392b9
 			value: ☃
 			type: CHAR(1) NOT NULL
-		[5]:		
+		[8]:		
 		com.foundationdb.sql.parser.ResultColumn@4945c108
 		exposedName: null
 		name: null

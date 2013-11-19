@@ -315,13 +315,13 @@ class SQLGrammar
                     else if ((ch >= '0') && (ch <= '7')) {
                         if (pos + 2 > end)
                             throw new StandardException("Octal escape requires three digits");
-                        int cp = 0;
-                        for (int i = 0; i < 3; i++) {
+                        int cp = Character.digit(ch, 8);
+                        for (int i = 0; i < 2; i++) {
+                            ch = source.charAt(pos++);
                             int d = Character.digit(ch, 8);
                             if (d < 0)
                                 throw new StandardException("Illegal octal escape");
                             cp = (cp << 3) | d;
-                            ch = source.charAt(pos++);
                         }
                         result.append((char)cp);
                     }
