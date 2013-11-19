@@ -261,9 +261,8 @@ class SQLGrammar
      * Remove first and last quotes and compress adjacent ones in the
      * middle.
      */
-    private static String trimAndCompressQuotes(String source, boolean backslash) throws StandardException {
-        int pos = 0;
-        char quote = source.charAt(pos++);
+    private static String trimAndCompressQuotes(String source, int pos, boolean backslash) throws StandardException {
+        char quote = source.charAt(pos-1);
         int end = source.length() - 1;
         assert (quote == source.charAt(end));
         int qpos = source.indexOf(quote, pos);
@@ -2975,6 +2974,22 @@ MORE :
       (~["\"", "\\"])
     ) +
     "\""> : DEFAULT
+}
+
+MORE [IGNORE_CASE] :
+{
+  "E'" : IN_ESCAPEQUOTED_STRING
+}
+
+<IN_ESCAPEQUOTED_STRING> TOKEN :
+{
+  <ESCAPEQUOTED_STRING:
+    (
+      ("''") |
+      ("\\" ["\u0001" - "\uffdc"]) |
+      (~["'", "\\"])
+    ) +
+    "'"> : DEFAULT
 }
 
 MORE :
@@ -10467,10 +10482,10 @@ propertyList(boolean propertiesUseAllowed) throws StandardException :
                 parserContext.checkStringLiteralLengthLimit(value);
                 /* Trim off the leading and trailing ', and compress all '' to ' */
                 if (value.startsWith("'") && value.endsWith("'"))
-                    value = trimAndCompressQuotes(value, false);
+                    value = trimAndCompressQuotes(value, 1, false);
                 /* Trim off the leading and trailing ", and compress all "" to " */
                 else if (value.startsWith("\"") && value.endsWith("\""))
-                    value = trimAndCompressQuotes(value, false);
+                    value = trimAndCompressQuotes(value, 1, false);
                 else 
                     value = value.toUpperCase();
                 // Do not allow user to specify multiple values for the same key
@@ -11882,14 +11897,21 @@ string() throws StandardException :
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
         /* Trim off the leading and trailing ', and compress all '' to ' */
-        return trimAndCompressQuotes(tok.image, false);
+        return trimAndCompressQuotes(tok.image, 1, false);
     }
 |
     tok = <DOUBLEQUOTED_STRING>
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
         /* Trim off the leading and trailing ", compress all "" to " and unescape \ */
-        return trimAndCompressQuotes(tok.image, true);
+        return trimAndCompressQuotes(tok.image, 1, true);
+    }
+|
+    tok = <ESCAPEQUOTED_STRING>
+    {
+        parserContext.checkStringLiteralLengthLimit(tok.image);
+        /* Trim off the leading and trailing ', compress all '' to ' and unescape \ */
+        return trimAndCompressQuotes(tok.image, 2, true);
     }
 |
     tok = <DOUBLEDOLLAR_STRING>
@@ -11926,13 +11948,19 @@ getStringLiteral() throws StandardException :
     tok = <SINGLEQUOTED_STRING>
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
-        string = trimAndCompressQuotes(tok.image, false);
+        string = trimAndCompressQuotes(tok.image, 1, false);
     }
 |
     tok = <DOUBLEQUOTED_STRING>
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
-        string = trimAndCompressQuotes(tok.image, true);
+        string = trimAndCompressQuotes(tok.image, 1, true);
+    }
+|
+    tok = <ESCAPEQUOTED_STRING>
+    {
+        parserContext.checkStringLiteralLengthLimit(tok.image);
+        string = trimAndCompressQuotes(tok.image, 2, true);
     }
 )
     {
@@ -14901,12 +14929,12 @@ delimitedIdentifier() throws StandardException :
     tok = <DOUBLEQUOTED_IDENTIFIER>
     {
         // Strip quotes and correct interior ones.
-        str = trimAndCompressQuotes(tok.image, false);
+        str = trimAndCompressQuotes(tok.image, 1, false);
     }
 |
     tok = <BACKQUOTED_IDENTIFIER>
     {
-        str = trimAndCompressQuotes(tok.image, false);
+        str = trimAndCompressQuotes(tok.image, 1, false);
     }
 )
     {
