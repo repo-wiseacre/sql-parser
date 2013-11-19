@@ -22,8 +22,10 @@ import static junit.framework.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
@@ -63,9 +65,9 @@ public class TestBase
     }
 
     public static String fileContents(File file) throws IOException {
-        FileReader reader = null;
+        Reader reader = null;
         try {
-            reader = new FileReader(file);
+            reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
             StringBuilder str = new StringBuilder();
             char[] buf = new char[128];
             while (true) {
@@ -87,10 +89,10 @@ public class TestBase
     }
 
     public static String[] fileContentsArray(File file) throws IOException {
-        FileReader reader = null;
+        Reader reader = null;
         List<String> result = new ArrayList<String>();
         try {
-            reader = new FileReader(file);
+            reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
             BufferedReader buffered = new BufferedReader(reader);
             while (true) {
                 String line = buffered.readLine();
