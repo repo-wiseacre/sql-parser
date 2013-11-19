@@ -166,11 +166,6 @@ class SQLGrammar
     public static final int DEFAULT_DECIMAL_SCALE = TypeId.DEFAULT_DECIMAL_SCALE;
     public static final int MAX_FLOATINGPOINT_LITERAL_LENGTH = 30;
 
-    /* Different kinds of string delimiters. */
-    static final String SINGLEQUOTES = "\'\'";
-    static final String DOUBLEQUOTES = "\"\"";
-    static final String BACKQUOTES = "``";
-
     // TODO: Probably not right.
     static final String IBM_SYSTEM_FUN_SCHEMA_NAME = "SYSFUN";
 
@@ -266,23 +261,127 @@ class SQLGrammar
      * Remove first and last quotes and compress adjacent ones in the
      * middle.
      */
-    // TODO: Need to support backslash escaping for compatible double-quoted string.
-    // TODO: This looks pretty inefficient.
-    private static String trimAndCompressQuotes(String source, String quotes, boolean backslash) {
-        String result = source.substring(1, source.length() - 1);
-
-        /* Find the first occurrence of adjacent quotes. */
-        int index = result.indexOf(quotes);
-
-        /* Replace each occurrence with a single quote and begin the
-         * search for the next occurrence from where we left off.
-         */
-        while (index != -1) {
-            result = result.substring(0, index + 1) + result.substring(index + 2);
-            index = result.indexOf(quotes, index + 1);
+    private static String trimAndCompressQuotes(String source, boolean backslash) throws StandardException {
+        int pos = 0;
+        char quote = source.charAt(pos++);
+        int end = source.length() - 1;
+        assert (quote == source.charAt(end));
+        int qpos = source.indexOf(quote, pos);
+        if (qpos < 0) qpos = end;
+        if ((qpos == end) && (!backslash || (source.indexOf('\\', pos) < 0)))
+            // No other quotes, no relevant backslashes.
+            return source.substring(pos, end);
+        
+        StringBuilder result = new StringBuilder(end - 2);
+        
+        if (!backslash) {
+            while (true) {
+                result.append(source, pos, qpos);
+                if (qpos == end) break;
+                pos = qpos + 1;
+                if (source.charAt(pos) == quote) {
+                    result.append(quote);
+                    pos++;
+                }
+                qpos = source.indexOf(quote, pos);
+                if (qpos < 0) qpos = end;
+            }
+        }
+        else {
+            while (pos < end) {
+                char ch = source.charAt(pos++);
+                if (ch == quote) {
+                    if (source.charAt(pos) == quote) {
+                        result.append(quote);
+                        pos++;
+                    }
+                }
+                else if (ch == '\\') {
+                    ch = source.charAt(pos++);
+                    if (ch == 'b') {
+                        result.append('\b');
+                    }
+                    else if (ch == 'f') {
+                        result.append('\f');
+                    }
+                    else if (ch == 'n') {
+                        result.append('\n');
+                    }
+                    else if (ch == 'r') {
+                        result.append('\r');
+                    }
+                    else if (ch == 't') {
+                        result.append('\t');
+                    }
+                    else if ((ch >= '0') && (ch <= '7')) {
+                        if (pos + 2 > end)
+                            throw new StandardException("Octal escape requires three digits");
+                        int cp = 0;
+                        for (int i = 0; i < 3; i++) {
+                            int d = Character.digit(ch, 8);
+                            if (d < 0)
+                                throw new StandardException("Illegal octal escape");
+                            cp = (cp << 3) | d;
+                            ch = source.charAt(pos++);
+                        }
+                        result.append((char)cp);
+                    }
+                    else if (ch == 'x') {
+                        if (pos + 2 > end)
+                            throw new StandardException("Hex escape requires two digits");
+                        int cp = 0;
+                        for (int i = 0; i < 2; i++) {
+                            ch = source.charAt(pos++);
+                            int d = Character.digit(ch, 16);
+                            if (d < 0)
+                                throw new StandardException("Illegal hex escape");
+                            cp = (cp << 4) | d;
+                        }
+                        result.append((char)cp);
+                    }
+                    else if (ch == 'u') {
+                        if (pos + 4 > end)
+                            throw new StandardException("Unicode escape requires four digits");
+                        int cp = 0;
+                        for (int i = 0; i < 4; i++) {
+                            ch = source.charAt(pos++);
+                            int d = Character.digit(ch, 16);
+                            if (d < 0)
+                                throw new StandardException("Illegal Unicode escape");
+                            cp = (cp << 4) | d;
+                        }
+                        result.append((char)cp);
+                    }
+                    else if (ch == 'U') {
+                        if (pos + 8 > end)
+                            throw new StandardException("Unicode escape requires eight digits");
+                        int cp = 0;
+                        for (int i = 0; i < 8; i++) {
+                            ch = source.charAt(pos++);
+                            int d = Character.digit(ch, 16);
+                            if (d < 0)
+                                throw new StandardException("Illegal Unicode escape");
+                            cp = (cp << 4) | d;
+                        }
+                        if (Character.charCount(cp) == 2) {
+                            result.append(Character.highSurrogate(cp));
+                            result.append(Character.lowSurrogate(cp));
+                        }
+                        else {
+                            result.append((char)cp);
+                        }
+                    }
+                    else {
+                        result.append(ch);
+                    }
+                }
+                else {
+                    result.append(ch);
+                }
+            }
         }
 
-        return result;
+        return result.toString();
     }
 
     private String sliceSQLText(int beginOffset, int endOffset, boolean trim) {
@@ -4464,7 +4563,7 @@ javaType() throws StandardException :
 
 // A Java dot-separated list.
 String
-javaDSL() :
+javaDSL() throws StandardException :
 {
     String dotSeparatedList;
 }
@@ -4477,7 +4576,7 @@ javaDSL() :
 }
 
 String
-javaClassName() :
+javaClassName() throws StandardException :
 {
     String javaClassName;
 }
@@ -4489,7 +4588,7 @@ javaClassName() :
 }
 
 String
-javaDSLNameExtender(String dotSeparatedList)    :
+javaDSLNameExtender(String dotSeparatedList) throws StandardException :
 {
     String extender;
 }
@@ -10368,10 +10467,10 @@ propertyList(boolean propertiesUseAllowed) throws StandardException :
                 parserContext.checkStringLiteralLengthLimit(value);
                 /* Trim off the leading and trailing ', and compress all '' to ' */
                 if (value.startsWith("'") && value.endsWith("'"))
-                    value = trimAndCompressQuotes(value, SINGLEQUOTES, false);
+                    value = trimAndCompressQuotes(value, false);
                 /* Trim off the leading and trailing ", and compress all "" to " */
                 else if (value.startsWith("\"") && value.endsWith("\""))
-                    value = trimAndCompressQuotes(value, DOUBLEQUOTES, false);
+                    value = trimAndCompressQuotes(value, false);
                 else 
                     value = value.toUpperCase();
                 // Do not allow user to specify multiple values for the same key
@@ -11783,14 +11882,14 @@ string() throws StandardException :
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
         /* Trim off the leading and trailing ', and compress all '' to ' */
-        return trimAndCompressQuotes(tok.image, SINGLEQUOTES, false);
+        return trimAndCompressQuotes(tok.image, false);
     }
 |
     tok = <DOUBLEQUOTED_STRING>
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
-        /* Trim off the leading and trailing ', and compress all '' to ' */
-        return trimAndCompressQuotes(tok.image, DOUBLEQUOTES, true);
+        /* Trim off the leading and trailing ", compress all "" to " and unescape \ */
+        return trimAndCompressQuotes(tok.image, true);
     }
 |
     tok = <DOUBLEDOLLAR_STRING>
@@ -11827,13 +11926,13 @@ getStringLiteral() throws StandardException :
     tok = <SINGLEQUOTED_STRING>
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
-        string = trimAndCompressQuotes(tok.image, SINGLEQUOTES, false);
+        string = trimAndCompressQuotes(tok.image, false);
     }
 |
     tok = <DOUBLEQUOTED_STRING>
     {
         parserContext.checkStringLiteralLengthLimit(tok.image);
-        string = trimAndCompressQuotes(tok.image, DOUBLEQUOTES, true);
+        string = trimAndCompressQuotes(tok.image, true);
     }
 )
     {
@@ -14792,7 +14891,7 @@ identifierDeferCheckLength() throws StandardException :
 }
 
 String
-delimitedIdentifier() :
+delimitedIdentifier() throws StandardException :
 {
     String str;
     Token tok;
@@ -14802,12 +14901,12 @@ delimitedIdentifier() :
     tok = <DOUBLEQUOTED_IDENTIFIER>
     {
         // Strip quotes and correct interior ones.
-        str = trimAndCompressQuotes(tok.image, DOUBLEQUOTES, false);
+        str = trimAndCompressQuotes(tok.image, false);
     }
 |
     tok = <BACKQUOTED_IDENTIFIER>
     {
-        str = trimAndCompressQuotes(tok.image, BACKQUOTES, false);
+        str = trimAndCompressQuotes(tok.image, false);
     }
 )
     {
@@ -15298,7 +15397,7 @@ nonReservedKeyword() :
 }
 
 String
-caseSensitiveIdentifierPlusReservedWords() :
+caseSensitiveIdentifierPlusReservedWords() throws StandardException :
 {
     String str;
 }
@@ -15332,7 +15431,7 @@ caseInsensitiveIdentifierPlusReservedWords() throws StandardException :
 }
 
 String
-caseSensitiveIdentifier() :
+caseSensitiveIdentifier() throws StandardException :
 {
     String  str;
     Token       tok;
