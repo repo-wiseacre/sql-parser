@@ -62,7 +62,7 @@ public final class CharConstantNode extends ConstantNode
 
             super.init(TypeId.CHAR_ID,
                        (val == null) ? Boolean.TRUE : Boolean.FALSE,
-                       (val != null) ? val.length() : 0);
+                       (val != null) ? charLength(val) : 0);
 
             setValue(val);
         }
@@ -84,12 +84,14 @@ public final class CharConstantNode extends ConstantNode
                    (val == null) ? Boolean.TRUE : Boolean.FALSE,
                    newLength);
 
-        if (val.length() > newLen) {
+        int diff = newLen - charLength(val);
+
+        if (diff < 0) {
             throw new StandardException("Value truncated");
         }
 
         // Blank pad the string if necessesary
-        while (val.length() < newLen) {
+        for (int i = 0; i < diff; i++) {
             val = val + ' ';
         }
 
@@ -122,6 +124,10 @@ public final class CharConstantNode extends ConstantNode
      */
     Object getConstantValueAsObject() throws StandardException {
         return (String)value;
+    }
+
+    public static int charLength(String s) {
+        return s.codePointCount(0, s.length());
     }
 
 }
