@@ -146,6 +146,28 @@ public class ConstraintDefinitionNode extends TableElementNode
     }
 
     /**
+     * Get the constraint name
+     *
+     * @return The constraint name.
+     */
+    public TableName getConstraintName() {
+        return constraintName;
+    }
+
+    /**
+     * Set the constraint name
+     */
+    public void setConstraintName(String name) throws StandardException {
+        this.name = name;
+        if (name == null)
+            constraintName = null;
+        else
+            constraintName = (TableName)getNodeFactory().getNode(NodeTypes.TABLE_NAME,
+                                                                 null, name,
+                                                                 getParserContext());
+    }
+
+    /**
      * Get the verify constraint type. Clarifies DROP actions.
      *
      * @return verify The verify constraint type.
