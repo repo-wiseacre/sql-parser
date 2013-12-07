@@ -12788,12 +12788,8 @@ thenElseExpression() throws StandardException :
     LOOKAHEAD ( { getToken(1).kind == NULL } )
     <NULL>
     {
-        ValueNode value = (ValueNode)nodeFactory.getNode(NodeTypes.CAST_NODE,
-                                                         (ValueNode)nodeFactory.getNode(NodeTypes.UNTYPED_NULL_CONSTANT_NODE,
-                                                                                        parserContext),
-                                                         DataTypeDescriptor.getBuiltInDataTypeDescriptor(Types.CHAR, 1),    
+        ValueNode value = (ValueNode)nodeFactory.getNode(NodeTypes.UNTYPED_NULL_CONSTANT_NODE,
                                                          parserContext);
-        ((CastNode)value).setForExternallyGeneratedCASTnode();
         return value;
     }
 |
@@ -12811,12 +12807,8 @@ caseElseExpression() throws StandardException :
 {
     <END>
     {
-        ValueNode value = (ValueNode)nodeFactory.getNode(NodeTypes.CAST_NODE,
-                                                         (ValueNode)nodeFactory.getNode(NodeTypes.UNTYPED_NULL_CONSTANT_NODE,
-                                                                                        parserContext),
-                                                         DataTypeDescriptor.getBuiltInDataTypeDescriptor(Types.CHAR, 1),    
+        ValueNode value = (ValueNode)nodeFactory.getNode(NodeTypes.UNTYPED_NULL_CONSTANT_NODE,
                                                          parserContext);
-        ((CastNode)value).setForExternallyGeneratedCASTnode();
         return value;
     }
 |

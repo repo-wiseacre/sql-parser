@@ -191,6 +191,14 @@ public class CastNode extends ValueNode
         forDataTypeFunction = b;
     }
 
+    public boolean isForExternallyGeneratedCASTnode() {
+        return externallyGeneratedCastNode;
+    }
+
+    public boolean isForDataTypeFunction() {
+        return forDataTypeFunction;
+    }
+
     /**
      * {@inheritDoc}
      * @throws StandardException 
