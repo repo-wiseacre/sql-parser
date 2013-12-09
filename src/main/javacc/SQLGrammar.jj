@@ -13085,7 +13085,7 @@ updateActions() :
     int action;
 }
 {
-    <UPDATE> action = updateReferentialAction()
+    <UPDATE> action = referentialAction()
     {
         return action;
     }
@@ -13097,29 +13097,14 @@ deleteActions()  :
     int action;
 }
 {
-    <DELETE> action = deleteReferentialAction()
+    <DELETE> action = referentialAction()
     {
         return action;
     }
 }
 
 int
-updateReferentialAction() :
-{}
-{
-    <RESTRICT> 
-    {
-        return StatementType.RA_RESTRICT;
-    }
-| 
-    <NO> <ACTION> 
-    {
-        return StatementType.RA_NOACTION;
-    }
-}
-
-int
-deleteReferentialAction() :
+referentialAction() :
 {}
 {
     <CASCADE> 
