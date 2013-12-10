@@ -35,16 +35,12 @@ The SQL Parser is in the standard Maven Central repository. Any Maven based
 project can use it directly by adding the appropriate entries to the
 `dependencies` section of its `pom.xml` file:
 
-> Note:  
-> This project was recently renamed from `akiban-sql-parser` and can be
-> found as such in Maven Central until the next release.
-
 ```xml
 <dependencies>
   <dependency>
-    <groupId>com.akiban</groupId>
-    <artifactId>akiban-sql-parser</artifactId>
-    <version>1.0.16</version>
+    <groupId>com.foundationdb</groupId>
+    <artifactId>fdb-sql-parser</artifactId>
+    <version>1.0.17</version>
   </dependency>
 </dependencies>
 ```
@@ -92,13 +88,13 @@ parser in the `classpath`.
 Compile:
 
 ```sh
-$ javac -cp fdb-sql-parser-1.0.16.jar ParserHello.java
+$ javac -cp fdb-sql-parser-1.0.17.jar ParserHello.java
 ```
 
 Run (output trimmed):
 
 ```sh
-$ javac -cp fdb-sql-parser-1.0.16.jar:. ParserHello "SELECT a FROM b"
+$ javac -cp fdb-sql-parser-1.0.17.jar:. ParserHello "SELECT a FROM b"
 com.foundationdb.sql.parser.CursorNode@5889dee2
 statementType: SELECT
 resultSet:
