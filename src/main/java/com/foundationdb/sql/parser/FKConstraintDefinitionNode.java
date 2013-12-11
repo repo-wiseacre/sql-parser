@@ -115,6 +115,13 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
         return refRcl;
     }
 
+    public int getRefActionDeleteRule() {
+        return refActionDeleteRule;
+    }
+    public int getRefActionUpdateRule() {
+        return refActionUpdateRule;
+    }
+
     public boolean isGrouping() {
         return grouping;
     }
