@@ -99,8 +99,8 @@ public class SQLParser implements SQLParserContext {
 
     /** Normal external parser entry. */
     public StatementNode parseStatement(String sqlText) throws StandardException {
-        reinit(sqlText);
         try {
+            reinit(sqlText);
             return parser.parseStatement(sqlText, parameterList);
         }
         catch (ParseException ex) {
@@ -124,8 +124,8 @@ public class SQLParser implements SQLParserContext {
 
     /** Parse multiple statements delimited by semicolons. */
     public List<StatementNode> parseStatements(String sqlText) throws StandardException {
-        reinit(sqlText);
         try {
+            reinit(sqlText);
             return parser.parseStatements(sqlText);
         }
         catch (ParseException ex) {
