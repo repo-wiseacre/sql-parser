@@ -708,30 +708,14 @@ class SQLGrammar
 
         int tokKind = getToken(i).kind;
 
-        // check for integer literal or ? followed by ROW(S)
+        // check for integer literal or ?
         if (tokKind == PLUS_SIGN ||
             tokKind == MINUS_SIGN) {
 
             tokKind = getToken(++i).kind;
-
-            if (tokKind == EXACT_NUMERIC) {
-
-                tokKind = getToken(++i).kind;
-
-                return (tokKind == ROW ||
-                                tokKind == ROWS);
-            }
-        } 
-        else if (tokKind == EXACT_NUMERIC ||
-                 tokKind == QUESTION_MARK) {
-
-            tokKind = getToken(++i).kind;
-
-            return (tokKind == ROW ||
-                            tokKind == ROWS);
         }
-
-        return false;
+        return (tokKind == EXACT_NUMERIC ||
+                tokKind == QUESTION_MARK);
     }
 
     /**
@@ -8134,7 +8118,7 @@ offsetClause() throws StandardException :
     | 
         result = dynamicParameterSpecification()
     )
-    ( <ROW> | <ROWS> )
+    [ <ROW> | <ROWS> ]
     {
         return result;
     }
