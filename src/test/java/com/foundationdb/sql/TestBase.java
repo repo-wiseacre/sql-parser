@@ -75,6 +75,12 @@ public class TestBase
                 if (nc < 0) break;
                 str.append(buf, 0, nc);
             }
+            int cridx = 0;
+            while (true) {
+                cridx = str.indexOf("\r", cridx);
+                if (cridx < 0) break;
+                str.deleteCharAt(cridx);
+            }
             return str.toString();
         }
         finally {
@@ -179,7 +185,7 @@ public class TestBase
         String result = null;
         Exception errorResult = null;
         try {
-            result = handler.generateResult();
+            result = handler.generateResult().replace("\r", "");
         }
         catch (Exception ex) {
             errorResult = ex;
@@ -188,7 +194,7 @@ public class TestBase
             if (errorResult == null)
                 fail(caseName + ": error expected but none thrown");
             else
-                assertEquals(caseName, error, errorResult.toString());
+                assertEquals(caseName, error, errorResult.toString().replace("\r", ""));
         }
         else if (errorResult != null) {
             throw errorResult;
