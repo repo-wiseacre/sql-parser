@@ -2593,6 +2593,7 @@ TOKEN [IGNORE_CASE] :
 | <SHARE: "share">
 | <SHOW: "show">
 | <SHUTDOWN: "shutdown">
+| <SIMPLE: "simple">
 | <SPECIFIC: "specific">
 | <SQLID: "sqlid">
 | <SQRT: "sqrt">
@@ -13005,6 +13006,7 @@ referentialConstraintDefinition(TableName constraintName) throws StandardExcepti
     TableName referencedTable;
     int[] refActions = { StatementType.RA_NOACTION,
                          StatementType.RA_NOACTION }; //default values
+    FKConstraintDefinitionNode.MatchType[] matchType = { FKConstraintDefinitionNode.MatchType.SIMPLE };
     Token grouping = null;
 }
 {
@@ -13012,28 +13014,29 @@ referentialConstraintDefinition(TableName constraintName) throws StandardExcepti
     [ LOOKAHEAD ( { groupConstructFollows(GROUPING) } )
       grouping = <GROUPING> ]
     <FOREIGN> <KEY> <LEFT_PAREN> columnNameList(fkRcl) <RIGHT_PAREN>
-    referencedTable = referencesSpecification(refRcl, refActions)
+    referencedTable = referencesSpecification(refRcl, refActions, matchType)
     {
         return (ConstraintDefinitionNode)nodeFactory.getNode(NodeTypes.FK_CONSTRAINT_DEFINITION_NODE,
                                                              constraintName,
                                                              referencedTable,
                                                              fkRcl,
                                                              refRcl,
-                                                             refActions,
+                                                             refActions[0], refActions[1],
+                                                             matchType[0],
                                                              (grouping == null) ? Boolean.FALSE : Boolean.TRUE,
                                                              parserContext);
     }
 }
 
 TableName
-referencesSpecification(ResultColumnList rcl, int[] refActions) 
+referencesSpecification(ResultColumnList rcl, int[] refActions, FKConstraintDefinitionNode.MatchType[] matchType)
         throws StandardException :
 {
     TableName tableName = null;
 }
 {
     <REFERENCES> tableName = referencedTableAndColumns(rcl)
-        // not supporting MATCH or referential actions beyond syntax for default
+        [ <MATCH> matchType[0] = matchType() ]
         [ <ON> referentialTriggeredAction(refActions) ]
     {
         return tableName;
@@ -13120,6 +13123,26 @@ referentialAction() :
     )
 }
 
+FKConstraintDefinitionNode.MatchType
+matchType() :
+{}
+{
+    <SIMPLE>
+    {
+        return FKConstraintDefinitionNode.MatchType.SIMPLE;
+    }
+| 
+    <FULL>
+    {
+        return FKConstraintDefinitionNode.MatchType.FULL;
+    }
+| 
+    <PARTIAL>
+    {
+        return FKConstraintDefinitionNode.MatchType.PARTIAL;
+    }
+}
+
 void
 columnConstraintDefinition(DataTypeDescriptor[] dataTypeDescriptor,
                            TableElementList tableElementList,
@@ -13162,6 +13185,7 @@ columnConstraint(TableName constraintName,
     TableName referencedTable;
     int[] refActions = {StatementType.RA_NOACTION,
                         StatementType.RA_NOACTION} ; //default: NO ACTION
+    FKConstraintDefinitionNode.MatchType[] matchType = { FKConstraintDefinitionNode.MatchType.SIMPLE };
     Token grouping = null;
 }
 {
@@ -13201,7 +13225,7 @@ columnConstraint(TableName constraintName,
 |    
     [ LOOKAHEAD ( { groupConstructFollows(GROUPING) } )
       grouping = <GROUPING> ]
-    referencedTable = referencesSpecification(refRcl, refActions)
+    referencedTable = referencesSpecification(refRcl, refActions, matchType)
     [ properties = propertyList(false)<CHECK_PROPERTIES>] 
     {
         ResultColumnList fkRcl = (ResultColumnList)
@@ -13216,7 +13240,8 @@ columnConstraint(TableName constraintName,
                                                              referencedTable,
                                                              fkRcl,
                                                              refRcl,
-                                                             refActions,
+                                                             refActions[0], refActions[1],
+                                                             matchType[0],
                                                              (grouping == null) ? Boolean.FALSE : Boolean.TRUE,
                                                              parserContext);
         if (properties != null) {
@@ -13294,7 +13319,8 @@ alterGroup() throws StandardException :
                                  parentTable,
                                  childColumns,
                                  parentColumns,
-                                 new int[] {StatementType.RA_NOACTION,StatementType.RA_NOACTION},
+                                 StatementType.RA_NOACTION, StatementType.RA_NOACTION,
+                                 FKConstraintDefinitionNode.MatchType.SIMPLE,
                                  Boolean.TRUE,
                                  parserContext));
 
@@ -15316,6 +15342,7 @@ nonReservedKeyword() :
 | tok = <SHARE>
 | tok = <SHOW>
 | tok = <SHUTDOWN>
+| tok = <SIMPLE>
 | tok = <SPACE> // SQL92 reserved, SQL2003 non-reserved
 | tok = <SPECIFIC>
 | tok = <SQLID>

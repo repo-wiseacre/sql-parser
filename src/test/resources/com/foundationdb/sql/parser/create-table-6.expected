@@ -90,6 +90,7 @@ tableElementList:
 	[9]:	
 	com.foundationdb.sql.parser.FKConstraintDefinitionNode@2d5253d5
 	refTable name : t3
+	matchType: SIMPLE
 	grouping: false
 	constraintName: null
 	constraintType: FOREIGN_KEY
@@ -109,6 +110,7 @@ tableElementList:
 	[10]:	
 	com.foundationdb.sql.parser.FKConstraintDefinitionNode@2a9df354
 	refTable name : t2
+	matchType: SIMPLE
 	grouping: true
 	constraintName: null
 	constraintType: FOREIGN_KEY
@@ -128,6 +130,7 @@ tableElementList:
 	[11]:	
 	com.foundationdb.sql.parser.FKConstraintDefinitionNode@509f5011
 	refTable name : other.t5
+	matchType: SIMPLE
 	grouping: false
 	constraintName: fk_c5
 	constraintType: FOREIGN_KEY
@@ -147,6 +150,7 @@ tableElementList:
 	[12]:	
 	com.foundationdb.sql.parser.FKConstraintDefinitionNode@39e87719
 	refTable name : t6
+	matchType: SIMPLE
 	grouping: true
 	constraintName: fk_c6
 	constraintType: FOREIGN_KEY

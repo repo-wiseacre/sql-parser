@@ -17,6 +17,7 @@ tableElementList:
 	[0]:	
 	com.foundationdb.sql.parser.FKConstraintDefinitionNode@223e0d14
 	refTable name : null
+	matchType: null
 	grouping: true
 	constraintName: null
 	constraintType: DROP
