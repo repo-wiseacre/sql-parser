@@ -48,10 +48,15 @@ import com.foundationdb.sql.StandardException;
 
 public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
 {
+    public static enum MatchType {
+        SIMPLE, FULL, PARTIAL
+    }
+
     TableName refTableName;
     ResultColumnList refRcl;
     int refActionDeleteRule;    // referential action on delete
     int refActionUpdateRule;    // referential action on update
+    MatchType matchType;
     boolean grouping;
 
     // For ADD
@@ -59,7 +64,9 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
                      Object refTableName, 
                      Object fkRcl,
                      Object refRcl,
-                     Object refActions,
+                     Object refActionDelete,
+                     Object refActionUpdate,
+                     Object matchType,
                      Object grouping) {
         super.init(constraintName,
                    ConstraintType.FOREIGN_KEY,
@@ -70,9 +77,10 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
         this.refRcl = (ResultColumnList)refRcl;
         this.refTableName = (TableName)refTableName;
 
-        this.refActionDeleteRule = ((int[])refActions)[0];
-        this.refActionUpdateRule = ((int[])refActions)[1];
+        this.refActionDeleteRule = ((Integer)refActionDelete).intValue();
+        this.refActionUpdateRule = ((Integer)refActionUpdate).intValue();
 
+        this.matchType = (MatchType)matchType;
         this.grouping = ((Boolean)grouping).booleanValue();
     }
 
@@ -105,6 +113,9 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
                                                                   getParserContext());
         this.refActionDeleteRule = other.refActionDeleteRule;
         this.refActionUpdateRule = other.refActionUpdateRule;
+
+        this.matchType = other.matchType;
+        this.grouping = other.grouping;
     }
 
     public TableName getRefTableName() { 
@@ -122,12 +133,17 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
         return refActionUpdateRule;
     }
 
+    public MatchType getMatchType() {
+        return matchType;
+    }
+
     public boolean isGrouping() {
         return grouping;
     }
     
     public String toString() {
         return "refTable name : " + refTableName + "\n" +
+            "matchType: " + matchType + "\n" +
             "grouping: " + grouping + "\n" + 
             super.toString();
     }

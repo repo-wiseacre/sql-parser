@@ -17,6 +17,7 @@ tableElementList:
 	[0]:	
 	com.foundationdb.sql.parser.FKConstraintDefinitionNode@33ecb094
 	refTable name : t2
+	matchType: SIMPLE
 	grouping: true
 	constraintName: null
 	constraintType: FOREIGN_KEY
