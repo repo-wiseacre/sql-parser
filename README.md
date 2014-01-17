@@ -40,7 +40,7 @@ project can use it directly by adding the appropriate entries to the
   <dependency>
     <groupId>com.foundationdb</groupId>
     <artifactId>fdb-sql-parser</artifactId>
-    <version>1.0.17</version>
+    <version>1.1.0</version>
   </dependency>
 </dependencies>
 ```
@@ -88,13 +88,13 @@ parser in the `classpath`.
 Compile:
 
 ```sh
-$ javac -cp fdb-sql-parser-1.0.17.jar ParserHello.java
+$ javac -cp fdb-sql-parser-1.1.0.jar ParserHello.java
 ```
 
 Run (output trimmed):
 
 ```sh
-$ javac -cp fdb-sql-parser-1.0.17.jar:. ParserHello "SELECT a FROM b"
+$ javac -cp fdb-sql-parser-1.1.0.jar:. ParserHello "SELECT a FROM b"
 com.foundationdb.sql.parser.CursorNode@5889dee2
 statementType: SELECT
 resultSet:
@@ -132,7 +132,7 @@ Thanks! Please make sure any changes come with new tests.
 ## License
 
 Apache License, Version 2.0
-Copyright (c) 2012-13 FoundationDB, LLC  
+Copyright (c) 2012-2014 FoundationDB, LLC
 It is free software and may be redistributed under the terms specified
 in the LICENSE.xt and NOTICE files.
 
