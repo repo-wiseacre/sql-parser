@@ -7567,6 +7567,7 @@ userNode() throws StandardException :
 {
     <USER>
     {
+        checkOptionalParens();
         return (ValueNode)nodeFactory.getNode(NodeTypes.USER_NODE,
                                               parserContext);
     }
