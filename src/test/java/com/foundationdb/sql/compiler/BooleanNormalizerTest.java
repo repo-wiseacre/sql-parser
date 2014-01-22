@@ -43,7 +43,7 @@ public class BooleanNormalizerTest extends ASTTransformTestBase implements TestB
         booleanNormalizer = new BooleanNormalizer(parser);
     }
 
-    @Parameters
+    @Parameters(name="{0}")
     public static Collection<Object[]> statements() throws Exception {
         return sqlAndExpected(RESOURCE_DIR);
     }

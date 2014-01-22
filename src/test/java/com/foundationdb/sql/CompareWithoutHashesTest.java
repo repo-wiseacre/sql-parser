@@ -44,7 +44,6 @@ public class CompareWithoutHashesTest {
      */
     @Test
     public void testMatch_String_String() {
-        System.out.println("match");
         String s1 = "ABC@123";
         String s2 = "XYZ@456";
         CompareWithoutHashes instance = new CompareWithoutHashes();
@@ -58,7 +57,6 @@ public class CompareWithoutHashesTest {
      */
     @Test
     public void testConverter() {
-        System.out.println("converter");
         String s1 = "ABC@123 XYZ@789";
         String s2 = "XYZ@456";
         CompareWithoutHashes instance = new CompareWithoutHashes();

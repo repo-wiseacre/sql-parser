@@ -47,7 +47,7 @@ public class ParseMultipleTest extends TestBase implements TestBase.GenerateAndC
         unparser = new NodeToString();
     }
 
-    @Parameters
+    @Parameters(name="{0}")
     public static Collection<Object[]> statements() throws Exception {
         return sqlAndExpected(RESOURCE_DIR);
     }
