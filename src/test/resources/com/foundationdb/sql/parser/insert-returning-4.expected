@@ -75,6 +75,8 @@ resultSet:
 				allAscending: true
 				[0]:				
 				com.foundationdb.sql.parser.OrderByColumn@7977b9b
+				ascending: true
+				nullsOrderedLow: false
 				columnPosition: -1
 				expression: 					
 					com.foundationdb.sql.parser.ColumnReference@6a340101

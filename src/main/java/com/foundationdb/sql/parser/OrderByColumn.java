@@ -84,7 +84,9 @@ public class OrderByColumn extends OrderedColumn
      * @return This object as a String
      */
     public String toString() {
-        return super.toString();
+        return "ascending: " + ascending + "\n" +
+            "nullsOrderedLow: " + nullsOrderedLow + "\n" +
+            super.toString();
     }
 
     /**
