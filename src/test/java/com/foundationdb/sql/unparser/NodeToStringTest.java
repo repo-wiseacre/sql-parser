@@ -50,7 +50,7 @@ public class NodeToStringTest extends TestBase implements TestBase.GenerateAndCh
         parser.getFeatures().addAll(EnumSet.of(SQLParserFeature.INFIX_BIT_OPERATORS));
     }
 
-    @Parameters
+    @Parameters(name="{0}")
     public static Collection<Object[]> statements() throws Exception {
         return sqlAndExpected(RESOURCE_DIR);
     }

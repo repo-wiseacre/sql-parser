@@ -84,7 +84,7 @@ public class SQLParserTest extends TestBase implements TestBase.GenerateAndCheck
         return str.toString().trim();
     }
 
-    @Parameters
+    @Parameters(name="{0}")
     public static Collection<Object[]> queries() throws Exception {
         Collection<Object[]> result = new ArrayList<Object[]>();
         for (Object[] args : sqlAndExpected(RESOURCE_DIR)) {
