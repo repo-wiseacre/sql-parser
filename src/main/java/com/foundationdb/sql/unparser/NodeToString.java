@@ -1013,6 +1013,7 @@ public class NodeToString
             str.append(", ");
             str.append(toString(node.getRightOperand()));
         }
+        str.append(")");
         return str.toString();
     }
 
