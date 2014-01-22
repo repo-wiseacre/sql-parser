@@ -46,17 +46,24 @@ import com.foundationdb.sql.types.TypeId;
 /**
  * A CreateSequenceNode is the root of a QueryTree that
  * represents a CREATE SEQUENCE statement.
+ *
+ * <p>
+ * Note that this node represents *only* what was in the statement and
+ * all unspecified properties will be null. A standard conforming
+ * implementation would use {@code minValue}, {@code 1} and {@code false}
+ * for missing {@code startValue}, {@code incrementBy} and {@code isCycle},
+ * respectively.
+ * </p>
  */
-
 public class CreateSequenceNode extends DDLStatementNode
 {
     private TableName sequenceName;
     private DataTypeDescriptor dataType;
-    private long initialValue;
-    private long stepValue;
-    private long maxValue;
-    private long minValue;
-    private boolean cycle;
+    private Long startWith;
+    private Long incrementBy;
+    private Long maxValue;
+    private Long minValue;
+    private Boolean isCycle;
     private StorageFormatNode storageFormat;
 
     /**
@@ -64,62 +71,32 @@ public class CreateSequenceNode extends DDLStatementNode
      *
      * @param sequenceName The name of the new sequence
      * @param dataType Exact numeric type of the new sequence
-     * @param initialValue Starting value
-     * @param stepValue Increment amount
+     * @param startWith Starting value
+     * @param incrementBy Increment amount
      * @param maxValue Largest value returned by the sequence generator
      * @param minValue Smallest value returned by the sequence generator
-     * @param cycle True if the generator should wrap around, false otherwise
+     * @param isCycle True if the generator should wrap around, false otherwise
      *
      * @throws StandardException on error
      */
     public void init (Object sequenceName,
                       Object dataType,
-                      Object initialValue,
-                      Object stepValue,
+                      Object startWith,
+                      Object incrementBy,
                       Object maxValue,
                       Object minValue,
-                      Object cycle,
+                      Object isCycle,
                       Object storageFormat) 
             throws StandardException {
 
         this.sequenceName = (TableName)sequenceName;
         initAndCheck(this.sequenceName);
-
-        if (dataType != null) {
-            this.dataType = (DataTypeDescriptor)dataType;
-        } 
-        else {
-            this.dataType = DataTypeDescriptor.INTEGER;
-        }
-
-        this.stepValue = stepValue != null ? ((Long)stepValue).longValue() : 1;
-
-        if (this.dataType.getTypeId().equals(TypeId.SMALLINT_ID)) {
-            this.minValue = minValue != null ? ((Long)minValue).longValue() : Short.MIN_VALUE;
-            this.maxValue = maxValue != null ? ((Long)maxValue).longValue() : Short.MAX_VALUE;
-        } 
-        else if (this.dataType.getTypeId().equals(TypeId.INTEGER_ID)) {
-            this.minValue = minValue != null ? ((Long)minValue).longValue() : Integer.MIN_VALUE;
-            this.maxValue = maxValue != null ? ((Long)maxValue).longValue() : Integer.MAX_VALUE;
-        }
-        else {
-            this.minValue = minValue != null ? ((Long)minValue).longValue() : Long.MIN_VALUE;
-            this.maxValue = maxValue != null ? ((Long)maxValue).longValue() : Long.MAX_VALUE;
-        }
-
-        if (initialValue != null) {
-            this.initialValue = ((Long)initialValue).longValue();
-        } 
-        else {
-            if (this.stepValue > 0) {
-                this.initialValue = this.minValue;
-            } 
-            else {
-                this.initialValue = this.maxValue;
-            }
-        }
-        this.cycle = cycle != null ? ((Boolean)cycle).booleanValue() : Boolean.FALSE;
-
+        this.dataType = (DataTypeDescriptor)dataType;
+        this.startWith = (Long)startWith;
+        this.incrementBy = (Long)incrementBy;
+        this.maxValue = (Long)maxValue;
+        this.minValue = (Long)minValue;
+        this.isCycle = (Boolean)isCycle;
         this.storageFormat = (StorageFormatNode)storageFormat;
     }
 
@@ -133,11 +110,11 @@ public class CreateSequenceNode extends DDLStatementNode
         this.sequenceName = (TableName)getNodeFactory().copyNode(other.sequenceName,
                                                                  getParserContext());
         this.dataType = other.dataType;
-        this.initialValue = other.initialValue;
-        this.stepValue = other.stepValue;
+        this.startWith = other.startWith;
+        this.incrementBy = other.incrementBy;
         this.maxValue = other.maxValue;
         this.minValue = other.minValue;
-        this.cycle = other.cycle;
+        this.isCycle = other.isCycle;
         this.storageFormat = (StorageFormatNode)getNodeFactory().copyNode(other.storageFormat,
                                                                           getParserContext());
     }
@@ -148,15 +125,15 @@ public class CreateSequenceNode extends DDLStatementNode
      *
      * @return This object as a String
      */
-
     public String toString() {
         return super.toString() +
             "sequenceName: " + sequenceName + "\n" +
-            "initial value: " + initialValue + "\n" +
-            "step value: " + stepValue + "\n" +
+            "dataType: " + dataType + "\n" +
+            "startWith: " + startWith + "\n" +
+            "incrementBy: " + incrementBy + "\n" +
             "maxValue: " + maxValue + "\n" +
-            "minValue:" + minValue + "\n" +
-            "cycle: " + cycle + "\n";
+            "minValue: " + minValue + "\n" +
+            "isCycle: " + isCycle + "\n";
     }
 
     public void printSubNodes(int depth) {
@@ -180,29 +157,35 @@ public class CreateSequenceNode extends DDLStatementNode
         return "CREATE SEQUENCE";
     }
 
-    public final long getInitialValue() {
-        return initialValue;
+    public final TableName getSequenceName() {
+        return sequenceName;
     }
 
-    public final long getStepValue() {
-        return stepValue;
+    public final DataTypeDescriptor getDataType() {
+        return dataType;
     }
 
-    public final long getMaxValue() {
+    public final Long getStartWith() {
+        return startWith;
+    }
+
+    public final Long getMaxValue() {
         return maxValue;
     }
 
-    public final long getMinValue() {
+    public final Long getMinValue() {
         return minValue;
     }
 
-    public final boolean isCycle() {
-        return cycle;
-    }
-    
-    public StorageFormatNode getStorageFormat()
-    {
-        return storageFormat;
+    public final Long getIncrementBy() {
+        return incrementBy;
     }
 
+    public final Boolean isCycle() {
+        return isCycle;
+    }
+
+    public StorageFormatNode getStorageFormat() {
+        return storageFormat;
+    }
 }
