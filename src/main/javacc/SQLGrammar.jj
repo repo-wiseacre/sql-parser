@@ -8357,14 +8357,33 @@ insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
                                                   returningList,
                                                   parserContext);
     }
-    /* RESOLVE: Ignoring default values for now
 |
-    [ targetProperties = propertyList(false) <CHECK_PROPERTIES>]
+    // Equivalent to VALUES (DEFAULT)
     <_DEFAULT> <VALUES>
+    [ <RETURNING> returningList = selectList() ]
     {
-        return null;
+        ResultColumnList defList = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST, parserContext);
+        defList.addResultColumn((ResultColumn)nodeFactory.getNode(NodeTypes.RESULT_COLUMN,
+                                                                  null,
+                                                                  nodeFactory.getNode(NodeTypes.DEFAULT_NODE,
+                                                                                      null,
+                                                                                      parserContext),
+                                                                  parserContext));
+        queryExpression = (RowResultSetNode)nodeFactory.getNode(NodeTypes.ROW_RESULT_SET_NODE,
+                                                                defList,
+                                                                null,
+                                                                parserContext);
+        return (StatementNode)nodeFactory.getNode(NodeTypes.INSERT_NODE,
+                                                  targetTable,
+                                                  columnList,
+                                                  queryExpression,
+                                                  targetProperties,
+                                                  orderCols,
+                                                  offsetAndFetchFirst[0],
+                                                  offsetAndFetchFirst[1],
+                                                  returningList,
+                                                  parserContext);
     }
-    */
 }
 
 ResultColumnList
