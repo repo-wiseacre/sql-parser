@@ -8316,6 +8316,7 @@ insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
     ResultColumnList returningList = null;
 }
 {
+(
     [
         // This LOOKAHEAD is required because a query expression can
         // be a SELECT or VALUES nested arbitrarily deep in parentheses
@@ -8329,7 +8330,24 @@ insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
     queryExpression = queryExpression(null, NO_SET_OP)
     [ orderCols = orderByClause() ]
     ( offsetOrFetchFirstClause(offsetAndFetchFirst) )*
-    [ <RETURNING> returningList = selectList() ] 
+|
+    // Equivalent to VALUES (DEFAULT)
+    <_DEFAULT> <VALUES>
+    {
+        ResultColumnList defList = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST, parserContext);
+        defList.addResultColumn((ResultColumn)nodeFactory.getNode(NodeTypes.RESULT_COLUMN,
+                                                                  null,
+                                                                  nodeFactory.getNode(NodeTypes.DEFAULT_NODE,
+                                                                                      null,
+                                                                                      parserContext),
+                                                                  parserContext));
+        queryExpression = (RowResultSetNode)nodeFactory.getNode(NodeTypes.ROW_RESULT_SET_NODE,
+                                                                defList,
+                                                                null,
+                                                                parserContext);
+    }
+)
+    [ <RETURNING> returningList = selectList() ]
     {
         if (orderCols != null && isTableValueConstructor(queryExpression)) {
             // Not allowed by the standard since this is a <contextually typed
@@ -8346,33 +8364,6 @@ insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
                                          ((offsetAndFetchFirst[0] != null) ? "OFFSET" : "FETCH"));
         }
 
-        return (StatementNode)nodeFactory.getNode(NodeTypes.INSERT_NODE,
-                                                  targetTable,
-                                                  columnList,
-                                                  queryExpression,
-                                                  targetProperties,
-                                                  orderCols,
-                                                  offsetAndFetchFirst[0],
-                                                  offsetAndFetchFirst[1],
-                                                  returningList,
-                                                  parserContext);
-    }
-|
-    // Equivalent to VALUES (DEFAULT)
-    <_DEFAULT> <VALUES>
-    [ <RETURNING> returningList = selectList() ]
-    {
-        ResultColumnList defList = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST, parserContext);
-        defList.addResultColumn((ResultColumn)nodeFactory.getNode(NodeTypes.RESULT_COLUMN,
-                                                                  null,
-                                                                  nodeFactory.getNode(NodeTypes.DEFAULT_NODE,
-                                                                                      null,
-                                                                                      parserContext),
-                                                                  parserContext));
-        queryExpression = (RowResultSetNode)nodeFactory.getNode(NodeTypes.ROW_RESULT_SET_NODE,
-                                                                defList,
-                                                                null,
-                                                                parserContext);
         return (StatementNode)nodeFactory.getNode(NodeTypes.INSERT_NODE,
                                                   targetTable,
                                                   columnList,
