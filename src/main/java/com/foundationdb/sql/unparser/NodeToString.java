@@ -18,6 +18,7 @@ package com.foundationdb.sql.unparser;
 
 import com.foundationdb.sql.parser.*;
 
+import java.util.Locale;
 import java.util.Map;
 
 import com.foundationdb.sql.StandardException;
@@ -1146,7 +1147,7 @@ public class NodeToString
         else if (value instanceof byte[])
             return hexConstant((byte[])value);
         else if (value instanceof Double)
-            return String.format("%e", value);
+            return String.format(Locale.ENGLISH, "%e", (Double)value);
         else if (value instanceof Boolean)
             return value.toString().toUpperCase();
         else
