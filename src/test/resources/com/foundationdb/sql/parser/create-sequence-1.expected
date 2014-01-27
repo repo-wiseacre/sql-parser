@@ -2,8 +2,9 @@ com.foundationdb.sql.parser.CreateSequenceNode@244aeb52
 name: newsequence
 statementType: CREATE SEQUENCE
 sequenceName: newsequence
-initial value: 1
-step value: 2
+dataType: INTEGER
+startWith: 1
+incrementBy: 2
 maxValue: 1000
-minValue:1
-cycle: true
+minValue: 1
+isCycle: true

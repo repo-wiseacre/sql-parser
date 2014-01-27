@@ -10196,7 +10196,7 @@ sequenceDefinition() throws StandardException :
     Long stepValue = null;
     Long maxValue = null;
     Long minValue = null;
-    Boolean cycle = Boolean.FALSE;
+    Boolean cycle = null;
     Object[] optionalClauses = new Object[SEQUENCE_NCLAUSES];
     StorageFormatNode storage = null;
 }
