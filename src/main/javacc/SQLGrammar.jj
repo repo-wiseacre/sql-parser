@@ -189,6 +189,10 @@ class SQLGrammar
     /* The statement being parsed. */
     private String statementSQLText;
 
+    /* Are parameter markers allowed? */
+
+    private boolean parametersAllowed;
+
     /* The number of the next ? parameter */
     private int parameterNumber;
 
@@ -1266,6 +1270,10 @@ class SQLGrammar
      * @exception StandardException
      */
     private ParameterNode makeParameterNode(int number) throws StandardException {
+        if (!parametersAllowed)
+            throw new StandardException("Parameters are not allowed");
+        if (number < 0)
+            throw new StandardException("Parameter indexes are positive");
         ParameterNode parm = (ParameterNode)
             nodeFactory.getNode(NodeTypes.PARAMETER_NODE,
                                 number,
@@ -1868,8 +1876,9 @@ class SQLGrammar
                                  List<ParameterNode> parameterList)
             throws ParseException, StandardException {
         this.statementSQLText = statementSQLText;
-        this.parameterList = parameterList;
+        this.parametersAllowed = true;
         this.parameterNumber = 0;
+        this.parameterList = parameterList;
         return Statement();
     }
 
@@ -1877,6 +1886,7 @@ class SQLGrammar
             throws ParseException, StandardException {
         List<StatementNode> result = new ArrayList<StatementNode>();
         this.statementSQLText = statementSQLText;
+        this.parametersAllowed = false;
         StatementList(result);
         return result;
     }
@@ -14651,10 +14661,8 @@ cursorStatement() throws StandardException :
     }
 |
     <PREPARE> name = identifier()
-    <AS> stmt = proceduralStatement(tokenHolder)
+    <AS> stmt = preparableStatement(tokenHolder)
     {
-        stmt.setBeginOffset(tokenHolder[0].beginOffset);
-        stmt.setEndOffset(getToken(0).endOffset);
         return (StatementNode)nodeFactory.getNode(NodeTypes.PREPARE_STATEMENT_NODE,
                                                   name, stmt,
                                                   parserContext);
@@ -14666,6 +14674,23 @@ cursorStatement() throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.DEALLOCATE_STATEMENT_NODE,
                                                   name,
                                                   parserContext);
+    }
+}
+
+StatementNode
+preparableStatement(Token[] tokenHolder) throws StandardException :
+{
+    StatementNode stmt;
+    boolean wereParametersAllowed = parametersAllowed;
+    parametersAllowed = true;
+}
+{
+    stmt = proceduralStatement(tokenHolder)
+    {
+        stmt.setBeginOffset(tokenHolder[0].beginOffset);
+        stmt.setEndOffset(getToken(0).endOffset);
+        parametersAllowed = wereParametersAllowed;
+        return stmt;
     }
 }
 
@@ -14714,12 +14739,15 @@ explainStatement() throws StandardException :
     StatementNode stmt;
     Token[] tokenHolder = new Token[1];
     ExplainStatementNode.Detail detail = ExplainStatementNode.Detail.NORMAL;
+    boolean wereParametersAllowed = parametersAllowed;
 }
 {
     <EXPLAIN> 
+    { parametersAllowed = true; }
     [ detail = explainDetail() ]
     stmt = declarableStatement(tokenHolder)
     {
+        parametersAllowed = wereParametersAllowed;
         return (StatementNode)nodeFactory.getNode(NodeTypes.EXPLAIN_STATEMENT_NODE,
                                                   stmt, detail,
                                                   parserContext);
