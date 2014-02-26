@@ -2680,12 +2680,17 @@ TOKEN :
 
 TOKEN :
 { /* Identifiers */
- <IDENTIFIER: ( <LETTER> ) (<LETTER> | "_" | <DIGIT>)* >
+ <IDENTIFIER: ( <LETTER> ) (<LETTER> | "_" | <DIGIT> | <DOLLAR> )* >
 }
 
 TOKEN :
 { /* Postgres-style parameters */
  <DOLLAR_N: ( "$" (<DIGIT>)+ ) >
+}
+
+TOKEN : 
+{
+    <DOLLAR: ("$") >
 }
 
 // TODO: These are not used. Are they necessary to bare use work?
