@@ -3314,6 +3314,8 @@ spsSetStatement() throws StandardException :
     |
         statementNode = setTransactionStatement()
     |
+        statementNode = setConstraintsStatement()
+    |
         statementNode = setConfigurationStatement()
     )
     {
@@ -4919,16 +4921,22 @@ intervalNonSecond() throws StandardException :
 
 
 
-void
-qualifiedNameList(List<TableName> list) throws StandardException :
-{}
+TableNameList
+qualifiedNameList() throws StandardException :
+{
+    TableNameList list = (TableNameList)
+        nodeFactory.getNode(NodeTypes.TABLE_NAME_LIST, parserContext);
+}
 {
     qualifiedNameElement(list) 
     ( <COMMA> qualifiedNameElement(list) )*
+    {
+        return list;
+    }
 }
 
 void 
-qualifiedNameElement(List<TableName> list) throws StandardException :
+qualifiedNameElement(TableNameList list) throws StandardException :
 {
     TableName qualifiedName = null;
 }
@@ -12637,6 +12645,35 @@ transactionAccessMode() throws StandardException :
         return AccessMode.READ_WRITE_ACCESS_MODE;
     }
 )
+}
+
+StatementNode
+setConstraintsStatement() throws StandardException :
+{
+    boolean all = false;
+    TableNameList constraints = null;
+    boolean deferred;
+}
+{
+    <CONSTRAINTS>
+(
+    <ALL>
+    {
+        all = true;
+    }
+|
+    constraints = qualifiedNameList()
+)
+(
+    <DEFERRED> { deferred = true; }
+|
+    <IMMEDIATE> { deferred = false; }
+)
+    {
+        return (StatementNode)nodeFactory.getNode(NodeTypes.SET_CONSTRAINTS_NODE,
+                                                  all, constraints, deferred,
+                                                  parserContext);
+    }
 }
 
 StatementNode

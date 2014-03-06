@@ -187,6 +187,9 @@ public final class NodeFactoryImpl extends NodeFactory
         case NodeTypes.TABLE_NAME:
             return NodeNames.TABLE_NAME_NAME;
 
+        case NodeTypes.TABLE_NAME_LIST:
+            return NodeNames.TABLE_NAME_LIST_NAME;
+
         case NodeTypes.GROUP_BY_COLUMN:
             return NodeNames.GROUP_BY_COLUMN_NAME;
 
@@ -667,6 +670,9 @@ public final class NodeFactoryImpl extends NodeFactory
 
         case NodeTypes.STORAGE_FORMAT_NODE:
             return NodeNames.STORAGE_FORMAT_NODE_NAME;
+
+        case NodeTypes.SET_CONSTRAINTS_NODE:
+            return NodeNames.SET_CONSTRAINTS_NODE_NAME;
 
         default:
             throw new StandardException("Not implemented");

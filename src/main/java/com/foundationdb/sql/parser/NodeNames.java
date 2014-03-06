@@ -319,6 +319,8 @@ public interface NodeNames
 
     static final String SET_CONFIGURATION_NODE_NAME = "com.foundationdb.sql.parser.SetConfigurationNode";
 
+    static final String SET_CONSTRAINTS_NODE_NAME = "com.foundationdb.sql.parser.SetConstraintsNode";
+
     static final String SET_ROLE_NODE_NAME = "com.foundationdb.sql.parser.SetRoleNode";
 
     static final String SET_SCHEMA_NODE_NAME = "com.foundationdb.sql.parser.SetSchemaNode";
@@ -354,6 +356,8 @@ public interface NodeNames
     static final String TABLE_ELEMENT_NODE_NAME = "com.foundationdb.sql.parser.TableElementNode";
 
     static final String TABLE_NAME_NAME = "com.foundationdb.sql.parser.TableName";
+
+    static final String TABLE_NAME_LIST_NAME = "com.foundationdb.sql.parser.TableNameList";
 
     static final String TABLE_PRIVILEGES_NAME = "com.foundationdb.sql.parser.TablePrivilegesNode";
 

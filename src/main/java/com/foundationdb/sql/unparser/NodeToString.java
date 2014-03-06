@@ -48,12 +48,16 @@ public class NodeToString
             return setTransactionIsolationNode((SetTransactionIsolationNode)node);
         case NodeTypes.SET_TRANSACTION_ACCESS_NODE:
             return setTransactionAccessNode((SetTransactionAccessNode)node);
+        case NodeTypes.SET_CONSTRAINTS_NODE:
+            return setConstraintsNode((SetConstraintsNode)node);
         case NodeTypes.SET_CONFIGURATION_NODE:
             return setConfigurationNode((SetConfigurationNode)node);
         case NodeTypes.SHOW_CONFIGURATION_NODE:
             return showConfigurationNode((ShowConfigurationNode)node);
         case NodeTypes.TABLE_ELEMENT_LIST:
             return tableElementList((TableElementList)node);
+        case NodeTypes.TABLE_NAME_LIST:
+            return tableNameList((TableNameList)node);
         case NodeTypes.COLUMN_DEFINITION_NODE:
             return columnDefinitionNode((ColumnDefinitionNode)node);
         case NodeTypes.CONSTRAINT_DEFINITION_NODE:
@@ -369,6 +373,10 @@ public class NodeToString
     }
 
     protected String tableElementList(TableElementList node) throws StandardException {
+        return nodeList(node);
+    }
+
+    protected String tableNameList(TableNameList node) throws StandardException {
         return nodeList(node);
     }
 
@@ -1330,6 +1338,26 @@ public class NodeToString
     protected String setTransactionAccessNode(SetTransactionAccessNode node)
             throws StandardException {
         return node.statementToString() + " " + node.getAccessMode().getSyntax();
+    }
+
+    protected String setConstraintsNode(SetConstraintsNode node)
+            throws StandardException {
+        StringBuilder str = new StringBuilder(node.statementToString());
+        str.append(" ");
+        if (node.isAll()) {
+            str.append("ALL");
+        }
+        else {
+            str.append(toString(node.getConstraints()));
+        }
+        str.append(" ");
+        if (node.isDeferred()) {
+            str.append("DEFERRED");
+        }
+        else {
+            str.append("IMMEDIATE");
+        }
+        return str.toString();
     }
 
     protected String setConfigurationNode(SetConfigurationNode node)
