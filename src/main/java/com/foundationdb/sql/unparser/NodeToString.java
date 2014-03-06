@@ -409,6 +409,10 @@ public class NodeToString
         str.append("(");
         str.append(toString(node.getColumnList()));
         str.append(")");
+        if (node.isDeferrable())
+            str.append(" DEFERRABALE");
+        if (node.isInitiallyDeferred())
+            str.append(" INITIALLY DEFERRED");
         return str.toString();
     }
 

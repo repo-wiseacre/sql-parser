@@ -13071,6 +13071,10 @@ referentialConstraintDefinition(TableName constraintName) throws StandardExcepti
                          StatementType.RA_NOACTION }; //default values
     FKConstraintDefinitionNode.MatchType[] matchType = { FKConstraintDefinitionNode.MatchType.SIMPLE };
     Token grouping = null;
+    Token not = null;
+    boolean deferrable = false;
+    Token deferred = null;
+    boolean initiallyDeferred = false;
 }
 {
     // NB: GROUPING case must be kept in sync with alterGroup()
@@ -13078,6 +13082,10 @@ referentialConstraintDefinition(TableName constraintName) throws StandardExcepti
       grouping = <GROUPING> ]
     <FOREIGN> <KEY> <LEFT_PAREN> columnNameList(fkRcl) <RIGHT_PAREN>
     referencedTable = referencesSpecification(refRcl, refActions, matchType)
+    [ [ not = <NOT> ] <DEFERRABLE>
+      { deferrable = (not == null); } ]
+    [ <INITIALLY> ( deferred = <DEFERRED> | <IMMEDIATE> )
+      { initiallyDeferred = (deferred != null); } ]
     {
         return (ConstraintDefinitionNode)nodeFactory.getNode(NodeTypes.FK_CONSTRAINT_DEFINITION_NODE,
                                                              constraintName,
@@ -13087,6 +13095,8 @@ referentialConstraintDefinition(TableName constraintName) throws StandardExcepti
                                                              refActions[0], refActions[1],
                                                              matchType[0],
                                                              (grouping == null) ? Boolean.FALSE : Boolean.TRUE,
+                                                             deferrable,
+                                                             initiallyDeferred,
                                                              parserContext);
     }
 }
@@ -13250,6 +13260,10 @@ columnConstraint(TableName constraintName,
                         StatementType.RA_NOACTION} ; //default: NO ACTION
     FKConstraintDefinitionNode.MatchType[] matchType = { FKConstraintDefinitionNode.MatchType.SIMPLE };
     Token grouping = null;
+    Token not = null;
+    boolean deferrable = false;
+    Token deferred = null;
+    boolean initiallyDeferred = false;
 }
 {
     [ notNull = <NOT> ] <NULL>
@@ -13289,6 +13303,10 @@ columnConstraint(TableName constraintName,
     [ LOOKAHEAD ( { groupConstructFollows(GROUPING) } )
       grouping = <GROUPING> ]
     referencedTable = referencesSpecification(refRcl, refActions, matchType)
+    [ [ not = <NOT> ] <DEFERRABLE>
+      { deferrable = (not == null); } ]
+    [ <INITIALLY> ( deferred = <DEFERRED> | <IMMEDIATE> )
+      { initiallyDeferred = (deferred != null); } ]
     [ properties = propertyList(false)<CHECK_PROPERTIES>] 
     {
         ResultColumnList fkRcl = (ResultColumnList)
@@ -13306,6 +13324,7 @@ columnConstraint(TableName constraintName,
                                                              refActions[0], refActions[1],
                                                              matchType[0],
                                                              (grouping == null) ? Boolean.FALSE : Boolean.TRUE,
+                                                             deferrable, initiallyDeferred,
                                                              parserContext);
         if (properties != null) {
             tcdn.setProperties(properties);
@@ -13384,7 +13403,7 @@ alterGroup() throws StandardException :
                                  parentColumns,
                                  StatementType.RA_NOACTION, StatementType.RA_NOACTION,
                                  FKConstraintDefinitionNode.MatchType.SIMPLE,
-                                 Boolean.TRUE,
+                                 Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
                                  parserContext));
 
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,

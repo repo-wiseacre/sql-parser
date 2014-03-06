@@ -19,6 +19,8 @@ tableElementList:
 	refTable name : null
 	matchType: null
 	grouping: false
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: gfk1
 	constraintType: DROP
 	verifyType: FOREIGN_KEY

@@ -19,6 +19,8 @@ tableElementList:
 	refTable name : t2
 	matchType: SIMPLE
 	grouping: true
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: gfk1
 	constraintType: FOREIGN_KEY
 	properties: null

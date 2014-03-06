@@ -19,6 +19,8 @@ tableElementList:
 	refTable name : t2
 	matchType: FULL
 	grouping: false
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: null
 	constraintType: FOREIGN_KEY
 	properties: null

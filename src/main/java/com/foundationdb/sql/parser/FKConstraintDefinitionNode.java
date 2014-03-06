@@ -57,7 +57,7 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
     int refActionDeleteRule;    // referential action on delete
     int refActionUpdateRule;    // referential action on update
     MatchType matchType;
-    boolean grouping;
+    boolean grouping, deferrable, initiallyDeferred;
 
     // For ADD
     public void init(Object constraintName, 
@@ -67,7 +67,9 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
                      Object refActionDelete,
                      Object refActionUpdate,
                      Object matchType,
-                     Object grouping) {
+                     Object grouping,
+                     Object deferrable,
+                     Object initiallyDeferred) {
         super.init(constraintName,
                    ConstraintType.FOREIGN_KEY,
                    fkRcl, 
@@ -82,6 +84,8 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
 
         this.matchType = (MatchType)matchType;
         this.grouping = ((Boolean)grouping).booleanValue();
+        this.deferrable = ((Boolean)deferrable).booleanValue();
+        this.initiallyDeferred = ((Boolean)initiallyDeferred).booleanValue();
     }
 
     // For DROP
@@ -116,6 +120,8 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
 
         this.matchType = other.matchType;
         this.grouping = other.grouping;
+        this.deferrable = other.deferrable;
+        this.initiallyDeferred = other.initiallyDeferred;
     }
 
     public TableName getRefTableName() { 
@@ -141,10 +147,20 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
         return grouping;
     }
     
+    public boolean isDeferrable() {
+        return deferrable;
+    }
+    
+    public boolean isInitiallyDeferred() {
+        return initiallyDeferred;
+    }
+    
     public String toString() {
         return "refTable name : " + refTableName + "\n" +
             "matchType: " + matchType + "\n" +
             "grouping: " + grouping + "\n" + 
+            "deferrable: " + deferrable + "\n" + 
+            "initiallyDeferred: " + initiallyDeferred + "\n" + 
             super.toString();
     }
     
