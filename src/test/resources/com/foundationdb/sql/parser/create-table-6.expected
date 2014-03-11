@@ -92,6 +92,8 @@ tableElementList:
 	refTable name : t3
 	matchType: SIMPLE
 	grouping: false
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: null
 	constraintType: FOREIGN_KEY
 	properties: null
@@ -112,6 +114,8 @@ tableElementList:
 	refTable name : t2
 	matchType: SIMPLE
 	grouping: true
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: null
 	constraintType: FOREIGN_KEY
 	properties: null
@@ -132,6 +136,8 @@ tableElementList:
 	refTable name : other.t5
 	matchType: SIMPLE
 	grouping: false
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: fk_c5
 	constraintType: FOREIGN_KEY
 	properties: null
@@ -152,6 +158,8 @@ tableElementList:
 	refTable name : t6
 	matchType: SIMPLE
 	grouping: true
+	deferrable: false
+	initiallyDeferred: false
 	constraintName: fk_c6
 	constraintType: FOREIGN_KEY
 	properties: null

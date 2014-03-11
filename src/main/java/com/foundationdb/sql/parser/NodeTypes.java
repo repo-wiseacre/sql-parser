@@ -223,7 +223,9 @@ public interface NodeTypes
     public static final int FULL_OUTER_JOIN_NODE = 173;
     public static final int SHOW_CONFIGURATION_NODE = 174;
     public static final int STORAGE_FORMAT_NODE = 175;
-    // 176 - 182 available
+    public static final int TABLE_NAME_LIST = 176;
+    public static final int SET_CONSTRAINTS_NODE = 177;
+    // 178 - 182 available
     public static final int ALTER_SERVER_NODE = 183;
     public static final int TIMESTAMP_ADD_FN_NODE = 184;
     public static final int TIMESTAMP_DIFF_FN_NODE = 185;
