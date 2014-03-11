@@ -174,7 +174,7 @@
                         <exclude>.gitignore</exclude>
                         <exclude>.idea/**</exclude>
                         <exclude>LICENSE.txt</exclude>
-                        <exclude>README.rst</exclude>
+                        <exclude>README.md</exclude>
                         <exclude>NOTICE</exclude>
                         <exclude>build_release.sh</exclude>
                     </excludes>
