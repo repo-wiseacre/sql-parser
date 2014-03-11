@@ -554,15 +554,9 @@ public class NodeToString
 
     protected String cursorNode(CursorNode node) throws StandardException {
         String result = toString(node.getResultSetNode());
-        if (node.getOrderByList() != null) {
-            result += " " + toString(node.getOrderByList());
-        }
-        if (node.getFetchFirstClause() != null) {
-            result += " LIMIT " + toString(node.getFetchFirstClause());
-        }
-        if (node.getOffsetClause() != null) {
-            result += " OFFSET " + toString(node.getOffsetClause());
-        }
+        result = result + orderByListFetchFirstOffset(node.getOrderByList(),
+                                                      node.getFetchFirstClause(),
+                                                      node.getOffsetClause());
         return result;
     }
 
@@ -660,9 +654,9 @@ public class NodeToString
 
     protected String subqueryNode(SubqueryNode node) throws StandardException {
         String str = toString(node.getResultSet());
-        if (node.getOrderByList() != null) {
-            str = str + " " + toString(node.getOrderByList());
-        }
+        str = str + orderByListFetchFirstOffset(node.getOrderByList(),
+                                                node.getFetchFirst(),
+                                                node.getOffset());
         str = "(" + str + ")";
         switch (node.getSubqueryType()) {
         case FROM:
@@ -1541,5 +1535,21 @@ public class NodeToString
         // i
         ret.append("SEPARATOR \'").append(node.getSeparator()).append("\')");
         return ret.toString();
+    }
+
+    protected String orderByListFetchFirstOffset(OrderByList orderByList,
+                                                 ValueNode fetchFirst,
+                                                 ValueNode offset) throws StandardException {
+        String result = "";
+        if (orderByList != null) {
+            result += " " + toString(orderByList);
+        }
+        if (fetchFirst != null) {
+            result += " LIMIT " + toString(fetchFirst);
+        }
+        if (offset != null) {
+            result += " OFFSET " + toString(offset);
+        }
+        return result;
     }
 }
