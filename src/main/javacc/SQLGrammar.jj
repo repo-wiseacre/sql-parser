@@ -13303,7 +13303,8 @@ columnConstraint(TableName constraintName,
     [ LOOKAHEAD ( { groupConstructFollows(GROUPING) } )
       grouping = <GROUPING> ]
     referencedTable = referencesSpecification(refRcl, refActions, matchType)
-    [ [ not = <NOT> ] <DEFERRABLE>
+    [ LOOKAHEAD ( 2 )
+      [ not = <NOT> ] <DEFERRABLE>
       { deferrable = (not == null); } ]
     [ <INITIALLY> ( deferred = <DEFERRED> | <IMMEDIATE> )
       { initiallyDeferred = (deferred != null); } ]
