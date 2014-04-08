@@ -11511,7 +11511,7 @@ DB2DefaultOption(String columnName) throws StandardException :
         return value;
     }
 |
-    LOOKAHEAD( { getToken(1).kind == DATE || 
+    LOOKAHEAD( { getToken(1).kind == DATE ||
                              getToken(1).kind == TIME || 
                              getToken(1).kind == TIMESTAMP } )
     value = miscBuiltins()
@@ -11521,7 +11521,14 @@ DB2DefaultOption(String columnName) throws StandardException :
         return value;
     }
 |
-    LOOKAHEAD( { getToken(2).kind == LEFT_PAREN ||
+    LOOKAHEAD( { (getToken(2).kind == LEFT_PAREN && getToken(3).kind == RIGHT_PAREN) ||
+                                 (getToken(4).kind == LEFT_PAREN && getToken(5).kind == RIGHT_PAREN && getToken(2).kind != COMMA) } )
+    value = primaryExpression()
+    {
+        return value;
+    }
+|
+  LOOKAHEAD( { getToken(2).kind == LEFT_PAREN ||
                                  (getToken(4).kind == LEFT_PAREN && getToken(2).kind != COMMA) } )
         // Check against comma: see Derby-331 
         // Before adding this, the following was erroneously

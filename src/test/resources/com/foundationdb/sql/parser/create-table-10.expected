@@ -1,0 +1,25 @@
+com.foundationdb.sql.parser.CreateTableNode@563af8a6
+name: t
+statementType: CREATE TABLE
+lockGranularity: R
+existenceCheck: NO_CONDITION
+tableElementList: 	
+	com.foundationdb.sql.parser.TableElementList@399a8684
+
+	[0]:	
+	com.foundationdb.sql.parser.ColumnDefinitionNode@4ff561a7
+	type: DECIMAL(5,0)
+	name: id
+	elementType: null
+	default: 		
+		com.foundationdb.sql.parser.DefaultNode@76de43f3
+		columnName: null
+		defaultText: random()
+		type: null
+		defaultTree:			
+			com.foundationdb.sql.parser.JavaToSQLValueNode@7a3f437c
+			type: null
+			javaNode: 				
+				com.foundationdb.sql.parser.StaticMethodCallNode@4f67c097
+				javaClassName: null
+				methodName: random

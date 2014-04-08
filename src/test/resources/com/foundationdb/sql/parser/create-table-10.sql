@@ -1,0 +1,1 @@
+CREATE TABLE t (id DECIMAL DEFAULT random())
