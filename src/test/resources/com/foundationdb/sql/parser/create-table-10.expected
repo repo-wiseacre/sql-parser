@@ -23,3 +23,17 @@ tableElementList:
 				com.foundationdb.sql.parser.StaticMethodCallNode@4f67c097
 				javaClassName: null
 				methodName: random
+	[1]:	
+	com.foundationdb.sql.parser.ColumnDefinitionNode@76de43f3
+	type: INTEGER
+	name: number
+	elementType: null
+	default: 		
+		com.foundationdb.sql.parser.DefaultNode@4f67c097
+		columnName: null
+		defaultText: 0
+		type: null
+		defaultTree:			
+			com.foundationdb.sql.parser.NumericConstantNode@2495223b
+			value: 0
+			type: INTEGER NOT NULL

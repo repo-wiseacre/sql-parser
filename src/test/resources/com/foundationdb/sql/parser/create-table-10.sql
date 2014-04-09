@@ -1,1 +1,1 @@
-CREATE TABLE t (id DECIMAL DEFAULT random())
+CREATE TABLE t (id DECIMAL DEFAULT random(), number INT DEFAULT 0)

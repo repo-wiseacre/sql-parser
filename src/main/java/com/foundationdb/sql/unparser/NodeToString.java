@@ -382,10 +382,11 @@ public class NodeToString
 
     protected String columnDefinitionNode(ColumnDefinitionNode node)
             throws StandardException {
+        String basis = node.getColumnName() + " " + node.getType();
         if( node.getDefaultNode() != null ) {
-            return node.getColumnName() + " " + node.getType() + toString(node.getDefaultNode());
+            return basis + toString(node.getDefaultNode());
         }
-        return node.getColumnName() + " " + node.getType();
+        return basis;
     }
 
     protected String constraintDefinitionNode(ConstraintDefinitionNode node) 
@@ -1165,7 +1166,7 @@ public class NodeToString
     }
     
     protected String defaultNode(DefaultNode node) throws StandardException {
-        return " DEFAULT "+node.getDefaultText();
+        return " DEFAULT "+ node.getDefaultText();
     }
 
     protected String prefixUnary(UnaryOperatorNode node) throws StandardException {
