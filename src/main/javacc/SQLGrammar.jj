@@ -11464,7 +11464,7 @@ defaultOption(Token beginToken, long[] autoIncrementInfo, String columnName)
                                               parserContext);
     }
 |
-    value = DB2DefaultOption(columnName)
+    value = setValueNodeDefaultOption(columnName)
     {
         endToken = getToken(0);
         value.setBeginOffset(beginToken.beginOffset);
@@ -11478,19 +11478,11 @@ defaultOption(Token beginToken, long[] autoIncrementInfo, String columnName)
 }
 
 ValueNode
-DB2DefaultOption(String columnName) throws StandardException :
+setValueNodeDefaultOption(String columnName) throws StandardException :
 {
     ValueNode value;
 }
 {
-    // DB2 spec says default can only be one of the
-    // following: <constant>, <datetime-special-register> (ex.
-    // "current time"), CURRENT SCHEMA, USER, NULL, or
-    // <cast-function>.  We currently support all of these
-    // except the 'blob' function that is part of the DB2 valid
-    // <cast-function> grammar.  See beetle 5281 for plans
-    // support 'blob' function in future.
-
     LOOKAHEAD( { getToken(2).kind == SCHEMA || getToken(2).kind == SQLID } )
     <CURRENT> (<SCHEMA> | <SQLID>)
     {
@@ -11498,9 +11490,6 @@ DB2DefaultOption(String columnName) throws StandardException :
                                               parserContext);
     }
 |
-    /* Revert DB2 restriction: DERBY-3013. Accept standard SQL CURRENT_USER,
-     * SESSION_USER in addition to USER.
-     */
     value = userNode()
     {
         return value;
@@ -11511,46 +11500,11 @@ DB2DefaultOption(String columnName) throws StandardException :
         return value;
     }
 |
-    LOOKAHEAD( { getToken(1).kind == DATE ||
-                             getToken(1).kind == TIME || 
-                             getToken(1).kind == TIMESTAMP } )
-    value = miscBuiltins()
-    { // these functions are allowed as valid <cast-function> defaults.
-        // Once "BLOB" is allowed as a cast-function (5281), a case should be
-        // added for that, as well.
-        return value;
-    }
-|
-    LOOKAHEAD( { (getToken(2).kind == LEFT_PAREN && getToken(3).kind == RIGHT_PAREN) ||
-                                 (getToken(4).kind == LEFT_PAREN && getToken(5).kind == RIGHT_PAREN && getToken(2).kind != COMMA) } )
-    value = primaryExpression()
-    {
-        return value;
-    }
-|
-  LOOKAHEAD( { getToken(2).kind == LEFT_PAREN ||
-                                 (getToken(4).kind == LEFT_PAREN && getToken(2).kind != COMMA) } )
-        // Check against comma: see Derby-331 
-        // Before adding this, the following was erroneously
-        // flagged as invalid: 
-        //       create table foo(.., b int default 0, unique (a))
     value = miscBuiltins()
     {
-        // If we have a function (as indicated by an open paren,
-        // which can be either the 2nd token (w/ normal function name)
-        // or the 4th token (w/ qualified function name)), then
-        // it's not valid.  Catch it here and throw an "invalid
-        // default" error (42894) instead of letting it go as
-        // a syntax error (this matches DB2 UDB behavior).
-        throw new StandardException("Invalid default for " + columnName);
-    }
-|
-    value = datetimeValueFunction()
-    {
         return value;
     }
 |
-    // Only (valid) thing left is literals (i.e. actual constants).
     value = literal()
     {
         return value;
