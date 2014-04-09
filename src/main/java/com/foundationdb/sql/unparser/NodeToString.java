@@ -239,7 +239,7 @@ public class NodeToString
         case NodeTypes.PARAMETER_NODE:
             return parameterNode((ParameterNode)node);
         case NodeTypes.DEFAULT_NODE:
-            return "DEFAULT";
+            return defaultNode((DefaultNode)node);
         case NodeTypes.USER_NODE:
             return "USER";
         case NodeTypes.CURRENT_USER_NODE:
@@ -382,7 +382,11 @@ public class NodeToString
 
     protected String columnDefinitionNode(ColumnDefinitionNode node)
             throws StandardException {
-        return node.getColumnName() + " " + node.getType();
+        String basis = node.getColumnName() + " " + node.getType();
+        if( node.getDefaultNode() != null ) {
+            return basis + toString(node.getDefaultNode());
+        }
+        return basis;
     }
 
     protected String constraintDefinitionNode(ConstraintDefinitionNode node) 
@@ -1159,6 +1163,10 @@ public class NodeToString
             return value.toString().toUpperCase();
         else
             return value.toString();
+    }
+    
+    protected String defaultNode(DefaultNode node) throws StandardException {
+        return " DEFAULT "+ node.getDefaultText();
     }
 
     protected String prefixUnary(UnaryOperatorNode node) throws StandardException {
