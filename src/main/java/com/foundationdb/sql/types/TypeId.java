@@ -147,6 +147,8 @@ public class TypeId
     public static final int INTERVAL_DAY_SECOND_SCALE = 6;
     public static final int INTERVAL_DAY_SECOND_MAXWIDTH = 24; // dddddddd hh:mm:ss.uuuuuu
 
+    //GUID text format: "{3f2504e0-4f89-41d3-9A0c-0305e82c3399}"
+    public static final int GUID_MAXWIDTH = 38;
     /* These define all the type names for SQL92 and JDBC 
      * NOTE: boolean is SQL3
      */
@@ -237,7 +239,10 @@ public class TypeId
     public static final String DECIMAL_UNSIGNED_NAME = "DECIMAL UNSIGNED";
     public static final String DATETIME_NAME = "DATETIME";
     public static final String YEAR_NAME = "YEAR";
-
+    
+    // Other types
+    public static final String GUID_NAME = "GUID";
+    
     /**
      * The following constants define the type precedence hierarchy.
      */
@@ -297,6 +302,7 @@ public class TypeId
         public static final int INTERVAL_YEAR_MONTH_ID = 24;
         public static final int INTERVAL_DAY_SECOND_ID = 25;
         public static final int MEDIUMINT_ID = 26;
+        public static final int GUID_TYPE_ID = 27;
     }
 
     public static final TypeId BOOLEAN_ID = new TypeId(FormatIds.BOOLEAN_TYPE_ID);
@@ -322,6 +328,7 @@ public class TypeId
     public static final TypeId BLOB_ID = new TypeId(FormatIds.BLOB_TYPE_ID);
     public static final TypeId CLOB_ID = new TypeId(FormatIds.CLOB_TYPE_ID);
     public static final TypeId XML_ID = new TypeId(FormatIds.XML_TYPE_ID);
+    public static final TypeId GUID_ID = new TypeId(FormatIds.GUID_TYPE_ID);
 
     public static final TypeId INTERVAL_YEAR_ID = new TypeId(FormatIds.INTERVAL_YEAR_MONTH_ID, INTERVAL_YEAR_NAME);
     public static final TypeId INTERVAL_MONTH_ID = new TypeId(FormatIds.INTERVAL_YEAR_MONTH_ID, INTERVAL_MONTH_NAME);
@@ -417,6 +424,8 @@ public class TypeId
         MEDIUMTEXT_ID,
         LONGBLOB_ID,
         LONGTEXT_ID,
+            
+        GUID_ID,
     };
 
     /*
@@ -623,6 +632,8 @@ public class TypeId
         else if (javaTypeName.equals("com.foundationdb.sql.types.XML")) {
             return XML_ID;
         }
+        else if (javaTypeName.equals("java.util.UUID"))
+            return GUID_ID;
         else {
             /*
             ** If it's a Java primitive type, return null to indicate that
@@ -821,6 +832,9 @@ public class TypeId
         }
         if (SQLTypeName.equals(NATIONAL_LONGVARCHAR_NAME)) {
             return NATIONAL_LONGVARCHAR_ID;
+        }
+        if (SQLTypeName.equals(GUID_NAME) ) {
+            return GUID_ID;
         }
 
         // Types defined below here are SQL types and non-JDBC types that are
@@ -1180,7 +1194,16 @@ public class TypeId
             javaTypeName = "java.sql.ResultSet";
             maxMaxWidth = -1;
             break;
-
+        
+        case FormatIds.GUID_TYPE_ID:
+            schemaName = null;
+            unqualifiedName = TypeId.GUID_NAME;
+            JDBCTypeId = Types.OTHER;
+            javaTypeName = "java.util.UUID";
+            typePrecedence = USER_PRECEDENCE;
+            maxMaxWidth = TypeId.GUID_MAXWIDTH;
+            break;
+            
         default:
             assert false;
             break;
@@ -1465,6 +1488,15 @@ public class TypeId
     public boolean isXMLTypeId()
     {
         return (formatId == FormatIds.XML_TYPE_ID);
+    }
+
+    /**
+     *Is this a GUID?
+     * @return true if this is GUID
+     */
+    public boolean isGUIDTypeId()
+    {
+        return (formatId == FormatIds.GUID_TYPE_ID);
     }
 
     /**
