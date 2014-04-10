@@ -1164,6 +1164,7 @@ class SQLGrammar
         case INTERVAL:
         case DATETIME:
         case YEAR:
+        case GUID:
             retval = true;
             break;
 
@@ -2545,6 +2546,7 @@ TOKEN [IGNORE_CASE] :
 | <FORCE: "force">
 | <FORMAT: "format">
 | <FULL_TEXT: "full_text">
+| <GUID: "guid">
 | <HEADER: "header">
 | <HOUR_MICROSECOND: "hour_microsecond">
 | <HOUR_MINUTE: "hour_minute">
@@ -4089,6 +4091,11 @@ dataTypeCommon() throws StandardException :
     <BOOLEAN>
     {
         typeDescriptor = new DataTypeDescriptor(TypeId.BOOLEAN_ID, true);
+    }
+|
+    <GUID>
+    {
+        typeDescriptor = new DataTypeDescriptor(TypeId.GUID_ID, true);
     }
 |
     typeDescriptor = longType()
@@ -15327,6 +15334,7 @@ nonReservedKeyword() :
 | tok = <GENERATED>
 | tok = <GO> // SQL92 reserved, SQL2003 non-reserved
 | tok = <GOTO> // SQL92 reserved, SQL2003 non-reserved
+| tok = <GUID>
 | tok = <HEADER>
 | tok = <HOUR_MICROSECOND>
 | tok = <HOUR_MINUTE>
