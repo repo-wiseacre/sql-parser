@@ -148,6 +148,7 @@ public class SelectNode extends ResultSetNode
 
     public String toString() {
         return "isDistinct: "+ isDistinct + "\n"+
+            (cacheHint != null ? "cacheHint: " + cacheHint + "\n" : "") +
             super.toString();
     }
 

@@ -5,6 +5,7 @@ statementType: SELECT
 resultSet: 	
 	com.foundationdb.sql.parser.SelectNode@652c4193
 	isDistinct: false
+	cacheHint: false
 	resultColumns: 		
 		com.foundationdb.sql.parser.ResultColumnList@3c854dc9
 
