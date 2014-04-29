@@ -1705,6 +1705,11 @@ class SQLGrammar
                 ((kind2 == INDEX) || (kind2 == KEY)));
     }
 
+    boolean cacheHintFollows() {
+        return hasFeature(SQLParserFeature.MYSQL_HINTS) &&
+            ((getToken(1).kind == SQL_CACHE) || (getToken(1).kind == SQL_NO_CACHE));
+    }
+
     boolean straightJoinFollows() {
         return hasFeature(SQLParserFeature.MYSQL_HINTS) &&
             getToken(1).kind == STRAIGHT_JOIN;
@@ -2497,6 +2502,8 @@ TOKEN [IGNORE_CASE] :
 | <ROLE: "role">
 | <ROWNUMBER: "row_number">
 | <RTRIM: "rtrim">
+| <SQL_CACHE: "sql_cache">
+| <SQL_NO_CACHE: "sql_no_cache">
 | <STRAIGHT_JOIN: "straight_join">
 | <SUBSTR:  "substr">
 | <XML:  "xml">
@@ -5193,6 +5200,7 @@ querySpecification() throws StandardException :
     SelectNode selectNode;
     boolean isDistinct = false;
     Token straightJoin = null;
+    Boolean cacheHint = null;
 }
 {
     <SELECT> 
@@ -5201,11 +5209,14 @@ querySpecification() throws StandardException :
     [ isDistinct = setQuantifier() ]
     [ LOOKAHEAD( { (straightJoin == null) && straightJoinFollows() } )
       straightJoin = <STRAIGHT_JOIN> ]
+    [ LOOKAHEAD( { cacheHintFollows() } )
+      cacheHint = cacheHint() ]
     selectList = selectList()
     selectNode = tableExpression(selectList)
     {
         if (isDistinct) selectNode.makeDistinct();
         if (straightJoin != null) selectNode.makeStraightJoin();
+        if (cacheHint != null) selectNode.setCacheHint(cacheHint);
         return selectNode;
     }
 }
@@ -5229,6 +5240,21 @@ setQuantifier() :
     LOOKAHEAD( { getToken(1).kind == ALL &&
                                  !(getToken(2).kind == PERIOD || getToken(2).kind == DOUBLE_COLON) } )
     <ALL>
+    {
+        return false;
+    }
+}
+
+boolean
+cacheHint() :
+{}
+{
+    <SQL_CACHE>
+    {
+        return true;
+    }
+|
+    <SQL_NO_CACHE>
     {
         return false;
     }
@@ -15164,6 +15190,8 @@ reservedKeyword() :
 | tok = <SQLCODE>
 | tok = <SQLERROR>
 | tok = <SQLSTATE>
+| tok = <SQL_CACHE>
+| tok = <SQL_NO_CACHE>
 | tok = <STRAIGHT_JOIN>
 | tok = <SUBSTRING>
 | tok = <SUM>
