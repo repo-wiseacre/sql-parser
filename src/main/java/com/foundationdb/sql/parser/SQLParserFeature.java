@@ -34,5 +34,7 @@ public enum SQLParserFeature
     INFIX_MOD,
     INFIX_BIT_OPERATORS,
     INFIX_LOGICAL_OPERATORS,
-    DOUBLE_QUOTED_STRING
+    DOUBLE_QUOTED_STRING,
+    /** Allows {@code !} as {@code NOT}, but with a higher precedence. */
+    INFIX_NOT_OPERATOR,
 }
