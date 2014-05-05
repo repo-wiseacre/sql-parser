@@ -39,43 +39,13 @@ public class SQLParserTest extends TestBase implements TestBase.GenerateAndCheck
                  + SQLParserTest.class.getPackage().getName().replace('.', '/'));
 
     protected SQLParser parser;
-    protected File featuresFile;
+    protected String[] featureLines;
 
     @Before
     public void before() throws Exception {
         parser = new SQLParser();
-        if (featuresFile != null)
-            parseFeatures(featuresFile, parser.getFeatures());
-    }
-
-    protected void parseFeatures(File file, Set<SQLParserFeature> features) 
-            throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        try {
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) break;
-                boolean add;
-                switch (line.charAt(0)) {
-                case '+':
-                    add = true;
-                    break;
-                case '-':
-                    add = false;
-                    break;
-                default:
-                    throw new IOException("Malformed features line: should start with + or - " + line);
-                }
-                SQLParserFeature feature = SQLParserFeature.valueOf(line.substring(1));
-                if (add)
-                    features.add(feature);
-                else
-                    features.remove(feature);
-            }
-        }
-        finally {
-            reader.close();
-        }
+        if (featureLines != null)
+            parseFeatures(featureLines, parser.getFeatures());
     }
 
     protected String getTree(StatementNode stmt) throws IOException {
@@ -86,24 +56,13 @@ public class SQLParserTest extends TestBase implements TestBase.GenerateAndCheck
 
     @Parameters(name="{0}")
     public static Collection<Object[]> queries() throws Exception {
-        Collection<Object[]> result = new ArrayList<Object[]>();
-        for (Object[] args : sqlAndExpected(RESOURCE_DIR)) {
-            File featuresFile = new File(RESOURCE_DIR, args[0] + ".features");
-            if (!featuresFile.exists())
-                featuresFile = null;
-            Object[] nargs = new Object[args.length+1];
-            nargs[0] = args[0];
-            nargs[1] = featuresFile;
-            System.arraycopy(args, 1, nargs, 2, args.length-1);
-            result.add(nargs);
-        }
-        return result;
+        return sqlAndExpectedAndExtra(RESOURCE_DIR, ".features");
     }
 
-    public SQLParserTest(String caseName, File featuresFile,
-                         String sql, String expected, String error) {
+    public SQLParserTest(String caseName, String sql,
+                         String expected, String error, String[] featureLines) {
         super(caseName, sql, expected, error);
-        this.featuresFile = featuresFile;
+        this.featureLines = featureLines;
     }
 
     @Test
