@@ -83,6 +83,8 @@ public class SelectNode extends ResultSetNode
 
     private boolean isDistinct, isStraightJoin;
 
+    private Boolean cacheHint;
+
     private ValueNode havingClause;
 
     public void init(Object selectList,
@@ -131,6 +133,8 @@ public class SelectNode extends ResultSetNode
         this.windows = (WindowList)getNodeFactory().copyNode(other.windows,
                                                              getParserContext());
         this.isDistinct = other.isDistinct;
+        this.isStraightJoin = other.isStraightJoin;
+        this.cacheHint = other.cacheHint;
         this.havingClause = (ValueNode)getNodeFactory().copyNode(other.havingClause,
                                                                  getParserContext());
     }
@@ -144,6 +148,7 @@ public class SelectNode extends ResultSetNode
 
     public String toString() {
         return "isDistinct: "+ isDistinct + "\n"+
+            (cacheHint != null ? "cacheHint: " + cacheHint + "\n" : "") +
             super.toString();
     }
 
@@ -169,6 +174,14 @@ public class SelectNode extends ResultSetNode
 
     public boolean isStraightJoin() {
         return isStraightJoin;
+    }
+
+    public void setCacheHint(Boolean cacheHint) {
+        this.cacheHint = cacheHint;
+    }
+
+    public Boolean getCacheHint() {
+        return cacheHint;
     }
 
     /**
