@@ -16,9 +16,10 @@
 
 package com.foundationdb.sql;
 
+import com.foundationdb.sql.parser.SQLParserFeature;
 import org.junit.ComparisonFailure;
 import org.junit.Ignore;
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,12 +28,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Ignore
 public class TestBase
@@ -120,18 +121,25 @@ public class TestBase
 
     public static Collection<Object[]> sqlAndExpected(File dir) 
             throws IOException {
-        return sqlAndExpected(dir, false);
+        return sqlAndExpectedAndExtra(dir, null);
     }
 
     public static Collection<Object[]> sqlAndExpectedAndParams(File dir) 
             throws IOException {
-        return sqlAndExpected(dir, true);
+        return sqlAndExpectedAndExtra(dir, ".params");
     }
     
     static final boolean RUN_FAILING_TESTS = Boolean.getBoolean("foundationdb.sql.test.runFailing");
 
+    /** @deprecated Equivalent to sqlAndExpected() or sqlAndExpectedAndParams(). */
+    @Deprecated
     public static Collection<Object[]> sqlAndExpected(File dir, 
-                                                      boolean andParams)
+                                                      boolean andParams) throws IOException {
+        return andParams ? sqlAndExpectedAndParams(dir) : sqlAndExpected(dir);
+    }
+
+    public static Collection<Object[]> sqlAndExpectedAndExtra(File dir,
+                                                              String extraExtension)
             throws IOException {
         Collection<Object[]> result = new ArrayList<Object[]>();
         for (File sqlFile : listSQLFiles(dir)) {
@@ -150,14 +158,14 @@ public class TestBase
                 error = fileContents(errorFile);
             else
                 error = null;
-            if (andParams) {
-                String[] params = null;
-                File paramsFile = changeSuffix(sqlFile, ".params");
-                if (paramsFile.exists()) {
-                    params = fileContentsArray(paramsFile);
+            if (extraExtension != null) {
+                String[] extra = null;
+                File extraFile = changeSuffix(sqlFile, extraExtension);
+                if (extraFile.exists()) {
+                    extra = fileContentsArray(extraFile);
                 }
                 result.add(new Object[] {
-                               caseName, sql, expected, error, params
+                               caseName, sql, expected, error, extra
                            });
             }
             else {
@@ -227,6 +235,28 @@ public class TestBase
         CompareWithoutHashes comparer = new CompareWithoutHashes(regex);
         if (!comparer.match(new StringReader(expected), new StringReader(actual)))
             throw new ComparisonFailure(caseName, comparer.converter(expected,actual), actual);
+    }
+
+    protected static void parseFeatures(String[] featureLines, Set<SQLParserFeature> features)
+        throws IOException {
+        for(String line : featureLines) {
+            boolean add;
+            switch (line.charAt(0)) {
+                case '+':
+                    add = true;
+                    break;
+                case '-':
+                    add = false;
+                    break;
+                default:
+                    throw new IOException("Malformed features line: should start with + or - " + line);
+            }
+            SQLParserFeature feature = SQLParserFeature.valueOf(line.substring(1));
+            if (add)
+                features.add(feature);
+            else
+                features.remove(feature);
+        }
     }
 
 }

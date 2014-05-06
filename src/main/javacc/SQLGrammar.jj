@@ -1761,6 +1761,17 @@ class SQLGrammar
         }
     }
 
+    boolean unaryLogicalFollows() {
+        if (!hasFeature(SQLParserFeature.INFIX_NOT_OPERATOR))
+            return false;
+        switch(getToken(1).kind) {
+        case EXCLAMATION_MARK:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     // This LOOKAHEAD is required because a + or - sign can come
     // before any expression, and also can be part of a literal. If it
     // comes before a number, we want it to be considered part of the
@@ -2675,6 +2686,7 @@ TOKEN :
 | <DOUBLE_GREATER: ">>">
 | <FIELD_REFERENCE: "->">
 | <ASTERISK_ASTERISK: "**">
+| <EXCLAMATION_MARK: "!">
 }
 
 TOKEN :
@@ -5899,6 +5911,9 @@ unaryExpression(ValueNode farLeftOperand,
     |
         LOOKAHEAD( { unaryBitFollows() })
         sign = unaryBitOperator()
+    |
+        LOOKAHEAD( { unaryLogicalFollows() } )
+        sign = unaryLogicalOperator()
     )
     ]
     value = primaryExpression()
@@ -5915,6 +5930,11 @@ unaryExpression(ValueNode farLeftOperand,
         }
         else if ("~".equals(sign)) {
             value = (ValueNode)nodeFactory.getNode(NodeTypes.UNARY_BITNOT_OPERATOR_NODE,
+                                                   value,
+                                                   parserContext);
+        }
+        else if ("!".equals(sign)) {
+            value = (ValueNode)nodeFactory.getNode(NodeTypes.NOT_NODE,
                                                    value,
                                                    parserContext);
         }
@@ -5949,6 +5969,18 @@ unaryBitOperator() :
 }
 {
     s = <TILDE>
+    {
+        return s.image;
+    }
+}
+
+String
+unaryLogicalOperator() :
+{
+    Token s;
+}
+{
+    s = <EXCLAMATION_MARK>
     {
         return s.image;
     }

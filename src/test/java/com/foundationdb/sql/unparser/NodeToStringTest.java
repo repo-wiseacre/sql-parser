@@ -42,22 +42,25 @@ public class NodeToStringTest extends TestBase implements TestBase.GenerateAndCh
 
     protected SQLParser parser;
     protected NodeToString unparser;
+    protected String[] featureLines;
 
     @Before
     public void before() throws Exception {
         parser = new SQLParser();
         unparser = new NodeToString();
-        parser.getFeatures().addAll(EnumSet.of(SQLParserFeature.INFIX_BIT_OPERATORS));
+        if (featureLines != null)
+            parseFeatures(featureLines, parser.getFeatures());
     }
 
     @Parameters(name="{0}")
     public static Collection<Object[]> statements() throws Exception {
-        return sqlAndExpected(RESOURCE_DIR);
+        return sqlAndExpectedAndExtra(RESOURCE_DIR, ".features");
     }
 
     public NodeToStringTest(String caseName, String sql, 
-                            String expected, String error) {
+                            String expected, String error, String[] featureLines) {
         super(caseName, sql, expected, error);
+        this.featureLines = featureLines;
     }
 
     @Test
