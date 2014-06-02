@@ -127,11 +127,10 @@ public abstract class SetOperatorNode extends TableOperatorNode
         if(offset != null){
             output += "offset: " + offset.toString() + "\n";
         }
-        if(fetchFirst != null){
+        if(fetchFirst != null) {
             output += "limit: " + fetchFirst.toString() + "\n";
         }
-        output += super.toString();
-        return output;
+        return output + super.toString();
     }
 
     /**
