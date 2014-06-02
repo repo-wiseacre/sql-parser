@@ -32,6 +32,7 @@ resultSet:
 		type: null
 		resultSet: 			
 			com.foundationdb.sql.parser.IntersectOrExceptNode@518bf072
+			SetOpName: INTERSECT
 			all: false
 			nestedInParens: false
 			correlation Name: null

@@ -122,7 +122,11 @@ public abstract class SetOperatorNode extends TableOperatorNode
      */
 
     public String toString() {
-        return "all: " + all + "\n" +
+        return "SetOpName: " + getOperatorName() + "\n"+
+                "all: " + all + "\n" +
+
+
+
             super.toString();
     }
 
