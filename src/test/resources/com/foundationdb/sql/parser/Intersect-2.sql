@@ -1,3 +1,0 @@
-SELECT * FROM t1 WHERE name = "some name"
-INTERSECT
-SELECT * FROM t2
