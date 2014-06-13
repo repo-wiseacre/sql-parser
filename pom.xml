@@ -59,18 +59,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-    <distributionManagement>
-      <repository>
-      	<id>AlibanLocal</id>
-      	<name>Akiban Local release repository</name>
-      	<url>http://sneezy:8095/nexus/content/repostories/releases/</url>
-      </repository>
-	  <snapshotRepository>
-	    <id>AkibanLocal</id>
-	    <name>Akiban Local Snapshot Repository</name>
-	    <url>http://sneezy:8095/nexus/content/repositories/snapshots/</url>
-     </snapshotRepository>
-    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -191,16 +179,6 @@
                     </execution>
                 </executions>
             </plugin>
-		    <plugin>
-		      <groupId>org.sonatype.plugins</groupId>
-		      <artifactId>nexus-staging-maven-plugin</artifactId>
-		      <version>1.2</version>
-		      <extensions>true</extensions>
-		      <configuration>
-		        <serverId>AkibanLocal</serverId>
-		        <nexusUrl>http://sneezy:8095/nexus/</nexusUrl>
-		      </configuration>
-		    </plugin>
         </plugins>
     </build>
 </project>
