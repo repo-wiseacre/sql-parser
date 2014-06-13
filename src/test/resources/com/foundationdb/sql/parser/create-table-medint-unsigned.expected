@@ -1,6 +1,7 @@
 com.foundationdb.sql.parser.CreateTableNode@354742ee
 name: t
 statementType: CREATE TABLE
+withData: false
 lockGranularity: R
 existenceCheck: NO_CONDITION
 tableElementList: 	

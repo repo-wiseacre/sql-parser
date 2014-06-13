@@ -215,7 +215,7 @@ public class CreateTableNode extends DDLStatementNode
         else
             tempString = tempString +
                 (properties != null ? "properties: " + "\n" + properties + "\n" : "") +
-                (withData ? "withData: " + withData + "\n" : "") +
+                "withData: " + withData + "\n" +
                 "lockGranularity: " + lockGranularity + "\n";
         tempString += "existenceCheck: " + existenceCheck + "\n";
         return super.toString() +    tempString;

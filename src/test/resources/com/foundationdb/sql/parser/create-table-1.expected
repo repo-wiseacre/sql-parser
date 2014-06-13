@@ -1,16 +1,17 @@
-com.foundationdb.sql.parser.CreateTableNode@199836ed
+com.foundationdb.sql.parser.CreateTableNode@74e08014
 name: t2
 statementType: CREATE TABLE
+withData: false
 lockGranularity: R
 existenceCheck: NO_CONDITION
 queryExpression: 	
-	com.foundationdb.sql.parser.SelectNode@583e0ebb
+	com.foundationdb.sql.parser.SelectNode@3ef8dcfe
 	isDistinct: false
 	resultColumns: 		
-		com.foundationdb.sql.parser.ResultColumnList@5239443f
+		com.foundationdb.sql.parser.ResultColumnList@4474c7fe
 
 		[0]:		
-		com.foundationdb.sql.parser.AllResultColumn@2dafae45
+		com.foundationdb.sql.parser.AllResultColumn@4ef617ce
 		tableName: null
 		exposedName: null
 		name: null
@@ -18,10 +19,10 @@ queryExpression:
 		isDefaultColumn: false
 		type: null
 	fromList: 		
-		com.foundationdb.sql.parser.FromList@68da4b71
+		com.foundationdb.sql.parser.FromList@7e94fde1
 
 		[0]:		
-		com.foundationdb.sql.parser.FromBaseTable@538f1d7e
+		com.foundationdb.sql.parser.FromBaseTable@67a7ffb3
 		tableName: t1
 		updateOrDelete: null
 		null
