@@ -247,6 +247,8 @@ public class CreateTableNode extends DDLStatementNode
         return storageFormat;
     }
 
+    public ResultColumnList getResultColumns() { return resultColumns; }
+
     /**
      * Prints the sub-nodes of this object.  See QueryTreeNode.java for
      * how tree printing is supposed to work.
@@ -264,6 +266,10 @@ public class CreateTableNode extends DDLStatementNode
         if (storageFormat != null) {
             printLabel(depth, "storageFormat: ");
             storageFormat.treePrint(depth + 1);
+        }
+        if(resultColumns != null) {
+            printLabel(depth, "resultColumns: ");
+            resultColumns.treePrint(depth + 1);
         }
     }
 
