@@ -1,80 +1,85 @@
-com.foundationdb.sql.parser.CreateTableNode@19877096
+com.foundationdb.sql.parser.CreateTableNode@517ceb9b
 name: t1
 statementType: CREATE TABLE
 withData: true
 lockGranularity: R
 existenceCheck: NO_CONDITION
 queryExpression: 	
-	com.foundationdb.sql.parser.SelectNode@af094f2
-	isDistinct: false
-	resultColumns: 		
-		com.foundationdb.sql.parser.ResultColumnList@38c2a17a
+	com.foundationdb.sql.parser.CursorNode@605036e8
+	name: null
+	updateMode: UNSPECIFIED
+	statementType: SELECT
+	resultSet: 		
+		com.foundationdb.sql.parser.SelectNode@3244eabe
+		isDistinct: false
+		resultColumns: 			
+			com.foundationdb.sql.parser.ResultColumnList@4a8f79ba
 
-		[0]:		
-		com.foundationdb.sql.parser.ResultColumn@71f76db2
-		exposedName: column1
-		name: column1
-		tableName: null
-		isDefaultColumn: false
-		type: null
-		expression: 			
-			com.foundationdb.sql.parser.ColumnReference@2b42fb92
-			columnName: column1
+			[0]:			
+			com.foundationdb.sql.parser.ResultColumn@1180c894
+			exposedName: column1
+			name: column1
 			tableName: null
+			isDefaultColumn: false
 			type: null
-		[1]:		
-		com.foundationdb.sql.parser.ResultColumn@3a92446e
-		exposedName: column2
-		name: column2
-		tableName: null
-		isDefaultColumn: false
-		type: null
-		expression: 			
-			com.foundationdb.sql.parser.ColumnReference@58caafcc
-			columnName: column2
+			expression: 				
+				com.foundationdb.sql.parser.ColumnReference@1df07586
+				columnName: column1
+				tableName: null
+				type: null
+			[1]:			
+			com.foundationdb.sql.parser.ResultColumn@15b3bfc5
+			exposedName: column2
+			name: column2
 			tableName: null
+			isDefaultColumn: false
 			type: null
-		[2]:		
-		com.foundationdb.sql.parser.ResultColumn@62dba79e
-		exposedName: column3
-		name: column3
-		tableName: null
-		isDefaultColumn: false
-		type: null
-		expression: 			
-			com.foundationdb.sql.parser.ColumnReference@42d9a8c6
-			columnName: column3
+			expression: 				
+				com.foundationdb.sql.parser.ColumnReference@4bf329a4
+				columnName: column2
+				tableName: null
+				type: null
+			[2]:			
+			com.foundationdb.sql.parser.ResultColumn@4932f4f0
+			exposedName: column3
+			name: column3
 			tableName: null
+			isDefaultColumn: false
 			type: null
-	fromList: 		
-		com.foundationdb.sql.parser.FromList@5fd78173
+			expression: 				
+				com.foundationdb.sql.parser.ColumnReference@306ede1b
+				columnName: column3
+				tableName: null
+				type: null
+		fromList: 			
+			com.foundationdb.sql.parser.FromList@3eb7d774
 
-		[0]:		
-		com.foundationdb.sql.parser.FromBaseTable@3d73d62d
-		tableName: t2
-		updateOrDelete: null
-		null
-		correlation Name: null
-		null
+			[0]:			
+			com.foundationdb.sql.parser.FromBaseTable@17a220d7
+			tableName: t2
+			updateOrDelete: null
+			null
+			correlation Name: null
+			null
 resultColumns: 	
-	com.foundationdb.sql.parser.ResultColumnList@7ff243df
+	com.foundationdb.sql.parser.ResultColumnList@151a0f60
 
 	[0]:	
-	com.foundationdb.sql.parser.ResultColumn@7a462718
+	com.foundationdb.sql.parser.ResultColumn@61e77272
 	exposedName: column1
 	name: column1
 	tableName: null
 	isDefaultColumn: false
 	type: null
 	[1]:	
-	com.foundationdb.sql.parser.ResultColumn@13b0d75f
+	com.foundationdb.sql.parser.ResultColumn@220acc95
 	exposedName: column2
 	name: column2
 	tableName: null
 	isDefaultColumn: false
 	type: null
 	[2]:	
-	com.foundationdb.sql.parser.ResultColumn@3f0ba812
+	com.foundationdb.sql.parser.ResultColumn@72fd5ba8
 	exposedName: column3
 	name: column3
 	tableName: null
