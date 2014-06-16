@@ -4,4 +4,5 @@ CREATE TABLE T1
     SELECT column1, column2, column3 FROM T2
     ORDER BY column1 DESC
     OFFSET 1
+    LIMIT 20
     WITH DATA
