@@ -69,7 +69,7 @@ public class CreateTableNode extends DDLStatementNode
     private TableElementList tableElementList;
     protected int tableType; //persistent table or global temporary table
     private ResultColumnList resultColumns;
-    private ResultSetNode queryExpression;
+    private CursorNode queryExpression;
     private boolean withData;
     private ExistenceCheck existenceCheck;
     private StorageFormatNode storageFormat;
@@ -155,7 +155,7 @@ public class CreateTableNode extends DDLStatementNode
         implicitCreateSchema = true;
         initAndCheck(newObjectName);
         this.resultColumns = (ResultColumnList)resultColumns;
-        this.queryExpression = (ResultSetNode)queryExpression;
+        this.queryExpression = (CursorNode)queryExpression;
         this.existenceCheck = (ExistenceCheck) c;
     }
 
@@ -175,7 +175,7 @@ public class CreateTableNode extends DDLStatementNode
         this.tableType = other.tableType;
         this.resultColumns = (ResultColumnList)
             getNodeFactory().copyNode(other.resultColumns, getParserContext());
-        this.queryExpression = (ResultSetNode)
+        this.queryExpression = (CursorNode)
             getNodeFactory().copyNode(other.queryExpression, getParserContext());
         this.withData = other.withData;
         this.existenceCheck = other.existenceCheck;
@@ -225,7 +225,7 @@ public class CreateTableNode extends DDLStatementNode
         return tableElementList;
     }
 
-    public ResultSetNode getQueryExpression() {
+    public CursorNode getQueryExpression() {
         return queryExpression;
     }
 
