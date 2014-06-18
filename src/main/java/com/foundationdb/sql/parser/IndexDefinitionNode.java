@@ -91,7 +91,7 @@ public class IndexDefinitionNode extends TableElementNode implements IndexDefini
     // IndexDefinition
     //
 
-    public boolean getUniqueness()
+    public boolean isUnique()
     {
         return unique;
     }

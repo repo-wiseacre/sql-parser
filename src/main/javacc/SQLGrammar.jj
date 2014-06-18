@@ -10673,7 +10673,6 @@ indexDefinition() throws StandardException :
         }
         return (StatementNode)nodeFactory.getNode(NodeTypes.CREATE_INDEX_NODE,
                                                   unique,
-                                                  null,
                                                   indexName,
                                                   tableName,
                                                   indexColumnList,

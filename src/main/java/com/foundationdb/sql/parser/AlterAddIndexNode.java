@@ -20,7 +20,7 @@ import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.JoinNode.JoinType;
 import java.util.Properties;
 
-public class AlterAddIndexNode extends TableElementNode
+public class AlterAddIndexNode extends TableElementNode implements IndexDefinition
 {
     ExistenceCheck existenceCheck;
     boolean unique;
@@ -108,27 +108,31 @@ public class AlterAddIndexNode extends TableElementNode
     {
         return existenceCheck;
     }
-    
-    public boolean isUnique()
-    {
-        return unique;
-    }
-    
-    public IndexColumnList getIndexColunmList()
-    {
-        return indexColumnList;
-    }
-    
-    public JoinType getJoinType()
-    {
-        return joinType;
-    }
-    
+
     public Properties getProperties()
     {
         return properties;
     }
-    
+
+    //
+    // IndexDefinition
+    //
+
+    public boolean isUnique()
+    {
+        return unique;
+    }
+
+    public JoinType getJoinType()
+    {
+        return joinType;
+    }
+
+    public IndexColumnList getIndexColumnList()
+    {
+        return indexColumnList;
+    }
+
     public StorageFormatNode getStorageFormat()
     {
         return storageFormat;

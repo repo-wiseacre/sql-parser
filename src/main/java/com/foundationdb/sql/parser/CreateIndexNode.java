@@ -54,7 +54,6 @@ import java.util.Properties;
 public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
 {
     boolean unique;
-    String indexType;
     TableName indexName;
     TableName tableName;
     IndexColumnList columnList;
@@ -67,7 +66,6 @@ public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
      * Initializer for a CreateIndexNode
      *
      * @param unique True means it's a unique index
-     * @param indexType The type of index
      * @param indexName The name of the index
      * @param tableName The name of the table the index will be on
      * @param columnList A list of columns, in the order they
@@ -77,7 +75,6 @@ public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
      * @exception StandardException Thrown on error
      */
     public void init(Object unique,
-                     Object indexType,
                      Object indexName,
                      Object tableName,
                      Object columnList,
@@ -88,7 +85,6 @@ public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
             throws StandardException {
         initAndCheck(indexName);
         this.unique = ((Boolean)unique).booleanValue();
-        this.indexType = (String)indexType;
         this.indexName = (TableName)indexName;
         this.tableName = (TableName)tableName;
         this.columnList = (IndexColumnList)columnList;
@@ -106,7 +102,6 @@ public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
 
         CreateIndexNode other = (CreateIndexNode)node;
         this.unique = other.unique;
-        this.indexType = other.indexType;
         this.indexName = (TableName)
             getNodeFactory().copyNode(other.indexName, getParserContext());
         this.tableName = (TableName)
@@ -130,7 +125,6 @@ public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
     public String toString() {
         return super.toString() +
             "unique: " + unique + "\n" +
-            "indexType: " + indexType + "\n" +
             "indexName: " + indexName + "\n" +
             "tableName: " + tableName + "\n" +
             "joinType: " + joinType + "\n" +
@@ -147,42 +141,44 @@ public class CreateIndexNode extends DDLStatementNode implements IndexDefinition
             storageFormat.treePrint(depth + 1);
         }
     }
+
     public String statementToString() {
         return "CREATE INDEX";
     }
 
-    public boolean getUniqueness() { 
-        return unique; 
+    public TableName getIndexName() {
+        return indexName;
     }
-    public String getIndexType() { 
-        return indexType;
+
+    public TableName getIndexTableName() {
+        return tableName;
     }
-    public TableName getIndexName() { 
-        return indexName; 
+
+    public Properties getProperties() {
+        return properties;
     }
-    public IndexColumnList getColumnList() {
-        return columnList;
+
+    public ExistenceCheck getExistenceCheck() {
+        return existenceCheck;
     }
-    public IndexColumnList getIndexColumnList() {
-        return columnList;
+
+    //
+    // IndexDefinition
+    //
+
+    public boolean isUnique() {
+        return unique;
     }
+
     public JoinType getJoinType() {
         return joinType;
     }
-    public Properties getProperties() { 
-        return properties; 
-    }
-    public TableName getIndexTableName() {
-        return tableName; 
+
+    public IndexColumnList getIndexColumnList() {
+        return columnList;
     }
 
-    public ExistenceCheck getExistenceCheck()
-    {
-        return existenceCheck;
-    }
-    
-    public StorageFormatNode getStorageFormat()
-    {
+    public StorageFormatNode getStorageFormat() {
         return storageFormat;
     }
 }

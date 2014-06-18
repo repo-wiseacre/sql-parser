@@ -2,7 +2,6 @@ com.foundationdb.sql.parser.CreateIndexNode@5289cf1e
 name: idx2
 statementType: CREATE INDEX
 unique: true
-indexType: null
 indexName: idx2
 tableName: table2
 joinType: null

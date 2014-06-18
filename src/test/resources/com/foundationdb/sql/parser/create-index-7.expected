@@ -2,7 +2,6 @@ com.foundationdb.sql.parser.CreateIndexNode@26fd68b1
 name: g1
 statementType: CREATE INDEX
 unique: false
-indexType: null
 indexName: g1
 tableName: group_table
 joinType: LEFT_OUTER

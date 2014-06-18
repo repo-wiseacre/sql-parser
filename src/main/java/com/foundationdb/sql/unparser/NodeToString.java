@@ -422,7 +422,7 @@ public class NodeToString
 
     protected String createIndexNode(CreateIndexNode node) throws StandardException {
         StringBuilder str = new StringBuilder("CREATE ");
-        if (node.getUniqueness())
+        if (node.isUnique())
             str.append("UNIQUE ");
         str.append("INDEX");
         str.append(" ");
@@ -441,7 +441,7 @@ public class NodeToString
         str.append(" ON ");
         str.append(node.getIndexTableName());
         str.append("(");
-        str.append(toString(node.getColumnList()));
+        str.append(toString(node.getIndexColumnList()));
         str.append(")");
         if (node.getJoinType() != null) {
             str.append(String.format(" USING %s JOIN",
