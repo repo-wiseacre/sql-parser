@@ -87,27 +87,27 @@ public class IndexDefinitionNode extends TableElementNode implements IndexDefini
         }
     }
 
+    public void setUnique(boolean unique) {
+        this.unique = unique;
+    }
+
     //
     // IndexDefinition
     //
 
-    public boolean isUnique()
-    {
+    public boolean isUnique() {
         return unique;
     }
 
-    public JoinType getJoinType()
-    {
+    public JoinType getJoinType() {
         return joinType;
     }
 
-    public IndexColumnList getIndexColumnList()
-    {
+    public IndexColumnList getIndexColumnList() {
         return columnList;
     }
 
-    public StorageFormatNode getStorageFormat()
-    {
+    public StorageFormatNode getStorageFormat() {
         return storageFormat;
     }
 }

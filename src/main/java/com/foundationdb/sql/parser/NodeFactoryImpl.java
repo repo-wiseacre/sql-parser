@@ -629,9 +629,6 @@ public final class NodeFactoryImpl extends NodeFactory
         case NodeTypes.AT_DROP_INDEX_NODE:
             return NodeNames.AT_DROP_INDEX_NODE_NAME;
             
-        case NodeTypes.AT_ADD_INDEX_NODE:
-            return NodeNames.AT_ADD_INDEX_NODE_NAME;
-
         case NodeTypes.INDEX_DEFINITION_NODE:
             return NodeNames.INDEX_DEFINITION_NODE_NAME;
 

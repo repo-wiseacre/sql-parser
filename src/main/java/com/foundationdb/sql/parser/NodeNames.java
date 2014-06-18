@@ -71,8 +71,6 @@ public interface NodeNames
     
     static final String AT_DROP_INDEX_NODE_NAME = "com.foundationdb.sql.parser.AlterDropIndexNode";
     
-    static final String AT_ADD_INDEX_NODE_NAME = "com.foundationdb.sql.parser.AlterAddIndexNode";
-
     static final String AT_RENAME_NODE_NAME = "com.foundationdb.sql.parser.AlterTableRenameNode";
 
     static final String AT_RENAME_COLUMN_NODE_NAME = "com.foundationdb.sql.parser.AlterTableRenameColumnNode";

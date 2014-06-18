@@ -3967,7 +3967,7 @@ tableElement(TableElementList tableElementList) throws StandardException :
 {
       columnDefinition(tableElementList)
     | tableConstraintDefinition(tableElementList)
-    | tableIndexDefinition(tableElementList)
+    | tableIndexDefinition(false, tableElementList)
 }
 
 boolean
@@ -12993,7 +12993,7 @@ tableConstraint(TableName constraintName) throws StandardException :
 }
 
 void
-tableIndexDefinition(TableElementList tableElementList) throws StandardException :
+tableIndexDefinition(boolean isUnique, TableElementList tableElementList) throws StandardException :
 {
     boolean groupFormat = hasFeature(SQLParserFeature.GROUPING);
     String indexName = null;
@@ -13018,7 +13018,7 @@ tableIndexDefinition(TableElementList tableElementList) throws StandardException
     {
         IndexDefinitionNode indexDef =
             (IndexDefinitionNode)nodeFactory.getNode(NodeTypes.INDEX_DEFINITION_NODE,
-                                                     false,
+                                                     isUnique,
                                                      indexName,
                                                      indexColumnList,
                                                      joinType,
@@ -13770,47 +13770,11 @@ dropIndex() throws StandardException :
 void
 addIndex(TableElementList tableElementList) throws StandardException :
 {
-    boolean groupFormat = hasFeature(SQLParserFeature.GROUPING);
-
-    ExistenceCheck cond;
-    Boolean unique = Boolean.FALSE;
-    String indexName;
-    IndexColumnList indexColumnList = null;
-    JoinNode.JoinType joinType = null;
-    Properties properties = null;
-    StorageFormatNode storage = null;
+    Boolean isUnique = false;
 }
 {
-    
-    [unique = unique()]
-    <INDEX>
-    cond = createCondition()
-    indexName = identifier()
-     <LEFT_PAREN>
-    ( LOOKAHEAD ( { groupFormat } )
-      groupIndexItemList(indexColumnList = (IndexColumnList)nodeFactory.getNode(NodeTypes.INDEX_COLUMN_LIST, parserContext))
-    |
-      LOOKAHEAD ( { !groupFormat } )
-      indexItemList(indexColumnList = (IndexColumnList)nodeFactory.getNode(NodeTypes.INDEX_COLUMN_LIST, parserContext))
-    )
-    <RIGHT_PAREN>
-    [ LOOKAHEAD ( { groupFormat && getToken(1).kind == USING } )
-      <USING> joinType = joinType() <JOIN> ]
-    [ <STORAGE_FORMAT> storage = storageFormat() ]
-    [ properties = propertyList(false) <CHECK_PROPERTIES>]
-    {
-        
-        tableElementList.addTableElement((TableElementNode)nodeFactory.getNode
-                                                                (NodeTypes.AT_ADD_INDEX_NODE,
-                                                                 cond,
-                                                                 unique,
-                                                                 indexName,
-                                                                 indexColumnList,
-                                                                 joinType,
-                                                                 properties,
-                                                                 storage,
-                                                                 parserContext));
-    }
+    [ isUnique = unique() ]
+    tableIndexDefinition(isUnique, tableElementList)
 }
 
 StorageFormatNode

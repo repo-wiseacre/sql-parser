@@ -15,12 +15,26 @@ tableElementList:
 	com.foundationdb.sql.parser.TableElementList@6b959b32
 
 	[0]:	
-	com.foundationdb.sql.parser.AlterAddIndexNode@2b0026cc
+	com.foundationdb.sql.parser.IndexDefinitionNode@7ca1320e
 	name: idx2
-	elementType: AT_ADD_INDEX
-	
-	existenceCheck: NO_CONDITION
+	elementType: null
 	unique: true
-	indexColumnList: 
 	joinType: null
-	properties: null
+	indexColumnList: 		
+		com.foundationdb.sql.parser.IndexColumnList@3add750e
+
+		[0]:		
+		com.foundationdb.sql.parser.IndexColumn@21300853
+		columnName: c1
+		tableName: null
+		ascending
+		[1]:		
+		com.foundationdb.sql.parser.IndexColumn@5872922a
+		columnName: c2
+		tableName: null
+		descending
+		[2]:		
+		com.foundationdb.sql.parser.IndexColumn@49da30c3
+		columnName: c3
+		tableName: null
+		ascending
