@@ -21,4 +21,5 @@ public interface IndexDefinition {
     public boolean getUniqueness();
     public JoinType getJoinType();
     public IndexColumnList getIndexColumnList();
+    public StorageFormatNode getStorageFormat();
 }
