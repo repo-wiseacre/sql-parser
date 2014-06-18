@@ -61,7 +61,7 @@ public interface NodeNames
 
     static final String AGGREGATE_WINDOW_FUNCTION_NAME = "com.foundationdb.sql.parser.AggregateWindowFunctionNode";
 
-    static final String INDEX_CONSTRAINT_NAME = "com.foundationdb.sql.parser.IndexConstraintDefinitionNode";
+    static final String INDEX_DEFINITION_NODE_NAME = "com.foundationdb.sql.parser.IndexDefinitionNode";
 
     static final String ALL_RESULT_COLUMN_NAME = "com.foundationdb.sql.parser.AllResultColumn";
 

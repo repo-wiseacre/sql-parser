@@ -3965,10 +3965,9 @@ tableElement(TableElementList tableElementList) throws StandardException :
 {
 }
 {
-    columnDefinition(tableElementList) | tableConstraintDefinition(tableElementList)
-    {
-        return ;
-    }
+      columnDefinition(tableElementList)
+    | tableConstraintDefinition(tableElementList)
+    | tableIndexDefinition(tableElementList)
 }
 
 boolean
@@ -12978,11 +12977,6 @@ tableConstraint(TableName constraintName) throws StandardException :
     ConstraintDefinitionNode tcdn;
 }
 {
-    tcdn = indexConstraintDefinition(constraintName)
-    {
-        return tcdn;
-    }
-|
     tcdn = uniqueConstraintDefinition(constraintName) 
     {
         return tcdn;
@@ -12999,11 +12993,10 @@ tableConstraint(TableName constraintName) throws StandardException :
     }
 }
 
-ConstraintDefinitionNode
-indexConstraintDefinition(TableName constraintName) throws StandardException : 
+void
+tableIndexDefinition(TableElementList tableElementList) throws StandardException :
 {
     boolean groupFormat = hasFeature(SQLParserFeature.GROUPING);
-
     String indexName = null;
     IndexColumnList indexColumnList = null;
     JoinNode.JoinType joinType = null;
@@ -13024,15 +13017,16 @@ indexConstraintDefinition(TableName constraintName) throws StandardException :
       <USING> joinType = joinType() <JOIN> ]
     [ <STORAGE_FORMAT> storage = storageFormat() ]
     {
-        return (ConstraintDefinitionNode)nodeFactory.getNode(NodeTypes.INDEX_CONSTRAINT_NODE,
-                                                             constraintName,
-                                                             indexColumnList,
-                                                             indexName,
-                                                             joinType,
-                                                             storage,
-                                                             parserContext);
+        IndexDefinitionNode indexDef =
+            (IndexDefinitionNode)nodeFactory.getNode(NodeTypes.INDEX_DEFINITION_NODE,
+                                                     false,
+                                                     indexName,
+                                                     indexColumnList,
+                                                     joinType,
+                                                     storage,
+                                                     parserContext);
+        tableElementList.addTableElement(indexDef);
     }
-    
 }
 
 

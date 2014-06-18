@@ -52,7 +52,7 @@ import java.util.Properties;
 public class ConstraintDefinitionNode extends TableElementNode
 {
     public static enum ConstraintType {
-        NOT_NULL, PRIMARY_KEY, UNIQUE, CHECK, DROP, FOREIGN_KEY, INDEX
+        NOT_NULL, PRIMARY_KEY, UNIQUE, CHECK, DROP, FOREIGN_KEY
     }
 
     protected TableName constraintName;

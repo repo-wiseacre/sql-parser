@@ -21,6 +21,4 @@ public interface IndexDefinition {
     public boolean getUniqueness();
     public JoinType getJoinType();
     public IndexColumnList getIndexColumnList();
-    public TableName getObjectName();
-    
 }
