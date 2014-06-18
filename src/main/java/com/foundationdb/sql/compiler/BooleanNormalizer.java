@@ -166,7 +166,7 @@ public class BooleanNormalizer implements Visitor
             {
                 IsNode isNode = (IsNode)node;
                 ValueNode leftOperand = isNode.getLeftOperand();
-                leftOperand = eliminateNots(leftOperand, underNotNode);
+                leftOperand = eliminateNots(leftOperand, false);
                 isNode.setLeftOperand(leftOperand);
                 if (underNotNode)
                     isNode.toggleNegated();
@@ -231,8 +231,7 @@ public class BooleanNormalizer implements Visitor
                     newNodeType = -1;
                 }
                 ValueNode newNode = (ValueNode)nodeFactory.getNode(newNodeType, 
-                                                                                                                     leftOperand, rightOperand,
-                                                                                                                     parserContext);
+                                     leftOperand, rightOperand, parserContext);
                 newNode.setType(onode.getType());
                 return newNode;
             }
