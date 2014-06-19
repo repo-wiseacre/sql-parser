@@ -18,14 +18,10 @@ tableElementList:
 	name: c2
 	elementType: null
 	[2]:	
-	com.foundationdb.sql.parser.IndexConstraintDefinitionNode@f151bf2
-	constraintName: null
-	constraintType: INDEX
-	properties: null
-	name: null
-	elementType: AT_DROP_CONSTRAINT
-	
-	indexName: indx1
+	com.foundationdb.sql.parser.IndexDefinitionNode@7d38e667
+	name: indx1
+	elementType: null
+	unique: false
 	joinType: null
 	indexColumnList: 		
 		com.foundationdb.sql.parser.IndexColumnList@3138554d

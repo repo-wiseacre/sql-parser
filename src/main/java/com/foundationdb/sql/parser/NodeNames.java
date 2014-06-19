@@ -61,7 +61,7 @@ public interface NodeNames
 
     static final String AGGREGATE_WINDOW_FUNCTION_NAME = "com.foundationdb.sql.parser.AggregateWindowFunctionNode";
 
-    static final String INDEX_CONSTRAINT_NAME = "com.foundationdb.sql.parser.IndexConstraintDefinitionNode";
+    static final String INDEX_DEFINITION_NODE_NAME = "com.foundationdb.sql.parser.IndexDefinitionNode";
 
     static final String ALL_RESULT_COLUMN_NAME = "com.foundationdb.sql.parser.AllResultColumn";
 
@@ -71,8 +71,6 @@ public interface NodeNames
     
     static final String AT_DROP_INDEX_NODE_NAME = "com.foundationdb.sql.parser.AlterDropIndexNode";
     
-    static final String AT_ADD_INDEX_NODE_NAME = "com.foundationdb.sql.parser.AlterAddIndexNode";
-
     static final String AT_RENAME_NODE_NAME = "com.foundationdb.sql.parser.AlterTableRenameNode";
 
     static final String AT_RENAME_COLUMN_NODE_NAME = "com.foundationdb.sql.parser.AlterTableRenameColumnNode";

@@ -3965,10 +3965,9 @@ tableElement(TableElementList tableElementList) throws StandardException :
 {
 }
 {
-    columnDefinition(tableElementList) | tableConstraintDefinition(tableElementList)
-    {
-        return ;
-    }
+      columnDefinition(tableElementList)
+    | tableConstraintDefinition(tableElementList)
+    | tableIndexDefinition(false, tableElementList)
 }
 
 boolean
@@ -10674,7 +10673,6 @@ indexDefinition() throws StandardException :
         }
         return (StatementNode)nodeFactory.getNode(NodeTypes.CREATE_INDEX_NODE,
                                                   unique,
-                                                  null,
                                                   indexName,
                                                   tableName,
                                                   indexColumnList,
@@ -12978,11 +12976,6 @@ tableConstraint(TableName constraintName) throws StandardException :
     ConstraintDefinitionNode tcdn;
 }
 {
-    tcdn = indexConstraintDefinition(constraintName)
-    {
-        return tcdn;
-    }
-|
     tcdn = uniqueConstraintDefinition(constraintName) 
     {
         return tcdn;
@@ -12999,11 +12992,10 @@ tableConstraint(TableName constraintName) throws StandardException :
     }
 }
 
-ConstraintDefinitionNode
-indexConstraintDefinition(TableName constraintName) throws StandardException : 
+void
+tableIndexDefinition(boolean isUnique, TableElementList tableElementList) throws StandardException :
 {
     boolean groupFormat = hasFeature(SQLParserFeature.GROUPING);
-
     String indexName = null;
     IndexColumnList indexColumnList = null;
     JoinNode.JoinType joinType = null;
@@ -13024,15 +13016,16 @@ indexConstraintDefinition(TableName constraintName) throws StandardException :
       <USING> joinType = joinType() <JOIN> ]
     [ <STORAGE_FORMAT> storage = storageFormat() ]
     {
-        return (ConstraintDefinitionNode)nodeFactory.getNode(NodeTypes.INDEX_CONSTRAINT_NODE,
-                                                             constraintName,
-                                                             indexColumnList,
-                                                             indexName,
-                                                             joinType,
-                                                             storage,
-                                                             parserContext);
+        IndexDefinitionNode indexDef =
+            (IndexDefinitionNode)nodeFactory.getNode(NodeTypes.INDEX_DEFINITION_NODE,
+                                                     isUnique,
+                                                     indexName,
+                                                     indexColumnList,
+                                                     joinType,
+                                                     storage,
+                                                     parserContext);
+        tableElementList.addTableElement(indexDef);
     }
-    
 }
 
 
@@ -13777,47 +13770,11 @@ dropIndex() throws StandardException :
 void
 addIndex(TableElementList tableElementList) throws StandardException :
 {
-    boolean groupFormat = hasFeature(SQLParserFeature.GROUPING);
-
-    ExistenceCheck cond;
-    Boolean unique = Boolean.FALSE;
-    String indexName;
-    IndexColumnList indexColumnList = null;
-    JoinNode.JoinType joinType = null;
-    Properties properties = null;
-    StorageFormatNode storage = null;
+    Boolean isUnique = false;
 }
 {
-    
-    [unique = unique()]
-    <INDEX>
-    cond = createCondition()
-    indexName = identifier()
-     <LEFT_PAREN>
-    ( LOOKAHEAD ( { groupFormat } )
-      groupIndexItemList(indexColumnList = (IndexColumnList)nodeFactory.getNode(NodeTypes.INDEX_COLUMN_LIST, parserContext))
-    |
-      LOOKAHEAD ( { !groupFormat } )
-      indexItemList(indexColumnList = (IndexColumnList)nodeFactory.getNode(NodeTypes.INDEX_COLUMN_LIST, parserContext))
-    )
-    <RIGHT_PAREN>
-    [ LOOKAHEAD ( { groupFormat && getToken(1).kind == USING } )
-      <USING> joinType = joinType() <JOIN> ]
-    [ <STORAGE_FORMAT> storage = storageFormat() ]
-    [ properties = propertyList(false) <CHECK_PROPERTIES>]
-    {
-        
-        tableElementList.addTableElement((TableElementNode)nodeFactory.getNode
-                                                                (NodeTypes.AT_ADD_INDEX_NODE,
-                                                                 cond,
-                                                                 unique,
-                                                                 indexName,
-                                                                 indexColumnList,
-                                                                 joinType,
-                                                                 properties,
-                                                                 storage,
-                                                                 parserContext));
-    }
+    [ isUnique = unique() ]
+    tableIndexDefinition(isUnique, tableElementList)
 }
 
 StorageFormatNode

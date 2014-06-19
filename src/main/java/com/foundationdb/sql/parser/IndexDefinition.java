@@ -18,9 +18,8 @@ package com.foundationdb.sql.parser;
 import com.foundationdb.sql.parser.JoinNode.JoinType;
 
 public interface IndexDefinition {
-    public boolean getUniqueness();
+    public boolean isUnique();
     public JoinType getJoinType();
     public IndexColumnList getIndexColumnList();
-    public TableName getObjectName();
-    
+    public StorageFormatNode getStorageFormat();
 }

@@ -274,8 +274,8 @@ public class NodeToString
             return staticMethodCallNode((StaticMethodCallNode)node);
         case NodeTypes.CALL_STATEMENT_NODE:
             return callStatementNode((CallStatementNode)node);
-        case NodeTypes.INDEX_CONSTRAINT_NODE:
-            return indexConstraint((IndexConstraintDefinitionNode)node);
+        case NodeTypes.INDEX_DEFINITION_NODE:
+            return indexDefinitionNode((IndexDefinitionNode)node);
         case NodeTypes.DECLARE_STATEMENT_NODE:
             return declareStatementNode((DeclareStatementNode)node);
         case NodeTypes.FETCH_STATEMENT_NODE:
@@ -295,11 +295,11 @@ public class NodeToString
         }
     }
 
-    protected String indexConstraint(IndexConstraintDefinitionNode node) throws StandardException
+    protected String indexDefinitionNode(IndexDefinitionNode node) throws StandardException
     {
         StringBuilder builder = new StringBuilder("INDEX ");
         
-        String indexName = node.getIndexName();
+        String indexName = node.getName();
         
         if (indexName != null)
             builder.append(indexName).append(' ');
@@ -422,7 +422,7 @@ public class NodeToString
 
     protected String createIndexNode(CreateIndexNode node) throws StandardException {
         StringBuilder str = new StringBuilder("CREATE ");
-        if (node.getUniqueness())
+        if (node.isUnique())
             str.append("UNIQUE ");
         str.append("INDEX");
         str.append(" ");
@@ -441,7 +441,7 @@ public class NodeToString
         str.append(" ON ");
         str.append(node.getIndexTableName());
         str.append("(");
-        str.append(toString(node.getColumnList()));
+        str.append(toString(node.getIndexColumnList()));
         str.append(")");
         if (node.getJoinType() != null) {
             str.append(String.format(" USING %s JOIN",
