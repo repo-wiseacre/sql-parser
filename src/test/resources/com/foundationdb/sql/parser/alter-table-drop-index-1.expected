@@ -11,6 +11,7 @@ truncateEndOfTable: false
 updateStatistics: false
 updateStatisticsAll: false
 indexNameForUpdateStatistics: null
+existenceCheck: NO_CONDITION
 tableElementList: 	
 	com.foundationdb.sql.parser.TableElementList@61ade7f6
 

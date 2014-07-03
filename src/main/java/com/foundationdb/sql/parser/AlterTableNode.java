@@ -83,6 +83,9 @@ public class AlterTableNode extends DDLStatementNode
 
     private boolean truncateTable = false;
 
+    private ExistenceCheck existenceCheck;
+
+
     /**
      * Initializer for a AlterTableNode for updating the statistics. The user
      * can ask for update statistic of all the indexes or only a specific index
@@ -93,19 +96,21 @@ public class AlterTableNode extends DDLStatementNode
      *                                                  the indexes on the table. If false, then update
      *                                                  the statistics of only the index provided as
      *                                                  3rd parameter here
-     * @param indexName Only used if updateStatisticsAll is set to 
-     *                                                  false. 
+     * @param indexName Only used if updateStatisticsAll is set to false.
+     * @param existenceCheck ExistenceCheck for IF EXISTS
      *
      * @exception StandardException Thrown on error
      */
     public void init(Object objectName,
                      Object updateStatisticsAll,
-                     Object indexName) 
+                     Object indexName,
+                     Object existenceCheck)
             throws StandardException {
         initAndCheck(objectName);
         this.updateStatisticsAll = ((Boolean)updateStatisticsAll).booleanValue();
         this.indexNameForUpdateStatistics = (String)indexName;
-        updateStatistics = true;
+        this.updateStatistics = true;
+        this.existenceCheck = (ExistenceCheck)existenceCheck;
     }
 
     /**
@@ -115,75 +120,72 @@ public class AlterTableNode extends DDLStatementNode
      * @param objectName The name of the table being altered
      * @param arg2 <code>int[]</code>: Behavior CASCADE or RESTRICTED
      *             <code>Boolean</code>: Whether or not the COMPRESS is SEQUENTIAL
+     * @param existenceCheck ExistenceCheck for IF EXISTS
      *
      * @exception StandardException Thrown on error
      */
-    public void init(Object objectName, Object arg2) throws StandardException {
+    public void init(Object objectName,
+                     Object arg2,
+                     Object existenceCheck) throws StandardException {
         initAndCheck(objectName);
 
         if (arg2 instanceof int[]) {
             int[] bh = (int[])arg2;
             this.behavior = bh[0];
-            truncateTable = true;
+            this.truncateTable = true;
         }
         else {
             this.sequential = ((Boolean)arg2).booleanValue();
-            compressTable = true;
+            this.compressTable = true;
         }
+        this.existenceCheck = (ExistenceCheck)existenceCheck;
     }
 
     /**
-     * Initializer for a AlterTableNode for INPLACE COMPRESS
+     * Initializer for AlterTableNode for
+     * a) INPLACE COMPRESS
+     * b) Generic alter table actions
      *
      * @param objectName The name of the table being altered
-     * @param purge PURGE during INPLACE COMPRESS?
-     * @param defragment DEFRAGMENT during INPLACE COMPRESS?
-     * @param truncateEndOfTable TRUNCATE END during INPLACE COMPRESS?
+     * @param arg2 a) PURGE during INPLACE COMPRESS
+     *             b) The alter table actions
+     * @param arg3 a) DEFRAGMENT during INPLACE COMPRESS
+     *             b) ADD_TYPE or DROP_TYPE
+     * @param arg4 a) TRUNCATE END during INPLACE COMPRESS
+     *             b) If drop is CASCADE or RESTRICTED
+     * @param existenceCheck ExistenceCheck for IF EXISTS
      *
      * @exception StandardException Thrown on error
      */
-
-    public void init(Object objectName, Object purge, Object defragment, 
-                     Object truncateEndOfTable) 
+    public void init(Object objectName,
+                     Object arg2,
+                     Object arg3,
+                     Object arg4,
+                     Object existenceCheck)
             throws StandardException {
         initAndCheck(objectName);
 
-        this.purge = ((Boolean)purge).booleanValue();
-        this.defragment = ((Boolean)defragment).booleanValue();
-        this.truncateEndOfTable = ((Boolean)truncateEndOfTable).booleanValue();
-        compressTable = true;
-    }
-
-    /**
-     * Initializer for a AlterTableNode
-     *
-     * @param objectName The name of the table being altered
-     * @param tableElementList The alter table action
-     * @param lockGranularity The new lock granularity, if any
-     * @param changeType ADD_TYPE or DROP_TYPE
-     * @param behavior If drop column is CASCADE or RESTRICTED
-     *
-     * @exception StandardException Thrown on error
-     */
-
-    public void init(Object objectName, Object tableElementList, Object lockGranularity,
-                     Object changeType, Object behavior) 
-            throws StandardException {
-        initAndCheck(objectName);
-        this.tableElementList = (TableElementList)tableElementList;
-        int[] ct = (int[])changeType, bh = (int[])behavior;
-        this.changeType = ct[0];
-        this.behavior = bh[0];
-        switch (this.changeType ) {
-        case ADD_TYPE:
-        case DROP_TYPE:
-        case MODIFY_TYPE:
-        case LOCKING_TYPE:
-            break;
-
-        default:
-            throw new StandardException("Not implemented");
+        if (arg2 instanceof Boolean) {
+            this.purge = ((Boolean)arg2).booleanValue();
+            this.defragment = ((Boolean)arg3).booleanValue();
+            this.truncateEndOfTable = ((Boolean)arg4).booleanValue();
+            this.compressTable = true;
+        } else {
+            this.tableElementList = (TableElementList)arg2;
+            this.changeType = ((int[])arg3)[0];
+            this.behavior = ((int[])arg4)[0];
+            switch (this.changeType ) {
+                case ADD_TYPE:
+                case DROP_TYPE:
+                case MODIFY_TYPE:
+                case LOCKING_TYPE:
+                    // OK
+                break;
+                default:
+                    throw new StandardException("ChangeType "+this.changeType+" Not implemented");
+            }
         }
+        this.existenceCheck = (ExistenceCheck)existenceCheck;
     }
 
     /**
@@ -207,6 +209,7 @@ public class AlterTableNode extends DDLStatementNode
         this.behavior = other.behavior;
         this.changeType = other.changeType;
         this.truncateTable = other.truncateTable;
+        this.existenceCheck = other.existenceCheck;
     }
 
     /**
@@ -219,7 +222,6 @@ public class AlterTableNode extends DDLStatementNode
     public String toString() {
         return super.toString() +
             "objectName: " + getObjectName() + "\n" +
-            //"lockGranularity: " + lockGranularity + "\n" +
             "compressTable: " + compressTable + "\n" +
             "sequential: " + sequential + "\n" +
             "truncateTable: " + truncateTable + "\n" +
@@ -228,8 +230,8 @@ public class AlterTableNode extends DDLStatementNode
             "truncateEndOfTable: " + truncateEndOfTable + "\n" +
             "updateStatistics: " + updateStatistics + "\n" +
             "updateStatisticsAll: " + updateStatisticsAll + "\n" +
-            "indexNameForUpdateStatistics: " +
-            indexNameForUpdateStatistics + "\n";
+            "indexNameForUpdateStatistics: " + indexNameForUpdateStatistics + "\n" +
+            "existenceCheck: " + existenceCheck + "\n";
     }
 
     /**
@@ -281,6 +283,10 @@ public class AlterTableNode extends DDLStatementNode
 
     public boolean isCascade() {
         return (behavior == StatementType.DROP_CASCADE);
+    }
+
+    public ExistenceCheck getExistenceCheck() {
+        return existenceCheck;
     }
 
     /**

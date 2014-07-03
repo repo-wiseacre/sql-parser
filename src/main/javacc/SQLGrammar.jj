@@ -12225,8 +12225,10 @@ renameColumnStatement() throws StandardException :
     ColumnReference oldColumnReference;
     TableElementList tableElementList;
     TableName tableName;
+    ExistenceCheck cond;
 }
 {
+    cond = existsCondition()
     <COLUMN> oldColumnReference = columnReference()
     <TO> newColumnName = identifier()
     {
@@ -12245,9 +12247,9 @@ renameColumnStatement() throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   tableName,
                                                   tableElementList,
-                                                  new Character('\0'),
                                                   new int[] {DDLStatementNode.MODIFY_TYPE},
                                                   new int[] {0},
+                                                  cond,
                                                   parserContext);  
     }
 }
@@ -13405,9 +13407,11 @@ alterGroup() throws StandardException :
     ResultColumnList parentColumns = null;
     TableElementList tableElementList = (TableElementList)
         nodeFactory.getNode(NodeTypes.TABLE_ELEMENT_LIST, parserContext);
-
+    ExistenceCheck cond;
 }
 {
+    cond = existsCondition()
+    (
     <ADD> <TABLE> childTable = qualifiedName()
     <LEFT_PAREN> childColumns = tableColumnList() <RIGHT_PAREN>
     <TO> parentTable = qualifiedName()
@@ -13433,9 +13437,9 @@ alterGroup() throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   childTable,
                                                   tableElementList,
-                                                  new Character('\0'),
                                                   new int[] {DDLStatementNode.ADD_TYPE},
                                                   new int[]{0}, // not used
+                                                  cond,
                                                   parserContext);
     }
 |
@@ -13456,12 +13460,13 @@ alterGroup() throws StandardException :
          return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                    childTable,
                                                    tableElementList,
-                                                   new Character('\0'),
                                                    new int[]{DDLStatementNode.DROP_TYPE},
                                                    new int[]{StatementType.DROP_DEFAULT},
+                                                   cond,
                                                    parserContext);
         
     }
+    )
 }
 
 StatementNode
@@ -13550,8 +13555,8 @@ alterSessionID() throws StandardException:
 StatementNode
 alterTableBody(TableName tableName) throws StandardException :
 {
+    ExistenceCheck cond;
     StatementNode sn;
-    char lockGranularity = '\0';
     String newTableName;
     TableElementList tableElementList = (TableElementList)
         nodeFactory.getNode(NodeTypes.TABLE_ELEMENT_LIST, parserContext);
@@ -13560,12 +13565,14 @@ alterTableBody(TableName tableName) throws StandardException :
     String indexName = null;
 }
 {
+    cond = existsCondition()
+    (
 //insert special key before compress so that only internal SP can know
     <COMPRESS>
     (
-        sn = inplaceCompress(tableName)
+        sn = inplaceCompress(tableName, cond)
     |
-        sn = sequentialCompress(tableName)
+        sn = sequentialCompress(tableName, cond)
     )
     {
         return sn;
@@ -13580,7 +13587,8 @@ alterTableBody(TableName tableName) throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   tableName,
                                                   Boolean.TRUE,
-                                                  null,
+                                                  null, /* index name */
+                                                  cond,
                                                   parserContext);
     }
 |
@@ -13597,6 +13605,7 @@ alterTableBody(TableName tableName) throws StandardException :
                                                   tableName,
                                                   Boolean.FALSE,
                                                   indexName,
+                                                  cond,
                                                   parserContext);
     }
 |
@@ -13605,15 +13614,16 @@ alterTableBody(TableName tableName) throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   tableName,
                                                   tableElementList,
-                                                  new Character(lockGranularity), // Not used, but we kind of nned it
-                                                  changeType,                     // to make the method take 5 args
-                                                  behavior,                       // The one that takes 4 args does
-                                                  parserContext);                 // something else!
+                                                  changeType,
+                                                  behavior,
+                                                  cond,
+                                                  parserContext);
     }
+    )
 }
 
 StatementNode
-inplaceCompress(TableName tableName) throws StandardException :
+inplaceCompress(TableName tableName, ExistenceCheck cond) throws StandardException :
 {
     Token purge = null;
     Token defragment = null;
@@ -13632,12 +13642,13 @@ inplaceCompress(TableName tableName) throws StandardException :
                                                   new Boolean(purge != null),
                                                   new Boolean(defragment != null),
                                                   new Boolean(truncate != null),
+                                                  cond,
                                                   parserContext);
     }
 }
 
 StatementNode
-sequentialCompress(TableName tableName) throws StandardException :
+sequentialCompress(TableName tableName, ExistenceCheck cond) throws StandardException :
 {
     Token tok = null;
 }
@@ -13647,6 +13658,7 @@ sequentialCompress(TableName tableName) throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   tableName,
                                                   new Boolean(tok != null),
+                                                  cond,
                                                   parserContext);
     }
 }
@@ -14175,14 +14187,17 @@ truncateTableStatement() throws StandardException :
 {
     TableName tableName;
     int[] behavior = new int[1];
+    ExistenceCheck cond;
 }
 {
+    cond = existsCondition()
     <TABLE> tableName = qualifiedName()
     dropBehavior(behavior)
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   tableName,
                                                   behavior,
+                                                  cond,
                                                   parserContext);
     }
 }
@@ -14191,14 +14206,17 @@ StatementNode
 truncateGroupStatement() throws StandardException :
 {
     TableName groupName;
+    ExistenceCheck cond;
 }
 {
+    cond = existsCondition()
     <GROUP> groupName = qualifiedName()
     {
         // Turns into DROP TABLE g CASCADE
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
                                                   groupName,
                                                   new int[] { StatementType.DROP_CASCADE },
+                                                  cond,
                                                   parserContext);
     }
 }
