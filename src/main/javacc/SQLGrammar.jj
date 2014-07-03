@@ -3193,7 +3193,7 @@ StatementPart(Token[] tokenHolder) throws StandardException :
 }
 
 ExistenceCheck
-createCondition() throws StandardException :
+notExistsCondition() throws StandardException :
 {
 }
 {
@@ -3210,7 +3210,7 @@ createCondition() throws StandardException :
 }
 
 ExistenceCheck
-dropCondition() throws StandardException :
+existsCondition() throws StandardException :
 {
 }
 {
@@ -10233,7 +10233,7 @@ schemaDefinition() throws StandardException :
     ** CREATE SCHEMA:
     ** We are not currently handling schema bodies.
     */
-    <SCHEMA> cond = createCondition()
+    <SCHEMA> cond = notExistsCondition()
     (
         schemaName = identifier() [ <AUTHORIZATION> authName = identifier() ]
     |
@@ -10446,7 +10446,7 @@ dropSequenceStatement() throws StandardException :
     /*
      * DROP SEQUENCE <sequencename> RESTRICT
      */
-    <SEQUENCE> cond = dropCondition() sequenceName = qualifiedName() <RESTRICT>
+    <SEQUENCE> cond = existsCondition() sequenceName = qualifiedName() <RESTRICT>
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.DROP_SEQUENCE_NODE,
                                                   sequenceName,
@@ -10470,7 +10470,7 @@ tableDefinition() throws StandardException :
     StorageFormatNode storage = null;
 }
 {
-    <TABLE> cond = createCondition() tableName = qualifiedName()
+    <TABLE> cond = notExistsCondition() tableName = qualifiedName()
     // Lookahead needed to choose between tableElementList and
     // tableColumnList.
     (        
@@ -10632,7 +10632,7 @@ indexDefinition() throws StandardException :
 {
     [ unique = unique() ] 
     <INDEX>
-    cond = createCondition()
+    cond = notExistsCondition()
     indexName = qualifiedName() 
     <ON> tableName = qualifiedName()
     <LEFT_PAREN>
@@ -11148,7 +11148,7 @@ viewDefinition(Token beginToken) throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <VIEW> cond = createCondition() tableName = qualifiedName() 
+    <VIEW> cond = notExistsCondition() tableName = qualifiedName()
     [ <LEFT_PAREN> resultColumns = viewColumnList() <RIGHT_PAREN> ]
     <AS> queryExpression = queryExpression(null, NO_SET_OP)
     [ orderCols = orderByClause() ]
@@ -13384,7 +13384,7 @@ dropSchemaStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <SCHEMA> cond = dropCondition() schemaName = identifier() dropBehavior(behavior)
+    <SCHEMA> cond = existsCondition() schemaName = identifier() dropBehavior(behavior)
     {
         StatementNode stmt = (StatementNode)nodeFactory.getNode(NodeTypes.DROP_SCHEMA_NODE,
                                                                 schemaName,
@@ -13758,7 +13758,7 @@ dropIndex() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    (<INDEX> | <KEY>) cond = dropCondition() indexName = identifier()
+    (<INDEX> | <KEY>) cond = existsCondition() indexName = identifier()
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.AT_DROP_INDEX_NODE,
                                                      indexName, // name
@@ -14051,7 +14051,7 @@ dropTableStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <TABLE> cond = dropCondition() tableName = qualifiedName() dropBehavior(behavior)
+    <TABLE> cond = existsCondition() tableName = qualifiedName() dropBehavior(behavior)
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.DROP_TABLE_NODE,
                                                   tableName,
@@ -14069,7 +14069,7 @@ dropIndexStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <INDEX> cond = dropCondition() indexName = indexName(tableName)
+    <INDEX> cond = existsCondition() indexName = indexName(tableName)
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.DROP_INDEX_NODE,
                                                   tableName[0],
@@ -14086,22 +14086,22 @@ dropAliasStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <PROCEDURE> cond = dropCondition() aliasName = qualifiedName() 
+    <PROCEDURE> cond = existsCondition() aliasName = qualifiedName()
     {
         return dropAliasNode(aliasName, AliasInfo.Type.PROCEDURE, cond);
     }    
 |        
-    <FUNCTION> cond = dropCondition() aliasName = qualifiedName() 
+    <FUNCTION> cond = existsCondition() aliasName = qualifiedName()
     {
         return dropAliasNode(aliasName, AliasInfo.Type.FUNCTION, cond);
     }    
 |    
-    <SYNONYM> cond = dropCondition() aliasName = qualifiedName()
+    <SYNONYM> cond = existsCondition() aliasName = qualifiedName()
     {
         return dropAliasNode(aliasName, AliasInfo.Type.SYNONYM, cond);
     }
 |    
-    <TYPE> cond = dropCondition() aliasName = qualifiedName() <RESTRICT>
+    <TYPE> cond = existsCondition() aliasName = qualifiedName() <RESTRICT>
     {
         return dropAliasNode(aliasName, AliasInfo.Type.UDT, cond);
     }
@@ -14114,7 +14114,7 @@ dropViewStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <VIEW> cond = dropCondition() viewName = qualifiedName() 
+    <VIEW> cond = existsCondition() viewName = qualifiedName()
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.DROP_VIEW_NODE,
                                                   viewName,
@@ -14130,7 +14130,7 @@ dropGroupStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
-    <GROUP> cond = dropCondition() groupName = qualifiedName()
+    <GROUP> cond = existsCondition() groupName = qualifiedName()
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.DROP_GROUP_NODE,
                                                    groupName,
