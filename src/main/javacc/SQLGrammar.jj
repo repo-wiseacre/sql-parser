@@ -12228,8 +12228,9 @@ renameColumnStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
+    <COLUMN>
     cond = existsCondition()
-    <COLUMN> oldColumnReference = columnReference()
+    oldColumnReference = columnReference()
     <TO> newColumnName = identifier()
     {
         if ((tableName = oldColumnReference.getTableNameNode()) == null)
@@ -13476,7 +13477,7 @@ alterStatement() throws StandardException :
     TableName tableName;
 }
 {
-    <TABLE> tableName = qualifiedName() node = alterTableBody(tableName)
+    <TABLE> node = alterTableBody()
     {
         return node;
     }
@@ -13553,8 +13554,9 @@ alterSessionID() throws StandardException:
 }
 
 StatementNode
-alterTableBody(TableName tableName) throws StandardException :
+alterTableBody() throws StandardException :
 {
+    TableName tableName;
     ExistenceCheck cond;
     StatementNode sn;
     String newTableName;
@@ -13566,6 +13568,7 @@ alterTableBody(TableName tableName) throws StandardException :
 }
 {
     cond = existsCondition()
+    tableName = qualifiedName()
     (
 //insert special key before compress so that only internal SP can know
     <COMPRESS>
@@ -14190,8 +14193,9 @@ truncateTableStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
+    <TABLE>
     cond = existsCondition()
-    <TABLE> tableName = qualifiedName()
+    tableName = qualifiedName()
     dropBehavior(behavior)
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
@@ -14209,8 +14213,9 @@ truncateGroupStatement() throws StandardException :
     ExistenceCheck cond;
 }
 {
+    <GROUP>
     cond = existsCondition()
-    <GROUP> groupName = qualifiedName()
+    groupName = qualifiedName()
     {
         // Turns into DROP TABLE g CASCADE
         return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,

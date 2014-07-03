@@ -174,7 +174,7 @@ public class AlterTableNode extends DDLStatementNode
             this.tableElementList = (TableElementList)arg2;
             this.changeType = ((int[])arg3)[0];
             this.behavior = ((int[])arg4)[0];
-            switch (this.changeType ) {
+            switch (this.changeType) {
                 case ADD_TYPE:
                 case DROP_TYPE:
                 case MODIFY_TYPE:
