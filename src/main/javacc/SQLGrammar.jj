@@ -13444,7 +13444,8 @@ alterGroup() throws StandardException :
                                                   parserContext);
     }
 |
-    <DROP> <TABLE> childTable = qualifiedName()
+    <DROP> <TABLE>
+    childTable = qualifiedName()
     {
         // NB: Must be kept in sync with dropTableConstraintDefinition()
         // Equivalent to this statement:
@@ -13456,6 +13457,7 @@ alterGroup() throws StandardException :
                                 ConstraintDefinitionNode.ConstraintType.DROP,
                                 StatementType.DROP_DEFAULT,
                                 Boolean.TRUE,
+                                cond,
                                 parserContext));
 
          return (StatementNode)nodeFactory.getNode(NodeTypes.ALTER_TABLE_NODE,
@@ -13747,21 +13749,25 @@ alterTableAction(TableElementList tableElementList, int[] changeType, int[] beha
 /*
  * Handle
  *
- *      ALTER TABLE tablename DROP [ COLUMN ] columnname [ CASCADE | RESTRICT ]
+ *      ALTER TABLE tablename DROP [ COLUMN ] [ IF EXISTS ] columnname [ CASCADE | RESTRICT ]
  */
 TableElementNode
 dropColumnDefinition(int []behavior) throws StandardException :
 {
     String columnName;
     TableElementNode tableElement;
+    ExistenceCheck cond;
 }
 {
-    [ <COLUMN> ] columnName = identifier()
+    [ <COLUMN> ]
+    cond = existsCondition()
+    columnName = identifier()
     dropBehavior(behavior)
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.DROP_COLUMN_NODE,
                                                      columnName, null,
                                                      null, null,
+                                                     cond,
                                                      parserContext);
     }
 }
@@ -13984,10 +13990,13 @@ dropTableConstraintDefinition() throws StandardException :
 {
     TableName constraintName = null;
     Token grouping = null;
+    ExistenceCheck cond;
 }
 {
     LOOKAHEAD( { getToken(1).kind == CONSTRAINT } )
-    <CONSTRAINT> constraintName = qualifiedName()
+    <CONSTRAINT>
+    cond = existsCondition()
+    constraintName = qualifiedName()
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.CONSTRAINT_DEFINITION_NODE,
                                                      constraintName,
@@ -13997,11 +14006,13 @@ dropTableConstraintDefinition() throws StandardException :
                                                      null,
                                                      null,
                                                      StatementType.DROP_DEFAULT,
+                                                     cond,
                                                      parserContext);
     }
 |
     LOOKAHEAD( { getToken(1).kind == PRIMARY } )
     <PRIMARY> <KEY>
+    cond = existsCondition()
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.CONSTRAINT_DEFINITION_NODE,
                                                      null,
@@ -14012,24 +14023,31 @@ dropTableConstraintDefinition() throws StandardException :
                                                      null,
                                                      StatementType.DROP_DEFAULT,
                                                      ConstraintDefinitionNode.ConstraintType.PRIMARY_KEY,
+                                                     cond,
                                                      parserContext);
     }
 |
     // NB: GROUPING case needs to be kept in sync with alterGroup()!
     LOOKAHEAD( { (getToken(1).kind == FOREIGN) || 
                  (groupConstructFollows(GROUPING) && (getToken(2).kind == FOREIGN)) } )
-    [ grouping = <GROUPING> ] <FOREIGN> <KEY> [ constraintName = qualifiedName() ]
+    [ grouping = <GROUPING> ]
+    <FOREIGN> <KEY>
+    cond = existsCondition()
+    [ constraintName = qualifiedName() ]
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.FK_CONSTRAINT_DEFINITION_NODE,
                                                      constraintName,
                                                      ConstraintDefinitionNode.ConstraintType.DROP,
                                                      StatementType.DROP_DEFAULT,
                                                      (grouping == null) ? Boolean.FALSE : Boolean.TRUE,
+                                                     cond,
                                                      parserContext);
     }
 |
     LOOKAHEAD( { getToken(1).kind == UNIQUE } )
-    <UNIQUE> constraintName = qualifiedName()
+    <UNIQUE>
+    cond = existsCondition()
+    constraintName = qualifiedName()
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.CONSTRAINT_DEFINITION_NODE,
                                                      constraintName,
@@ -14040,10 +14058,13 @@ dropTableConstraintDefinition() throws StandardException :
                                                      null,
                                                      StatementType.DROP_DEFAULT,
                                                      ConstraintDefinitionNode.ConstraintType.UNIQUE,
+                                                     cond,
                                                      parserContext);
     }
 |
-    <CHECK> constraintName = qualifiedName()
+    <CHECK>
+    cond = existsCondition()
+    constraintName = qualifiedName()
     {
         return (TableElementNode)nodeFactory.getNode(NodeTypes.CONSTRAINT_DEFINITION_NODE,
                                                      constraintName,
@@ -14054,6 +14075,7 @@ dropTableConstraintDefinition() throws StandardException :
                                                      null,
                                                      StatementType.DROP_DEFAULT,
                                                      ConstraintDefinitionNode.ConstraintType.CHECK,
+                                                     cond,
                                                      parserContext);
     }
 }

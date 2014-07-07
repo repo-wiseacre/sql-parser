@@ -63,6 +63,7 @@ public class ConstraintDefinitionNode extends TableElementNode
     private ValueNode checkCondition;
     private int behavior;                   // A StatementType.DROP_XXX
     private ConstraintType verifyType = ConstraintType.DROP; // By default do not check the constraint type
+    private ExistenceCheck existenceCheck;
 
     public void init(Object constraintName,
                      Object constraintType,
@@ -70,7 +71,8 @@ public class ConstraintDefinitionNode extends TableElementNode
                      Object properties,
                      Object checkCondition,
                      Object constraintText,
-                     Object behavior) {
+                     Object behavior,
+                     Object existenceCheck) {
         this.constraintName = (TableName)constraintName;
 
         /* We need to pass null as name to TableElementNode's constructor 
@@ -86,6 +88,7 @@ public class ConstraintDefinitionNode extends TableElementNode
         this.checkCondition = (ValueNode)checkCondition;
         this.constraintText = (String)constraintText;
         this.behavior = ((Integer)behavior).intValue();
+        this.existenceCheck = (ExistenceCheck)existenceCheck;
     }
     
     public void init(Object constraintName,
@@ -100,7 +103,8 @@ public class ConstraintDefinitionNode extends TableElementNode
              properties, 
              checkCondition,
              constraintText,
-             StatementType.DROP_DEFAULT);
+             StatementType.DROP_DEFAULT,
+             null);
     }
 
     public void init(Object constraintName,
@@ -110,9 +114,10 @@ public class ConstraintDefinitionNode extends TableElementNode
                      Object checkCondition,
                      Object constraintText,
                      Object behavior,
-                     Object verifyType) {
+                     Object verifyType,
+                     Object existenceCheck) {
         init(constraintName, constraintType, rcl, properties, checkCondition, 
-             constraintText, behavior);
+             constraintText, behavior, existenceCheck);
         this.verifyType = (ConstraintType)verifyType;
     }
         
@@ -134,6 +139,7 @@ public class ConstraintDefinitionNode extends TableElementNode
             getNodeFactory().copyNode(other.checkCondition, getParserContext());
         this.behavior = other.behavior;
         this.verifyType = other.verifyType;
+        this.existenceCheck = other.existenceCheck;
     }
 
     /**
@@ -221,6 +227,7 @@ public class ConstraintDefinitionNode extends TableElementNode
             (constraintType == ConstraintType.DROP ? "verifyType: " + verifyType + "\n" : "") +
             "properties: " +
             ((properties != null) ? properties.toString() : "null") + "\n" +
+            ( ( existenceCheck != null ) ? "existenceCheck: " + existenceCheck + "\n" : "" ) +
             super.toString();
     }
 

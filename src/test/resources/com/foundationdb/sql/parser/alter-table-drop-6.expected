@@ -21,5 +21,6 @@ tableElementList:
 	constraintType: DROP
 	verifyType: DROP
 	properties: null
+	existenceCheck: NO_CONDITION
 	name: con
 	elementType: AT_DROP_CONSTRAINT

@@ -26,5 +26,6 @@ tableElementList:
 	constraintType: DROP
 	verifyType: FOREIGN_KEY
 	properties: null
+	existenceCheck: NO_CONDITION
 	name: null
 	elementType: AT_DROP_CONSTRAINT
