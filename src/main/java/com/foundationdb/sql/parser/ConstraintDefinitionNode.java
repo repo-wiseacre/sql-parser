@@ -211,6 +211,9 @@ public class ConstraintDefinitionNode extends TableElementNode
         return properties;
     }
 
+    public ExistenceCheck getExistenceCheck() {
+        return existenceCheck;
+    }
 
     /**
      * Convert this object to a String.  See comments in QueryTreeNode.java
