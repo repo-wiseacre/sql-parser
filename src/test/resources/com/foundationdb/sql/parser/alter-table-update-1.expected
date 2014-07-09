@@ -11,3 +11,4 @@ truncateEndOfTable: false
 updateStatistics: true
 updateStatisticsAll: true
 indexNameForUpdateStatistics: null
+existenceCheck: NO_CONDITION

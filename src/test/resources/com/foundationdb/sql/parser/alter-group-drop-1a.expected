@@ -11,6 +11,7 @@ truncateEndOfTable: false
 updateStatistics: false
 updateStatisticsAll: false
 indexNameForUpdateStatistics: null
+existenceCheck: NO_CONDITION
 tableElementList: 	
 	com.foundationdb.sql.parser.TableElementList@22c4bca9
 
@@ -25,5 +26,6 @@ tableElementList:
 	constraintType: DROP
 	verifyType: FOREIGN_KEY
 	properties: null
+	existenceCheck: NO_CONDITION
 	name: null
 	elementType: AT_DROP_CONSTRAINT

@@ -92,7 +92,8 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
     public void init(Object constraintName,
                      Object constraintType,
                      Object behavior,
-                     Object grouping) {
+                     Object grouping,
+                     Object existenceCheck) {
         super.init(constraintName,
                    constraintType,
                    null,
@@ -100,7 +101,8 @@ public class FKConstraintDefinitionNode extends ConstraintDefinitionNode
                    null,
                    null,
                    behavior,
-                   ConstraintType.FOREIGN_KEY);
+                   ConstraintType.FOREIGN_KEY,
+                   existenceCheck);
         this.grouping = ((Boolean)grouping).booleanValue();
     }
 

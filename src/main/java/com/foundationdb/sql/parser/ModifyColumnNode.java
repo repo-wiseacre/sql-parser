@@ -39,6 +39,8 @@
 
 package com.foundationdb.sql.parser;
 
+import com.foundationdb.sql.StandardException;
+
 /**
  * A ModifyColumnNode represents a modify column in an ALTER TABLE statement.
  *
@@ -46,4 +48,29 @@ package com.foundationdb.sql.parser;
 
 public class ModifyColumnNode extends ColumnDefinitionNode
 {
+    private ExistenceCheck existenceCheck;
+
+    public void init(Object name,
+                     Object defaultNode,
+                     Object type,
+                     Object autoIncrementInfo,
+                     Object existenceCheck) throws StandardException {
+        super.init(name, null, null, null);
+        this.existenceCheck = (ExistenceCheck)existenceCheck;
+    }
+
+    public void copyFrom(QueryTreeNode node) throws StandardException {
+        super.copyFrom(node);
+
+        this.existenceCheck = ((ModifyColumnNode)node).existenceCheck;
+    }
+
+    public ExistenceCheck getExistenceCheck() {
+        return existenceCheck;
+    }
+
+    public String toString() {
+        return ( (existenceCheck != null) ? "existence: " + existenceCheck + "\n" : "" ) +
+            super.toString();
+    }
 }

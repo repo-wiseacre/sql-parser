@@ -1,7 +1,7 @@
 com.foundationdb.sql.parser.AlterTableNode@3b362ca8
-name: netbeans1
+name: t
 statementType: ALTER TABLE
-objectName: netbeans1
+objectName: t
 compressTable: false
 sequential: false
 truncateTable: false
@@ -11,12 +11,13 @@ truncateEndOfTable: false
 updateStatistics: false
 updateStatisticsAll: false
 indexNameForUpdateStatistics: null
+existenceCheck: NO_CONDITION
 tableElementList: 	
 	com.foundationdb.sql.parser.TableElementList@61ade7f6
 
 	[0]:	
 	com.foundationdb.sql.parser.AlterDropIndexNode@6057f993
-	name: netbeansidx
+	name: x
 	elementType: AT_DROP_INDEX
 	
-	existenceCheck: NO_CONDITION
+	existenceCheck: IF_EXISTS
