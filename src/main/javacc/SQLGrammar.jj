@@ -10468,6 +10468,8 @@ tableDefinition() throws StandardException :
     boolean withData = true;
     ExistenceCheck cond;
     StorageFormatNode storage = null;
+    int beginOffset;
+    int endOffset;
 }
 {
     <TABLE> cond = notExistsCondition() tableName = qualifiedName()
@@ -10491,8 +10493,12 @@ tableDefinition() throws StandardException :
     }
     |
         [ <LEFT_PAREN> resultColumns = tableColumnList() <RIGHT_PAREN> ]
-        <AS> queryExpression = preparableSelectStatement()
-        <WITH> [ <NO> { withData = false; } ] <DATA>
+        <AS>
+        {beginOffset = getToken(0).endOffset + 1;}
+        queryExpression = preparableSelectStatement()
+        <WITH>
+        {endOffset = getToken(0).beginOffset - 1;}
+        [ <NO> { withData = false; } ] <DATA>
     {
         /* Parameters not allowed in create table */
         HasNodeVisitor visitor =
@@ -10507,6 +10513,9 @@ tableDefinition() throws StandardException :
                                                                   resultColumns,
                                                                   queryExpression,
                                                                   cond,
+                                                                  sliceSQLText(beginOffset, endOffset, false),
+                                                                  true,
+                                                                  true,
                                                                   parserContext);
         if (withData) {
             ((CreateTableNode)result).markWithData();

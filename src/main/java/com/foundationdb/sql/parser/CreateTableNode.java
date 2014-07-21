@@ -73,6 +73,7 @@ public class CreateTableNode extends DDLStatementNode
     private boolean withData;
     private ExistenceCheck existenceCheck;
     private StorageFormatNode storageFormat;
+    private String createAsQuery;
 
     /**
      * Initializer for a CreateTableNode for a base table
@@ -144,12 +145,18 @@ public class CreateTableNode extends DDLStatementNode
      *              (ie base table).
      * @param resultColumns The optional column list.
      * @param queryExpression The query expression for the table.
+     * @param createAsQuery select query inside sql query
+     * @param isCreateAs used only to distinguish this constructors
+     * @param isCreateAsAgain used only to distinguish this constructor
      */
     public void init(Object newObjectName,
                      Object resultColumns,
                      Object queryExpression,
-                     Object c) 
-            throws StandardException {
+                     Object c,
+                     Object createAsQuery,
+                     Object isCreateAs,
+                     Object isCreateAsAgain) throws StandardException {
+        this.createAsQuery = (String)createAsQuery;
         tableType = BASE_TABLE_TYPE;
         lockGranularity = DEFAULT_LOCK_GRANULARITY;
         implicitCreateSchema = true;
@@ -228,6 +235,8 @@ public class CreateTableNode extends DDLStatementNode
     public CursorNode getQueryExpression() {
         return queryExpression;
     }
+
+    public String getCreateAsQuery() { return createAsQuery;}
 
     public boolean isWithData() {
         return withData;
