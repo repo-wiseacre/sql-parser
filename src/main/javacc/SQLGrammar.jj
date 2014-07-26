@@ -2701,7 +2701,7 @@ TOKEN :
 
 TOKEN :
 { /* Identifiers */
- <IDENTIFIER: ( <LETTER> ) (<LETTER> | "_" | <DIGIT> | <DOLLAR> )* >
+ <IDENTIFIER: ( <LETTER> | "_" ) (<LETTER> | "_" | <DIGIT> | <DOLLAR> )* >
 }
 
 TOKEN :
