@@ -9314,6 +9314,7 @@ void indexItem(IndexColumnList columnList) throws StandardException :
 {
     String columnName;
     boolean asc = true;
+    int spatialColumnCount;
 }
 {
     (
@@ -9328,22 +9329,26 @@ void indexItem(IndexColumnList columnList) throws StandardException :
                                   Boolean.FALSE,
                                   parserContext);
           columnList.add(lat);
+          spatialColumnCount = 1;
       }
-      <COMMA>
-      columnName = identifier()
-      {
-          IndexColumn lon = (IndexColumn)
-              nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
-                                  columnName,
-                                  Boolean.FALSE,
-                                  parserContext);
-          columnList.add(lon);
-      }
+      [
+          <COMMA>
+          columnName = identifier()
+          {
+              IndexColumn lon = (IndexColumn)
+                  nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
+                                      columnName,
+                                      Boolean.FALSE,
+                                      parserContext);
+              columnList.add(lon);
+              spatialColumnCount = 2;
+          }
+      ]
       <RIGHT_PAREN>
       {
           columnList.applyFunction(IndexColumnList.FunctionType.Z_ORDER_LAT_LON,
                                    latPosition,
-                                   2);
+                                   spatialColumnCount);
       }
     )
     |
@@ -15631,6 +15636,7 @@ groupIndexItemList(IndexColumnList columnList) throws StandardException :
 void groupIndexItem(IndexColumnList columnList) throws StandardException :
 {
     int latPosition;
+    int spatialColumnCount;
 }
 {
     (
@@ -15638,13 +15644,17 @@ void groupIndexItem(IndexColumnList columnList) throws StandardException :
       <LEFT_PAREN>
       { latPosition = columnList.size(); }
       unorderedGroupIndexColumnItem(columnList)
-      <COMMA>
-      unorderedGroupIndexColumnItem(columnList)
+      { spatialColumnCount = 1; }
+      [
+          <COMMA>
+          unorderedGroupIndexColumnItem(columnList)
+          { spatialColumnCount = 2; }
+      ]
       <RIGHT_PAREN>
       {
           columnList.applyFunction(IndexColumnList.FunctionType.Z_ORDER_LAT_LON,
                                    latPosition,
-                                   2);
+                                   spatialColumnCount);
       }
     )
     |
