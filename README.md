@@ -15,7 +15,7 @@ used independently. It is derived from the Apache Derby parser.
 Run tests and build jars:
 
 ```sh
-$ mvn package
+$ mvn install
 ```
 
 The resulting jar files are in `target/`.
