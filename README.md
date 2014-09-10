@@ -12,13 +12,11 @@ used independently. It is derived from the Apache Derby parser.
 
 [Maven](http://maven.apache.org) is used to build, test and deploy.
 
-Run tests and build jars:
+Run tests, build jars and copy to local Maven repository:
 
 ```sh
 $ mvn install
 ```
-
-The resulting jar files are in `target/`.
 
 Generate the documentation:
 
