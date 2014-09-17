@@ -7672,6 +7672,13 @@ userNode() throws StandardException :
         return (ValueNode)nodeFactory.getNode(NodeTypes.SESSION_USER_NODE,
                                               parserContext);
     }
+|
+    <SYSTEM_USER>
+    {
+        checkOptionalParens();
+        return (ValueNode)nodeFactory.getNode(NodeTypes.SYSTEM_USER_NODE,
+                                              parserContext);
+    }
 }
 
 ValueNode
