@@ -1,12 +1,12 @@
 /**
  * Copyright 2011-2013 FoundationDB, LLC
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,8 +19,10 @@ package com.foundationdb.sql.unparser;
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.*;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class NodeToString
 {
@@ -297,20 +299,20 @@ public class NodeToString
     protected String indexDefinitionNode(IndexDefinitionNode node) throws StandardException
     {
         StringBuilder builder = new StringBuilder("INDEX ");
-        
+
         String indexName = maybeQuote(node.getName());
-        
+
         if (indexName != null)
             builder.append(indexName).append(' ');
-        
+
         builder.append('(')
                .append(indexColumnList(node.getIndexColumnList()))
                .append(')');
-        
+
         StorageFormatNode storage = node.getStorageFormat();
         if (storage != null)
             builder.append(toString(storage));
-        
+
         return builder.toString();
     }
 
@@ -388,7 +390,7 @@ public class NodeToString
         return basis;
     }
 
-    protected String constraintDefinitionNode(ConstraintDefinitionNode node) 
+    protected String constraintDefinitionNode(ConstraintDefinitionNode node)
             throws StandardException {
         switch (node.getConstraintType()) {
         case PRIMARY_KEY:
@@ -425,7 +427,7 @@ public class NodeToString
             str.append("UNIQUE ");
         str.append("INDEX");
         str.append(" ");
-        
+
         switch (node.getExistenceCheck())
         {
             case IF_EXISTS:
@@ -433,7 +435,7 @@ public class NodeToString
                 break;
             case IF_NOT_EXISTS:
                 str.append("IF NOT EXISTS ");
-                break;  
+                break;
         }
 
         str.append(toString(node.getIndexName()));
@@ -723,7 +725,7 @@ public class NodeToString
     protected String resultColumnList(ResultColumnList node) throws StandardException {
         return nodeList(node);
     }
-    
+
     protected String resultColumn(ResultColumn node) throws StandardException {
         if (node.getReference() != null)
             return toString(node.getReference());
@@ -740,12 +742,11 @@ public class NodeToString
     }
 
     protected String allResultColumn(AllResultColumn node) throws StandardException {
-		if (node.getFullTableName() == null) {
-        	return "*";
-		} else {
-			return maybeQuote(node.getFullTableName()) + ".*";
-		}
-
+        if (node.getFullTableName() == null) {
+            return "*";
+        } else {
+            return maybeQuote(node.getFullTableName()) + ".*";
+        }
     }
 
     protected String fromList(FromList node) throws StandardException {
@@ -783,7 +784,7 @@ public class NodeToString
         StringBuilder str = new StringBuilder(toString(node.getLeftResultSet()));
         JoinNode.JoinType joinType = JoinNode.JoinType.INNER;
         if (node instanceof HalfOuterJoinNode)
-            joinType = ((HalfOuterJoinNode)node).isRightOuterJoin() ? 
+            joinType = ((HalfOuterJoinNode)node).isRightOuterJoin() ?
                 JoinNode.JoinType.RIGHT_OUTER : JoinNode.JoinType.LEFT_OUTER;
         else if (node instanceof FullOuterJoinNode)
             joinType = JoinNode.JoinType.FULL_OUTER;
@@ -806,7 +807,7 @@ public class NodeToString
     }
 
     protected String unionNode(UnionNode node) throws StandardException {
-        return toString(node.getLeftResultSet()) + " UNION " + 
+        return toString(node.getLeftResultSet()) + " UNION " +
                toString(node.getRightResultSet());
     }
 
@@ -838,10 +839,233 @@ public class NodeToString
         // TODO use the generated grammar or write a really long regex
         if (identifier == null)
             return null;
-        else if (identifier.matches("[a-z_][a-z0-9_$]*"))
+        else if (identifier.matches("[a-zA-Z_][a-zA-Z0-9_$]*") && !isReserved(identifier))
             return identifier;
         else
             return '"' + identifier + '"';
+    }
+
+    public static boolean isReserved(String word) {
+        return RESERVED_WORDS.contains(word.toLowerCase());
+    }
+
+    private static final Set<String> RESERVED_WORDS = getReservedWords();
+
+    private static Set<String> getReservedWords() {
+
+        // From SQLGrammar.jj
+        String[] sql92ReservedKeywords = {
+                "add",
+                "all",
+                "allocate",
+                "alter",
+                "and",
+                "any",
+                "are",
+                "as",
+                "at",
+                "authorization",
+                "avg",
+                "begin",
+                "between",
+                "bit",
+                "both",
+                "by",
+                "cascaded",
+                "case",
+                "cast",
+                "char",
+                "character_length",
+                "char_length",
+                "check",
+                "close",
+                "collate",
+                "column",
+                "commit",
+                "connect",
+                "connection",
+                "constraint",
+                "continue",
+                "convert",
+                "corresponding",
+                "create",
+                "cross",
+                "current",
+                "current_date",
+                "current_time",
+                "current_timestamp",
+                "current_user",
+                "cursor",
+                "deallocate",
+                "dec",
+                "decimal",
+                "declare",
+                "_default",
+                "delete",
+                "describe",
+                "disconnect",
+                "distinct",
+                "double",
+                "drop",
+                "else",
+                "end",
+                "endexec",
+                "escape",
+                "except",
+                "exec",
+                "execute",
+                "exists",
+                "external",
+                "false",
+                "fetch",
+                "float",
+                "for",
+                "foreign",
+                "from",
+                "full",
+                "function",
+                "get",
+                "get_current_connection",
+                "global",
+                "grant",
+                "group",
+                "group_concat",
+                "having",
+                "hour",
+                "identity",
+                "immediate",
+                "in",
+                "index",
+                "indicator",
+                "inner",
+                "inout",
+                "input",
+                "insensitive",
+                "insert",
+                "int",
+                "integer",
+                "intersect",
+                "interval",
+                "into",
+                "is",
+                "join",
+                "leading",
+                "left",
+                "like",
+                "limit",
+                "lower",
+                "match",
+                "max",
+                "min",
+                "minute",
+                "national",
+                "natural",
+                "nchar",
+                "nvarchar",
+                "next",
+                "no",
+                "none",
+                "not",
+                "null",
+                "nullif",
+                "numeric",
+                "octet_length",
+                "of",
+                "on",
+                "only",
+                "open",
+                "or",
+                "order",
+                "out",
+                "outer",
+                "output",
+                "overlaps",
+                "partition",
+                "prepare",
+                "primary",
+                "procedure",
+                "public",
+                "real",
+                "references",
+                "restrict",
+                "returning",
+                "revoke",
+                "right",
+                "rollback",
+                "rows",
+                "schema",
+                "scroll",
+                "second",
+                "select",
+                "session_user",
+                "set",
+                "smallint",
+                "some",
+                "sql",
+                "sqlcode",
+                "sqlerror",
+                "sqlstate",
+                "sql_cache",
+                "sql_no_cache",
+                "straight_join",
+                "substring",
+                "sum",
+                "system_user",
+                "table",
+                "timezone_hour",
+                "timezone_minute",
+                "to",
+                "trailing",
+                "translate",
+                "translation",
+                "true",
+                "union",
+                "unique",
+                "unknown",
+                "update",
+                "upper",
+                "user",
+                "using",
+                "values",
+                "varchar",
+                "varying",
+                "whenever",
+                "where",
+                "with",
+                "year",
+        };
+
+        // From SQLGrammar.jj
+        String[] otherReservedKeywords = {
+                "boolean",
+                "call",
+                "current_role",
+                "current_schema",
+                "explain",
+                "grouping",
+                "ltrim",
+                "rtrim",
+                "trim",
+                "substr",
+                "xml",
+                "xmlexists",
+                "xmlparse",
+                "xmlquery",
+                "xmlserialize",
+                "z_order_lat_lon",
+        };
+
+        Set<String> result = new HashSet<String>();
+
+        for (String word : sql92ReservedKeywords) {
+            result.add(word);
+        }
+
+        for (String word : otherReservedKeywords) {
+            result.add(word);
+        }
+
+        return result;
     }
 
     protected String virtualColumnNode(VirtualColumnNode node) throws StandardException {
@@ -906,10 +1130,10 @@ public class NodeToString
             throws StandardException {
         return node.getName();
     }
-    
+
     protected String aggregateWindowFunctionNode(AggregateWindowFunctionNode node)
             throws StandardException {
-        return toString(node.getAggregateFunction()) + 
+        return toString(node.getAggregateFunction()) +
             " OVER " + toString(node.getWindow());
     }
 
@@ -919,7 +1143,7 @@ public class NodeToString
             " OVER " + toString(node.getWindow());
     }
 
-    protected String binaryLogicalOperatorNode(BinaryLogicalOperatorNode node) 
+    protected String binaryLogicalOperatorNode(BinaryLogicalOperatorNode node)
             throws StandardException {
         return infixBinary(node);
     }
@@ -929,12 +1153,12 @@ public class NodeToString
         return infixBinary(node);
     }
 
-    protected String binaryArithmeticOperatorNode(BinaryArithmeticOperatorNode node) 
+    protected String binaryArithmeticOperatorNode(BinaryArithmeticOperatorNode node)
             throws StandardException {
         return infixBinary(node);
     }
 
-    protected String binaryBitOperatorNode(BinaryBitOperatorNode node) 
+    protected String binaryBitOperatorNode(BinaryBitOperatorNode node)
             throws StandardException {
         return infixBinary(node);
     }
@@ -962,43 +1186,43 @@ public class NodeToString
         return suffixUnary(node);
     }
 
-    protected String unaryArithmeticOperatorNode(UnaryArithmeticOperatorNode node) 
+    protected String unaryArithmeticOperatorNode(UnaryArithmeticOperatorNode node)
             throws StandardException {
         return functionUnary(node);
     }
 
-    protected String unaryPrefixOperatorNode(UnaryArithmeticOperatorNode node) 
+    protected String unaryPrefixOperatorNode(UnaryArithmeticOperatorNode node)
             throws StandardException {
         return prefixUnary(node);
     }
 
-    protected String unaryBitOperatorNode(UnaryBitOperatorNode node) 
+    protected String unaryBitOperatorNode(UnaryBitOperatorNode node)
             throws StandardException {
         return prefixUnary(node);
     }
 
-    protected String extractOperatorNode(ExtractOperatorNode node) 
+    protected String extractOperatorNode(ExtractOperatorNode node)
             throws StandardException {
         return node.getOperator().substring("EXTRACT ".length()).toUpperCase() + "(" +
             toString(node.getOperand()) + ")";
     }
 
-    protected String unaryDateTimestampOperatorNode(UnaryDateTimestampOperatorNode node) 
+    protected String unaryDateTimestampOperatorNode(UnaryDateTimestampOperatorNode node)
             throws StandardException {
         return functionUnary(node);
     }
 
-    protected String timestampOperatorNode(TimestampOperatorNode node) 
+    protected String timestampOperatorNode(TimestampOperatorNode node)
             throws StandardException {
         return functionBinary(node);
     }
 
-    protected String lengthOperatorNode(LengthOperatorNode node) 
+    protected String lengthOperatorNode(LengthOperatorNode node)
             throws StandardException {
         return functionUnary(node);
     }
 
-    protected String octetLengthOperatorNode(OctetLengthOperatorNode node) 
+    protected String octetLengthOperatorNode(OctetLengthOperatorNode node)
             throws StandardException {
         return functionUnary(node);
     }
@@ -1028,7 +1252,7 @@ public class NodeToString
             return node.getAggregateName() + "(" + toString(node.getOperand()) + ")";
     }
 
-    protected String likeEscapeOperatorNode(LikeEscapeOperatorNode node) 
+    protected String likeEscapeOperatorNode(LikeEscapeOperatorNode node)
             throws StandardException {
         String like = maybeParens(node.getReceiver()) +
             " " + node.getOperator().toUpperCase() + " " +
@@ -1116,7 +1340,7 @@ public class NodeToString
 
     protected String inListOperatorNode(InListOperatorNode node) throws StandardException {
         return maybeParens(node.getLeftOperand()) +
-            " " + (node.isNegated() ? "NOT IN" : "IN") + 
+            " " + (node.isNegated() ? "NOT IN" : "IN") +
             " (" + toString(node.getRightOperandList()) + ")";
     }
 
@@ -1168,12 +1392,12 @@ public class NodeToString
         return str.toString();
     }
 
-    protected String coalesceFunctionNode(CoalesceFunctionNode node) 
+    protected String coalesceFunctionNode(CoalesceFunctionNode node)
             throws StandardException {
         return functionCall(node.getFunctionName(),
                                                 node.getArgumentsList());
     }
-    
+
     protected String constantNode(ConstantNode node) throws StandardException {
         Object value = node.getValue();
         if (value == null)
@@ -1189,7 +1413,7 @@ public class NodeToString
         else
             return value.toString();
     }
-    
+
     protected String defaultNode(DefaultNode node) throws StandardException {
         return " DEFAULT "+ node.getDefaultText();
     }
@@ -1214,13 +1438,13 @@ public class NodeToString
             " " + node.getOperator().toUpperCase() + " " +
             maybeParens(node.getRightOperand());
     }
-    
+
     protected String functionBinary(BinaryOperatorNode node) throws StandardException {
         return node.getOperator().toUpperCase() + "(" +
             toString(node.getLeftOperand()) + ", " +
             toString(node.getRightOperand()) + ")";
     }
-    
+
     protected String functionCall(String functionName, ValueNodeList args)
             throws StandardException {
         return functionName + "(" + nodeList(args, true) + ")";
@@ -1268,7 +1492,7 @@ public class NodeToString
         return "$" + (node.getParameterNumber() + 1);
     }
 
-    protected String currentDatetimeOperatorNode(CurrentDatetimeOperatorNode node) 
+    protected String currentDatetimeOperatorNode(CurrentDatetimeOperatorNode node)
             throws StandardException {
         switch (node.getField()) {
         case DATE:
@@ -1283,13 +1507,13 @@ public class NodeToString
     }
 
     protected String castNode(CastNode node) throws StandardException {
-        return "CAST(" + toString(node.getCastOperand()) + 
+        return "CAST(" + toString(node.getCastOperand()) +
             " AS " + node.getType().toString() + ")";
     }
 
-    protected String explicitCollateNode(ExplicitCollateNode node) 
+    protected String explicitCollateNode(ExplicitCollateNode node)
             throws StandardException {
-        return maybeParens(node.getOperand()) + 
+        return maybeParens(node.getOperand()) +
             " COLLATE " + node.getCollation();
     }
 
@@ -1303,7 +1527,7 @@ public class NodeToString
         return "CURRENT VALUE FOR " + toString(node.getSequenceName ());
     }
 
-    protected String javaToSQLValueNode(JavaToSQLValueNode node) 
+    protected String javaToSQLValueNode(JavaToSQLValueNode node)
             throws StandardException {
         return toString(node.getJavaValueNode());
     }
@@ -1316,8 +1540,21 @@ public class NodeToString
     protected String staticMethodCallNode(StaticMethodCallNode node)
             throws StandardException {
         StringBuilder str = new StringBuilder();
-        if (node.getProcedureName() != null)
-            str.append(toString(node.getProcedureName()));
+
+        if (node.getProcedureName() != null) {
+            // Can't call tableName or toString because we need to avoid quoting
+            TableName name = node.getProcedureName();
+            String schema = name.getSchemaName();
+            String table = name.getTableName();
+
+            if (schema == null)
+                str.append(table);
+            else {
+                str.append(schema);
+                str.append(".");
+                str.append(table);
+            }
+        }
         else
             str.append(node.getMethodName());
         str.append("(");
@@ -1338,7 +1575,7 @@ public class NodeToString
         return node.statementToString() + " " + node.getObjectName();
     }
 
-    protected String explainStatementNode(ExplainStatementNode node) 
+    protected String explainStatementNode(ExplainStatementNode node)
             throws StandardException {
         String detail;
         switch (node.getDetail()) {
@@ -1360,12 +1597,12 @@ public class NodeToString
             throws StandardException {
         return node.statementToString();
     }
-    
+
     protected String setTransactionIsolationNode(SetTransactionIsolationNode node)
             throws StandardException {
         return node.statementToString() + " " + node.getIsolationLevel().getSyntax();
     }
-    
+
     protected String setTransactionAccessNode(SetTransactionAccessNode node)
             throws StandardException {
         return node.statementToString() + " " + node.getAccessMode().getSyntax();
@@ -1404,7 +1641,7 @@ public class NodeToString
     protected String rowCtorNode(RowConstructorNode row) throws StandardException
     {
         ValueNodeList list = row.getNodeList();
-        
+
         switch(list.size())
         {
             case 0:
@@ -1414,7 +1651,7 @@ public class NodeToString
                 if (!(node instanceof RowConstructorNode))
                     return toString(node);
         }
-        
+
         StringBuilder bd = new StringBuilder();
         for (QueryTreeNode node : list )
         {
@@ -1424,8 +1661,8 @@ public class NodeToString
 
         return bd.substring(0, bd.length() -2); // delete the last (<COMMA> <SPACE>)
     }
-    
-    protected String declareStatementNode(DeclareStatementNode node) 
+
+    protected String declareStatementNode(DeclareStatementNode node)
             throws StandardException {
         return "DECLARE " + node.getName() + " CURSOR FOR " +
             toString(node.getStatement());
@@ -1433,7 +1670,7 @@ public class NodeToString
 
     protected String fetchStatementNode(FetchStatementNode node)
             throws StandardException {
-        return "FETCH " + 
+        return "FETCH " +
             ((node.getCount() < 0) ? "ALL" : Integer.toString(node.getCount())) +
             " FROM " + node.getName();
     }
@@ -1451,7 +1688,7 @@ public class NodeToString
 
     protected String executeStatementNode(ExecuteStatementNode node)
             throws StandardException {
-        return "EXECUTE " + node.getName() + 
+        return "EXECUTE " + node.getName() +
             "(" + nodeList(node.getParameterList(), true) + ")";
     }
 
@@ -1459,8 +1696,8 @@ public class NodeToString
             throws StandardException {
         return "DEALLOCATE " + node.getName();
     }
-     
-    protected String copyStatementNode(CopyStatementNode node) 
+
+    protected String copyStatementNode(CopyStatementNode node)
             throws StandardException {
         StringBuilder str = new StringBuilder("COPY ");
         if (node.getSubquery() != null) {
@@ -1489,7 +1726,7 @@ public class NodeToString
             str.append("'");
             str.append(node.getFilename());
             str.append("'");
-        } 
+        }
         else if (node.getMode() == CopyStatementNode.Mode.TO_TABLE) {
             str.append("STDIN");
         }
@@ -1554,17 +1791,17 @@ public class NodeToString
         else
             bd.append(toString(node));
     }
-    
+
     protected String groupConcat(GroupConcatNode node) throws StandardException
     {
         StringBuilder ret = new StringBuilder("GROUP_CONCAT(");
-        
+
         ret.append(node.getOperand());
-        
+
         OrderByList orderBy = node.getOrderBy();
         if (orderBy != null)
             ret.append(this.toString(orderBy));
-        
+
         // i
         ret.append("SEPARATOR \'").append(node.getSeparator()).append("\')");
         return ret.toString();
