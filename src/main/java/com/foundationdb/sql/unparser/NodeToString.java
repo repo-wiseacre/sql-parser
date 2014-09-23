@@ -845,7 +845,7 @@ public class NodeToString
             return '"' + identifier + '"';
     }
 
-    private static boolean isReserved(String word) {
+    public static boolean isReserved(String word) {
         return RESERVED_WORDS.contains(word.toLowerCase());
     }
 
@@ -961,7 +961,7 @@ public class NodeToString
                 "national",
                 "natural",
                 "nchar",
-                "nvarchar", 
+                "nvarchar",
                 "next",
                 "no",
                 "none",
