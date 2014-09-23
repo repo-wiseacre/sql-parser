@@ -743,7 +743,7 @@ public class NodeToString
 
     protected String allResultColumn(AllResultColumn node) throws StandardException {
 		if (node.getFullTableName() == null) {
-        	return "*";
+            return "*";
 		} else {
 			return maybeQuote(node.getFullTableName()) + ".*";
 		}
