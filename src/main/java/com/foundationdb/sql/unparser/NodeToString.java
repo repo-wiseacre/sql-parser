@@ -839,7 +839,7 @@ public class NodeToString
         // TODO use the generated grammar or write a really long regex
         if (identifier == null)
             return null;
-        else if (identifier.matches("[a-zA-Z_][a-zA-Z0-9_$]*") && !isReserved(identifier))
+        else if (identifier.matches("[a-z_][a-z0-9_$]*") && !isReserved(identifier))
             return identifier;
         else
             return '"' + identifier + '"';
