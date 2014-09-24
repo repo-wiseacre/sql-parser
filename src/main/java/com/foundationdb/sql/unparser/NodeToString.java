@@ -834,15 +834,13 @@ public class NodeToString
 
     /** Quote a column name if it contains $ */
     protected String maybeQuote(String identifier) {
-        // If identifier is lowercase and matches IDENTIFIER from SQLGrammer.jj, no need for quotes
-        // TODO IDENTIFIER has some unicode characters, need to either
-        // TODO use the generated grammar or write a really long regex
+        // If identifier is lowercase and does not match IDENTIFIER from SQLGrammer.jj, no need for quotes
         if (identifier == null)
             return null;
         else if (identifier.matches("[a-z_][a-z0-9_$]*") && !isReserved(identifier))
             return identifier;
         else
-            return '"' + identifier + '"';
+            return '"' + identifier.replace("\"", "\"\"") + '"';
     }
 
     public static boolean isReserved(String word) {
