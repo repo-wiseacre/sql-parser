@@ -70,14 +70,14 @@ public class ParserHello {
 }
 ```
 
-A new [SQLParser](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/SQLParser.html)
+A new [SQLParser](http://foundationdb.github.io/sql-parser/com/foundationdb/sql/parser/SQLParser.html)
 is instantiated and each command line argument is
-[parsed](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/SQLParser.html#parseStatement%28java.lang.String%29)
-and [printed](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/QueryTreeNode.html#treePrint%28%29)
+[parsed](http://foundationdb.github.io/sql-parser/com/foundationdb/sql/parser/SQLParser.html#parseStatement%28java.lang.String%29)
+and [printed](http://foundationdb.github.io/sql-parser/com/foundationdb/sql/parser/QueryTreeNode.html#treePrint%28%29)
 to standard output. The result is a debug dump of all nodes in the underlying Abstract Syntax Tree.
 More advanced usages will generally parse a statement and then pass a custom
-[Visitor](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/Visitor.html) to the
-[accept()](http://foundationdb.github.io/sql-parser/javadoc/com/foundationdb/sql/parser/QueryTreeNode.html#accept%28com.foundationdb.sql.parser.Visitor%29) method.
+[Visitor](http://foundationdb.github.io/sql-parser/com/foundationdb/sql/parser/Visitor.html) to the
+[accept()](http://foundationdb.github.io/sql-parser/com/foundationdb/sql/parser/QueryTreeNode.html#accept%28com.foundationdb.sql.parser.Visitor%29) method.
 
 To try the example from the command line, copy the code into a file named
 `ParserHello.java`. Then compile and run it, making sure to include the
