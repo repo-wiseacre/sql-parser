@@ -1270,7 +1270,7 @@ class SQLGrammar
      *
      * @exception StandardException
      */
-    private ParameterNode makeParameterNode(int number) throws StandardException {
+    private ParameterNode makeParameterNode(int number, Token token) throws StandardException {
         if (!parametersAllowed)
             throw new StandardException("Parameters are not allowed");
         if (number < 0)
@@ -1283,6 +1283,10 @@ class SQLGrammar
 
         if (parameterList != null)
             parameterList.add(parm);
+
+        parm.setBeginOffset(token.beginOffset);
+        parm.setEndOffset(token.endOffset);
+
         return parm;
     }
 
@@ -10088,15 +10092,15 @@ dynamicParameterSpecification() throws StandardException :
     Token tok;
 }
 {
-    <QUESTION_MARK>
+    tok = <QUESTION_MARK>
     {
-        return makeParameterNode(parameterNumber++);
+        return makeParameterNode(parameterNumber++, tok);
     }
 |
     tok = <DOLLAR_N>
     {
         int n = Integer.parseInt(tok.image.substring(1));
-        return makeParameterNode(n-1);
+        return makeParameterNode(n-1, tok);
     }
 }
 
