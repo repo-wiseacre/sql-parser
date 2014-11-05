@@ -2589,8 +2589,6 @@ TOKEN :
 | <MINUS_SIGN: "-">
 | <PERIOD: ".">
 | <SOLIDUS: "/">
-| <COLON: ":">
-| <DOUBLE_COLON: "::">
 | <SEMICOLON: ";">
 | <LESS_THAN_OPERATOR: "<">
 | <LESS_THAN_OR_EQUALS_OPERATOR: "<=">
@@ -5076,20 +5074,12 @@ boolean
 setQuantifier() :
 {}
 {
-    // This LOOKAHEAD is required to distinquish distinct from a class
-    // which starts with distinct (e.g., distinct::).
-    LOOKAHEAD( { getToken(1).kind == DISTINCT &&
-                                 !(getToken(2).kind == PERIOD || getToken(2).kind == DOUBLE_COLON) } )
     <DISTINCT>
     {
         forbidNextValueFor();
         return true;
     }
 |
-    // This LOOKAHEAD is required to distinquish all from a class which
-    // starts with all (e.g., all::).
-    LOOKAHEAD( { getToken(1).kind == ALL &&
-                                 !(getToken(2).kind == PERIOD || getToken(2).kind == DOUBLE_COLON) } )
     <ALL>
     {
         return false;
@@ -5255,9 +5245,7 @@ andExpression(ValueNode farLeftOperand) throws StandardException :
     ValueNode test;
 }
 {
-    // This LOOKAHEAD is required to tell that NOT is not part of a class name.
-    [ LOOKAHEAD( { getToken(1).kind == NOT && 
-                                     !(getToken(2).kind == PERIOD || getToken(2).kind == DOUBLE_COLON) } )
+    [ LOOKAHEAD( { getToken(1).kind == NOT } )
         notToken = <NOT> ]
     test = isSearchCondition() 
     {
@@ -10923,10 +10911,7 @@ defaultOption(Token beginToken, long[] autoIncrementInfo, String columnName)
     ValueNode value;
 }
 {
-    //Look ahead required to tell NULL from a class name which starts with
-    // NULL (e.g., NULL::)
-    LOOKAHEAD( { getToken(1).kind == NULL && 
-                                 !(getToken(2).kind == PERIOD || getToken(2).kind == DOUBLE_COLON) } )
+    LOOKAHEAD( { getToken(1).kind == NULL } )
     <NULL>
     {
         return (ValueNode)nodeFactory.getNode(NodeTypes.UNTYPED_NULL_CONSTANT_NODE,
