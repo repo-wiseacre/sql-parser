@@ -1,0 +1,79 @@
+com.foundationdb.sql.parser.CursorNode@38c5a1ba
+name: null
+updateMode: UNSPECIFIED
+statementType: SELECT
+resultSet: 	
+	com.foundationdb.sql.parser.SelectNode@36fcd774
+	isDistinct: false
+	resultColumns: 		
+		com.foundationdb.sql.parser.ResultColumnList@11a51ce0
+
+		[0]:		
+		com.foundationdb.sql.parser.ResultColumn@6f0abf2c
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.NumericConstantNode@2a8d1aa8
+			value: 1
+			type: INTEGER NOT NULL
+		[1]:		
+		com.foundationdb.sql.parser.ResultColumn@15d1216b
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.NumericConstantNode@54e902fd
+			value: 3
+			type: INTEGER NOT NULL
+		[2]:		
+		com.foundationdb.sql.parser.ResultColumn@dc35b98
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.NumericConstantNode@14b25f37
+			value: 4
+			type: INTEGER NOT NULL
+		[3]:		
+		com.foundationdb.sql.parser.ResultColumn@4a891e7e
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.NumericConstantNode@7031086c
+			value: 5
+			type: INTEGER NOT NULL
+		[4]:		
+		com.foundationdb.sql.parser.ResultColumn@232023ff
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.NumericConstantNode@131b4c5d
+			value: 6
+			type: INTEGER NOT NULL
+		[5]:		
+		com.foundationdb.sql.parser.ResultColumn@65327777
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.NumericConstantNode@54415988
+			value: 7
+			type: INTEGER NOT NULL
+	fromList: 		
+		com.foundationdb.sql.parser.FromList@e5d1aef
+
