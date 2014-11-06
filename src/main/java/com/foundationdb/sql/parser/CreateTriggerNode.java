@@ -41,6 +41,7 @@ package com.foundationdb.sql.parser;
 
 import com.foundationdb.sql.StandardException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
@@ -68,7 +69,7 @@ public class CreateTriggerNode extends DDLStatementNode
     private ValueNode whenClause;
     private String whenText;
     private int whenOffset;
-    private StatementNode actionNode;
+    private List<StatementNode> actionNodes;
     private String actionText;
     private String originalActionText; // text w/o trim of spaces
     private int actionOffset;
@@ -87,7 +88,7 @@ public class CreateTriggerNode extends DDLStatementNode
      * @param whenClause the WHEN clause tree
      * @param whenText the text of the WHEN clause
      * @param whenOffset offset of start of WHEN clause
-     * @param actionNode the trigger action tree
+     * @param actionNodes the trigger action tree
      * @param actionText the text of the trigger action
      * @param actionOffset offset of start of action clause
      *
@@ -104,7 +105,7 @@ public class CreateTriggerNode extends DDLStatementNode
                       Object whenClause,
                       Object whenText,
                       Object whenOffset,
-                      Object actionNode,
+                      Object actionNodes,
                       Object actionText,
                       Object actionOffset) throws StandardException {
         initAndCheck(triggerName);
@@ -119,7 +120,7 @@ public class CreateTriggerNode extends DDLStatementNode
         this.whenClause = (ValueNode)whenClause;
         this.whenText = (whenText == null) ? null : ((String)whenText).trim();
         this.whenOffset = ((Integer)whenOffset).intValue();
-        this.actionNode = (StatementNode)actionNode;
+        this.actionNodes = (List<StatementNode>)actionNodes;
         this.originalActionText = (String)actionText;
         this.actionText = (actionText == null) ? null : ((String)actionText).trim();
         this.actionOffset = ((Integer)actionOffset).intValue();
@@ -148,8 +149,13 @@ public class CreateTriggerNode extends DDLStatementNode
                                                                getParserContext());
         this.whenText = other.whenText;
         this.whenOffset = other.whenOffset;
-        this.actionNode = (StatementNode)getNodeFactory().copyNode(other.actionNode,
-                                                                   getParserContext());
+        if (other.actionNodes != null) {
+            this.actionNodes = new ArrayList(other.actionNodes.size());
+            for (StatementNode actionNode : other.actionNodes) {
+                actionNodes.add((StatementNode)getNodeFactory().copyNode(actionNode,
+                                                                           getParserContext()));
+            }
+        }
         this.actionText = other.actionText;
         this.originalActionText = other.originalActionText;
         this.actionOffset = other.actionOffset;
@@ -177,9 +183,11 @@ public class CreateTriggerNode extends DDLStatementNode
             printLabel(depth, "whenClause: ");
             whenClause.treePrint(depth + 1);
         }
-        if (actionNode != null) {
-            printLabel(depth, "actionNode: ");
-            actionNode.treePrint(depth + 1);
+        if (actionNodes != null) {
+            printLabel(depth, "actionNodes: ");
+            for (StatementNode actionNode : actionNodes) {
+                actionNode.treePrint(depth + 1);
+            }
         }
     }
 

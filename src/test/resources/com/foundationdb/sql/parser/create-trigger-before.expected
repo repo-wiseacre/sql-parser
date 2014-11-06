@@ -12,7 +12,7 @@ actionText: UPDATE dt SET col2='ins' WHERE id = NEW.id
 triggerColumns: 	
 	com.foundationdb.sql.parser.ResultColumnList@4deb033c
 
-actionNode: 	
+actionNodes: 	
 	com.foundationdb.sql.parser.UpdateNode@21801b
 	statementType: UPDATE
 	resultSet: 		
