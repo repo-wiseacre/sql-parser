@@ -10616,11 +10616,6 @@ triggerDefinition() throws StandardException :
         actionEnd = getToken(0).endOffset;
         actionBegin = tokenHolder[0].beginOffset;
 
-        // No DML in action node for BEFORE triggers.
-        if (isBefore.booleanValue() && (actionNode instanceof DMLModStatementNode)) {
-            throw new StandardException("DML not allowed in BEFORE trigger");
-        }
-
         // No params in trigger action.
         HasNodeVisitor visitor = new HasNodeVisitor(ParameterNode.class);
         actionNode.accept(visitor);
@@ -10675,7 +10670,12 @@ beforeOrAfter() :
     {
         return Boolean.TRUE;
     }
-|       
+|
+    <BEFORE>
+    {
+        return Boolean.TRUE;
+    }
+|
     <AFTER>
     {
         return Boolean.FALSE;
