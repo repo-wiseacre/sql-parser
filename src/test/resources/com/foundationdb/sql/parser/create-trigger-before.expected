@@ -2,11 +2,10 @@ com.foundationdb.sql.parser.CreateTriggerNode@51de0b09
 name: dt_ins
 statementType: CREATE TRIGGER
 tableName: dt
-triggerEventMask: 4
-isBefore: true
+event: Insert
+time: Before
 isRow: true
 isEnabled: true
-whenText: null
 refClause: null
 actionText: UPDATE dt SET col2='ins' WHERE id = NEW.id
 triggerColumns: 	
