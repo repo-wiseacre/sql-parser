@@ -2473,7 +2473,6 @@ TOKEN [IGNORE_CASE] :
 | <DAY_MICROSECOND: "day_microsecond">
 | <DAY_MINUTE: "day_minute">
 | <DAY_SECOND: "day_second">
-| <DB2SQL: "db2sql">
 | <DEFRAGMENT: "defragment">
 | <DELIMITER: "delimiter">
 | <DIRTY: "dirty">
@@ -14544,7 +14543,6 @@ nonReservedKeyword() :
 | tok = <DAY_MICROSECOND>
 | tok = <DAY_MINUTE>
 | tok = <DAY_SECOND>
-| tok = <DB2SQL>
 | tok = <DEFERRABLE> // SQL92 reserved, SQL2003 non-reserved
 | tok = <DEFERRED> // SQL92 reserved, SQL2003 non-reserved
 | tok = <DEFRAGMENT>
