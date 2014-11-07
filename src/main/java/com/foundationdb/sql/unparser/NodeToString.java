@@ -1035,6 +1035,7 @@ public class NodeToString
 
         // From SQLGrammar.jj
         String[] otherReservedKeywords = {
+                "atomic",
                 "boolean",
                 "call",
                 "current_role",
