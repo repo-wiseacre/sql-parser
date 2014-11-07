@@ -2415,7 +2415,8 @@ TOKEN [IGNORE_CASE] :
  */
 TOKEN [IGNORE_CASE] :
 { /* Additional non-SQL92 reserved keywords */
-  <BOOLEAN: "boolean">
+  <ATOMIC: "atomic"> /* reserved word in 2011 spec */
+| <BOOLEAN: "boolean">
 | <CALL: "call">
 | <CURDATE: "curdate">
 | <CURRENT_ROLE: "current_role">
@@ -2472,7 +2473,6 @@ TOKEN [IGNORE_CASE] :
 | <DAY_MICROSECOND: "day_microsecond">
 | <DAY_MINUTE: "day_minute">
 | <DAY_SECOND: "day_second">
-| <DB2SQL: "db2sql">
 | <DEFRAGMENT: "defragment">
 | <DELIMITER: "delimiter">
 | <DIRTY: "dirty">
@@ -2490,6 +2490,7 @@ TOKEN [IGNORE_CASE] :
 | <HOUR_MICROSECOND: "hour_microsecond">
 | <HOUR_MINUTE: "hour_minute">
 | <HOUR_SECOND: "hour_second">
+| <INSTEAD: "instead"> /* added in 2011 non-reserved */
 | <IGNORE: "ignore">
 | <INPLACE: "inplace">
 | <INTERRUPT: "interrupt">
@@ -10584,10 +10585,11 @@ viewColumnList() throws StandardException :
     }
 }
 
+
 StatementNode
 triggerDefinition() throws StandardException :
 {
-    Boolean isBefore;
+    CreateTriggerNode.Time time;
     Boolean isRow = Boolean.FALSE;  // STATEMENT implicit by default
     TableName tableName;
     TableName triggerName;
@@ -10597,33 +10599,33 @@ triggerDefinition() throws StandardException :
     Token endToken;
     int actionBegin;
     int actionEnd;
-    int triggerEvent;
-    QueryTreeNode actionNode;
+    ValueNode whenClause = null;
+    CreateTriggerNode.Event event;
+    List<StatementNode> actionNodes = null;
     ResultColumnList triggerColumns = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST,
                                                                             parserContext);
     List<TriggerReferencingStruct> refClause = null;
 }
 {
     <TRIGGER> triggerName = qualifiedName()
-    isBefore = beforeOrAfter()
-    triggerEvent = triggerEvent(triggerColumns)
+    time = triggerTime()
+    event = triggerEvent(triggerColumns)
     <ON> tableName = qualifiedName()
     [ refClause = triggerReferencingClause() ]
     [ <FOR> <EACH> isRow = rowOrStatement() ]
-    [ <MODE> <DB2SQL> ]
-    actionNode = proceduralStatement(tokenHolder)
+    [ <WHEN> <LEFT_PAREN> whenClause = valueExpression() <RIGHT_PAREN> ]
+    actionNodes = triggerActionNodes(tokenHolder)
     {
         actionEnd = getToken(0).endOffset;
         actionBegin = tokenHolder[0].beginOffset;
 
-        // No DML in action node for BEFORE triggers.
-        if (isBefore.booleanValue() && (actionNode instanceof DMLModStatementNode)) {
-            throw new StandardException("DML not allowed in BEFORE trigger");
-        }
-
         // No params in trigger action.
         HasNodeVisitor visitor = new HasNodeVisitor(ParameterNode.class);
-        actionNode.accept(visitor);
+        if (actionNodes != null) {
+            for (StatementNode actionNode : actionNodes) {
+                actionNode.accept(visitor);
+            }
+        }
         if (visitor.hasNode()) {
             throw new StandardException("Parameters not allowed in trigger action");
         }
@@ -10631,22 +10633,22 @@ triggerDefinition() throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.CREATE_TRIGGER_NODE,
                                                   triggerName,
                                                   tableName,
-                                                  triggerEvent,
+                                                  event,
                                                   triggerColumns,
-                                                  isBefore,    
+                                                  time,
                                                   isRow,
-                                                  Boolean.TRUE,                   // enabled
-                                                  refClause,          // referencing clause
-                                                  null,// when clause node
-                                                  null,           // when clause text
-                                                  0,
-                                                  // when clause begin offset
-                                                  actionNode,
+                                                  Boolean.TRUE, // enabled
+                                                  refClause,
+                                                  whenClause,
+                                                  actionNodes,
                                                   sliceSQLText(actionBegin, actionEnd, false),
                                                   actionBegin,
                                                   parserContext);
     }
 }
+
+
+
 
 StatementNode
 synonymDefinition(Boolean createOrReplace) throws StandardException :
@@ -10667,38 +10669,43 @@ synonymDefinition(Boolean createOrReplace) throws StandardException :
     }
 }
 
-Boolean
-beforeOrAfter() :
+CreateTriggerNode.Time
+triggerTime() :
 {}
 {
-    <NO> <CASCADE> <BEFORE> 
+    <BEFORE>
     {
-        return Boolean.TRUE;
+        return CreateTriggerNode.Time.Before;
     }
-|       
+|
     <AFTER>
     {
-        return Boolean.FALSE;
+        return CreateTriggerNode.Time.After;
+    }
+|
+    <INSTEAD> <OF>
+    {
+        return CreateTriggerNode.Time.InsteadOf;
     }
 }
 
-int
+CreateTriggerNode.Event
 triggerEvent(ResultColumnList rcl) throws StandardException :
 {}
 {
-    <INSERT> 
+    <INSERT>
     {
-        return CreateTriggerNode.TRIGGER_EVENT_INSERT;
+        return CreateTriggerNode.Event.Insert;
     }
-|       
+|
     <DELETE>
     {
-        return CreateTriggerNode.TRIGGER_EVENT_DELETE;
+        return CreateTriggerNode.Event.Delete;
     }
-|    
+|
     <UPDATE> [ <OF> columnNameList(rcl) ]
     {
-        return CreateTriggerNode.TRIGGER_EVENT_UPDATE;
+        return CreateTriggerNode.Event.Update;
     }
 }
 
@@ -10753,7 +10760,38 @@ triggerReferencingExpression(List<TriggerReferencingStruct> list)
         list.add(new TriggerReferencingStruct(isRow, isNew, identifier));
     }
 }
- 
+
+List<StatementNode>
+triggerActionNodes(Token[] tokenHolder) throws StandardException :
+{
+    List<StatementNode> list = new ArrayList<StatementNode>();
+    tokenHolder[0] = getToken(1);
+    Token[] ignoredToken = new Token[1];
+}
+{
+    triggerActionNode(list, tokenHolder)
+    { return list; }
+    |
+    <BEGIN> <ATOMIC>
+    ( triggerActionNode(list, ignoredToken) <SEMICOLON> )*
+    <END>
+    {
+        return list;
+    }
+}
+
+void
+triggerActionNode(List<StatementNode> statements, Token[] tokenHolder) throws StandardException :
+{
+    StatementNode action;
+}
+{
+    action = proceduralStatement(tokenHolder)
+    {
+        statements.add(action);
+    }
+}
+
 ValueNode
 defaultClause(long[] autoIncrementInfo, String columnName) throws StandardException :
 {
@@ -14505,7 +14543,6 @@ nonReservedKeyword() :
 | tok = <DAY_MICROSECOND>
 | tok = <DAY_MINUTE>
 | tok = <DAY_SECOND>
-| tok = <DB2SQL>
 | tok = <DEFERRABLE> // SQL92 reserved, SQL2003 non-reserved
 | tok = <DEFERRED> // SQL92 reserved, SQL2003 non-reserved
 | tok = <DEFRAGMENT>
