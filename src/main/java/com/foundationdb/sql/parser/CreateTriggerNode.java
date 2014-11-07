@@ -54,15 +54,22 @@ import java.util.Iterator;
 
 public class CreateTriggerNode extends DDLStatementNode
 {
-    public static final int TRIGGER_EVENT_UPDATE = 1;
-    public static final int TRIGGER_EVENT_DELETE = 2;
-    public static final int TRIGGER_EVENT_INSERT = 4;
+    public enum Event {
+        Update,
+        Delete,
+        Insert
+    }
+    public enum Time {
+        Before,
+        After,
+        InsteadOf
+    }
 
     private TableName triggerName;
     private TableName tableName;
-    private int triggerEventMask;
+    private Event event;
     private ResultColumnList triggerCols;
-    private boolean isBefore;
+    private Time time;
     private boolean isRow;
     private boolean isEnabled;
     private List<TriggerReferencingStruct> refClause;
@@ -79,9 +86,9 @@ public class CreateTriggerNode extends DDLStatementNode
      *
      * @param triggerName name of the trigger
      * @param tableName name of the table which the trigger is declared upon
-     * @param triggerEventMask TRIGGER_EVENT_XXX
+     * @param triggerEvent the event on which the action happens
      * @param triggerCols columns trigger is to fire upon.  Valid for UPDATE case only.
-     * @param isBefore is before trigger (false for after)
+     * @param triggerTime the time at which the trigger occurs
      * @param isRow true for row trigger, false for statement
      * @param isEnabled true if enabled
      * @param refClause the referencing clause
@@ -96,9 +103,9 @@ public class CreateTriggerNode extends DDLStatementNode
      */
     public void init (Object triggerName,
                       Object tableName,
-                      Object triggerEventMask,
+                      Object triggerEvent,
                       Object triggerCols,
-                      Object isBefore,
+                      Object triggerTime,
                       Object isRow,
                       Object isEnabled,
                       Object refClause,
@@ -111,12 +118,12 @@ public class CreateTriggerNode extends DDLStatementNode
         initAndCheck(triggerName);
         this.triggerName = (TableName)triggerName;
         this.tableName = (TableName)tableName;
-        this.triggerEventMask = ((Integer)triggerEventMask).intValue();
+        this.event = (Event)triggerEvent;
         this.triggerCols = (ResultColumnList)triggerCols;
-        this.isBefore = ((Boolean)isBefore).booleanValue();
+        this.time = (Time)triggerTime;
         this.isRow = ((Boolean)isRow).booleanValue();
         this.isEnabled = ((Boolean)isEnabled).booleanValue();
-        this.refClause = (List<TriggerReferencingStruct>)refClause; 
+        this.refClause = (List<TriggerReferencingStruct>)refClause;
         this.whenClause = (ValueNode)whenClause;
         this.whenText = (whenText == null) ? null : ((String)whenText).trim();
         this.whenOffset = ((Integer)whenOffset).intValue();
@@ -138,10 +145,10 @@ public class CreateTriggerNode extends DDLStatementNode
                                                                 getParserContext());
         this.tableName = (TableName)getNodeFactory().copyNode(other.tableName,
                                                               getParserContext());
-        this.triggerEventMask = other.triggerEventMask;
+        this.event = other.event;
         this.triggerCols = (ResultColumnList)getNodeFactory().copyNode(other.triggerCols,
                                                                        getParserContext());
-        this.isBefore = other.isBefore;
+        this.time = other.time;
         this.isRow = other.isRow;
         this.isEnabled = other.isEnabled;
         this.refClause = other.refClause;
@@ -210,8 +217,8 @@ public class CreateTriggerNode extends DDLStatementNode
         }
         return super.toString() +
             "tableName: "+tableName+        
-            "\ntriggerEventMask: "+triggerEventMask+        
-            "\nisBefore: "+isBefore+        
+            "\nevent: "+event+
+            "\ntime: "+time+
             "\nisRow: "+isRow+      
             "\nisEnabled: "+isEnabled+      
             "\nwhenText: "+whenText+

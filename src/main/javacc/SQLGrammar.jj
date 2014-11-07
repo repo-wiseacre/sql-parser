@@ -2491,6 +2491,7 @@ TOKEN [IGNORE_CASE] :
 | <HOUR_MICROSECOND: "hour_microsecond">
 | <HOUR_MINUTE: "hour_minute">
 | <HOUR_SECOND: "hour_second">
+| <INSTEAD: "instead"> /* added in 2011 non-reserved */
 | <IGNORE: "ignore">
 | <INPLACE: "inplace">
 | <INTERRUPT: "interrupt">
@@ -10589,7 +10590,7 @@ viewColumnList() throws StandardException :
 StatementNode
 triggerDefinition() throws StandardException :
 {
-    Boolean isBefore;
+    CreateTriggerNode.Time time;
     Boolean isRow = Boolean.FALSE;  // STATEMENT implicit by default
     TableName tableName;
     TableName triggerName;
@@ -10599,7 +10600,7 @@ triggerDefinition() throws StandardException :
     Token endToken;
     int actionBegin;
     int actionEnd;
-    int triggerEvent;
+    CreateTriggerNode.Event event;
     List<StatementNode> actionNodes = null;
     ResultColumnList triggerColumns = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST,
                                                                             parserContext);
@@ -10607,8 +10608,8 @@ triggerDefinition() throws StandardException :
 }
 {
     <TRIGGER> triggerName = qualifiedName()
-    isBefore = beforeOrAfter()
-    triggerEvent = triggerEvent(triggerColumns)
+    time = triggerTime()
+    event = triggerEvent(triggerColumns)
     <ON> tableName = qualifiedName()
     [ refClause = triggerReferencingClause() ]
     [ <FOR> <EACH> isRow = rowOrStatement() ]
@@ -10632,9 +10633,9 @@ triggerDefinition() throws StandardException :
         return (StatementNode)nodeFactory.getNode(NodeTypes.CREATE_TRIGGER_NODE,
                                                   triggerName,
                                                   tableName,
-                                                  triggerEvent,
+                                                  event,
                                                   triggerColumns,
-                                                  isBefore,
+                                                  time,
                                                   isRow,
                                                   Boolean.TRUE,                   // enabled
                                                   refClause,          // referencing clause
@@ -10671,38 +10672,43 @@ synonymDefinition(Boolean createOrReplace) throws StandardException :
     }
 }
 
-Boolean
-beforeOrAfter() :
+CreateTriggerNode.Time
+triggerTime() :
 {}
 {
     <BEFORE>
     {
-        return Boolean.TRUE;
+        return CreateTriggerNode.Time.Before;
     }
 |
     <AFTER>
     {
-        return Boolean.FALSE;
+        return CreateTriggerNode.Time.After;
+    }
+|
+    <INSTEAD> <OF>
+    {
+        return CreateTriggerNode.Time.InsteadOf;
     }
 }
 
-int
+CreateTriggerNode.Event
 triggerEvent(ResultColumnList rcl) throws StandardException :
 {}
 {
-    <INSERT> 
+    <INSERT>
     {
-        return CreateTriggerNode.TRIGGER_EVENT_INSERT;
+        return CreateTriggerNode.Event.Insert;
     }
-|       
+|
     <DELETE>
     {
-        return CreateTriggerNode.TRIGGER_EVENT_DELETE;
+        return CreateTriggerNode.Event.Delete;
     }
-|    
+|
     <UPDATE> [ <OF> columnNameList(rcl) ]
     {
-        return CreateTriggerNode.TRIGGER_EVENT_UPDATE;
+        return CreateTriggerNode.Event.Update;
     }
 }
 
