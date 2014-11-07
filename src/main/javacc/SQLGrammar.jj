@@ -10600,6 +10600,7 @@ triggerDefinition() throws StandardException :
     Token endToken;
     int actionBegin;
     int actionEnd;
+    ValueNode whenClause = null;
     CreateTriggerNode.Event event;
     List<StatementNode> actionNodes = null;
     ResultColumnList triggerColumns = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST,
@@ -10613,6 +10614,7 @@ triggerDefinition() throws StandardException :
     <ON> tableName = qualifiedName()
     [ refClause = triggerReferencingClause() ]
     [ <FOR> <EACH> isRow = rowOrStatement() ]
+    [ <WHEN> <LEFT_PAREN> whenClause = valueExpression() <RIGHT_PAREN> ]
     actionNodes = triggerActionNodes(tokenHolder)
     {
         actionEnd = getToken(0).endOffset;
@@ -10636,12 +10638,9 @@ triggerDefinition() throws StandardException :
                                                   triggerColumns,
                                                   time,
                                                   isRow,
-                                                  Boolean.TRUE,                   // enabled
-                                                  refClause,          // referencing clause
-                                                  null,// when clause node
-                                                  null,           // when clause text
-                                                  0,
-                                                  // when clause begin offset
+                                                  Boolean.TRUE, // enabled
+                                                  refClause,
+                                                  whenClause,
                                                   actionNodes,
                                                   sliceSQLText(actionBegin, actionEnd, false),
                                                   actionBegin,

@@ -74,8 +74,6 @@ public class CreateTriggerNode extends DDLStatementNode
     private boolean isEnabled;
     private List<TriggerReferencingStruct> refClause;
     private ValueNode whenClause;
-    private String whenText;
-    private int whenOffset;
     private List<StatementNode> actionNodes;
     private String actionText;
     private String originalActionText; // text w/o trim of spaces
@@ -93,8 +91,6 @@ public class CreateTriggerNode extends DDLStatementNode
      * @param isEnabled true if enabled
      * @param refClause the referencing clause
      * @param whenClause the WHEN clause tree
-     * @param whenText the text of the WHEN clause
-     * @param whenOffset offset of start of WHEN clause
      * @param actionNodes the trigger action tree
      * @param actionText the text of the trigger action
      * @param actionOffset offset of start of action clause
@@ -110,8 +106,6 @@ public class CreateTriggerNode extends DDLStatementNode
                       Object isEnabled,
                       Object refClause,
                       Object whenClause,
-                      Object whenText,
-                      Object whenOffset,
                       Object actionNodes,
                       Object actionText,
                       Object actionOffset) throws StandardException {
@@ -125,8 +119,6 @@ public class CreateTriggerNode extends DDLStatementNode
         this.isEnabled = ((Boolean)isEnabled).booleanValue();
         this.refClause = (List<TriggerReferencingStruct>)refClause;
         this.whenClause = (ValueNode)whenClause;
-        this.whenText = (whenText == null) ? null : ((String)whenText).trim();
-        this.whenOffset = ((Integer)whenOffset).intValue();
         this.actionNodes = (List<StatementNode>)actionNodes;
         this.originalActionText = (String)actionText;
         this.actionText = (actionText == null) ? null : ((String)actionText).trim();
@@ -154,8 +146,6 @@ public class CreateTriggerNode extends DDLStatementNode
         this.refClause = other.refClause;
         this.whenClause = (ValueNode)getNodeFactory().copyNode(other.whenClause,
                                                                getParserContext());
-        this.whenText = other.whenText;
-        this.whenOffset = other.whenOffset;
         if (other.actionNodes != null) {
             this.actionNodes = new ArrayList(other.actionNodes.size());
             for (StatementNode actionNode : other.actionNodes) {
@@ -221,7 +211,6 @@ public class CreateTriggerNode extends DDLStatementNode
             "\ntime: "+time+
             "\nisRow: "+isRow+      
             "\nisEnabled: "+isEnabled+      
-            "\nwhenText: "+whenText+
             "\nrefClause: "+refString+
             "\nactionText: "+actionText+
             "\n";
