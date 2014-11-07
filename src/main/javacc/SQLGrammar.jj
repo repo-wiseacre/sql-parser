@@ -10613,7 +10613,6 @@ triggerDefinition() throws StandardException :
     <ON> tableName = qualifiedName()
     [ refClause = triggerReferencingClause() ]
     [ <FOR> <EACH> isRow = rowOrStatement() ]
-    [ <MODE> <DB2SQL> ]
     actionNodes = triggerActionNodes(tokenHolder)
     {
         actionEnd = getToken(0).endOffset;
