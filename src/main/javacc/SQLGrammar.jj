@@ -792,20 +792,6 @@ class SQLGrammar
         return retval;
     }
 
-
-    /**
-     * Determine whether the next token is the beginning of a propertyList(). 
-     * A properties list is the comment "--derby-properties" followed by a 
-     * dot-separated list, followed by an =, followed by a value all on that 
-     * comment line. This means that the comment should start with the word
-     * "derby-properties".
-     *
-     * @return TRUE iff the next token is derby-properties 
-     */
-    private boolean derbyPropertiesListFollows() {
-        return getToken(1).kind == DERBYDASHPROPERTIES;
-    }
-
     /**
      * Determine whether the next sequence of tokens can be the beginning
      * of a joinedTableExpression(). A joinedTableExpression() begins
@@ -1884,203 +1870,13 @@ MORE :
 }
 
 SKIP :
-{ /* comments */
-    "--" : IN_COMMENT
-}
-
-<IN_COMMENT> SKIP :
-{ /* white space */
-    " "
-| "\t"
-}
-
-    /* Check if the comment characters -- are followed by DERBY-PROPERTIES token. 
-     *
-     * If yes, then this comment is providing user-supplied optimizer
-     * overrides. There should be keyname=value [,keyname=value] pairs after
-     * -- DERBY-PROPERTIES otherwise throw an exception. These optimier
-     * overrides should be used in correct context only, otherwise, the
-     * parser will throw an exception.
-     *
-     * If this comment does not start with DERBY-PROPERTOIES, then it is just
-     * a regular comment. Skip the comment and move on to the next line.
-     */
-<IN_COMMENT> MORE [IGNORE_CASE]:
 {
-    "D" : LOOKFOR_DE
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_D : (~["D"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
+    "--" : IN_SINGLE_LINE_COMMENT
 }
 
-<LOOKFOR_DE> MORE [IGNORE_CASE]:
+<IN_SINGLE_LINE_COMMENT> SKIP :
 {
-    "E" : LOOKFOR_DER
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DE : (~["E"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DER> MORE [IGNORE_CASE]:
-{
-    "R" : LOOKFOR_DERB
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DER : (~["R"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERB> MORE [IGNORE_CASE]:
-{
-    "B" : LOOKFOR_DERBY
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERB : (~["B"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBY> MORE [IGNORE_CASE]:
-{
-    "Y" : LOOKFOR_DERBYDASH
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBY : (~["Y"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASH> MORE [IGNORE_CASE]:
-{
-    "-" : LOOKFOR_DERBYDASHP
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASH : (~["-"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHP> MORE [IGNORE_CASE]:
-{
-    "P" : LOOKFOR_DERBYDASHPR
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHP : (~["P"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPR> MORE [IGNORE_CASE]:
-{
-    "R" : LOOKFOR_DERBYDASHPRO
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPR : (~["R"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPRO> MORE [IGNORE_CASE]:
-{
-    "O" : LOOKFOR_DERBYDASHPROP
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPRO : (~["O"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROP> MORE [IGNORE_CASE]:
-{
-    "P" : LOOKFOR_DERBYDASHPROPE
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPROP : (~["P"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROPE> MORE [IGNORE_CASE]:
-{
-    "E" : LOOKFOR_DERBYDASHPROPER
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPROPE : (~["E"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROPER> MORE [IGNORE_CASE]:
-{
-    "R" : LOOKFOR_DERBYDASHPROPERT
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPROPER : (~["R"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROPERT> MORE [IGNORE_CASE]:
-{
-    "T" : LOOKFOR_DERBYDASHPROPERTI
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPROPERT : (~["T"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROPERTI> MORE [IGNORE_CASE]:
-{
-    "I" : LOOKFOR_DERBYDASHPROPERTIE
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPROPERTI : (~["I"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROPERTIE> MORE [IGNORE_CASE]:
-{
-    "E" : LOOKFOR_DERBYDASHPROPERTIES
-|
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_DERBYDASHPROPERTIE : (~["E"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<LOOKFOR_DERBYDASHPROPERTIES> TOKEN [IGNORE_CASE] :
-{        
-    <DERBYDASHPROPERTIES : "DERBYDASHPROPERTIES"> 
-}
-
-    /*
-     * Once we find comment starting with -- DERBY-PROPERTIES, we want
-     * to switch from SKIP mode to the TOKEN mode in the parser so the
-     * rest of the characters on the comment line can be treated as part
-     * of one big token so we can get keyname=value pairs from that
-     * token. The reason for treating them as one big token is that the
-     * existing code in parser allows newline characters between
-     * individual token but with optimizer overrides, all the properties
-     * have to be specified on the -- DERBY-PROPERTIES comment line.
-     */
-<LOOKFOR_DERBYDASHPROPERTIES> TOKEN [IGNORE_CASE]:
-{
-    "S" { matchedToken.kind = DERBYDASHPROPERTIES; } : PROPERTIES_LIST
-}
-
-// We found -- DERBY-PROPERTIE? where ? is a character other than S
-// and hence we should the rest of the characters on this line as a
-// regular comment
-<LOOKFOR_DERBYDASHPROPERTIES> SKIP :
-{
-    <("\n"|"\r"|"\r\n")?> : DEFAULT
-|
-    <NOT_PROPERTIES : (~["S","s"])> : IT_IS_NOT_DERBYPROPERTIES_COMMENT
-}
-
-<IT_IS_NOT_DERBYPROPERTIES_COMMENT> SKIP :
-{
-    <SINGLE_LINE_SQLCOMMENT: (~["\n","\r"])* ("\n"|"\r"|"\r\n")?> : DEFAULT
-}
-
-// Found -- DERBY-PROPERTIES. 
-// Treat rest of the characters on the line as one big token and then
-// fetch keyname=value pairs from that token.
-<PROPERTIES_LIST> TOKEN :
-{
-    <CHECK_PROPERTIES: (~["\n","\r"])* ("\n"|"\r"|"\r\n")?> : DEFAULT
+    <(~["\n","\r"])* ("\n"|"\r"|"\r\n")?> : DEFAULT
 }
 
 /* This list should contain only and all SQL92 keywords that are
@@ -3329,7 +3125,6 @@ deleteBody() throws StandardException :
     ValueNode whereClause = null;
     FromTable fromTable = null;
     QueryTreeNode retval;
-    Properties targetProperties = null;
     Token whereToken = null;
     ResultColumnList returningList = null;
 }
@@ -3338,11 +3133,9 @@ deleteBody() throws StandardException :
     [ 
         LOOKAHEAD( { (getToken(1).kind != EOF) && (getToken(1).kind != SEMICOLON) && 
         		(getToken(1).kind != WHERE) &&
-        		(getToken(1).kind != RETURNING) &&  
-                                     !derbyPropertiesListFollows() } )
+        		(getToken(1).kind != RETURNING) } )
         [ <AS> ] correlationName = identifier() 
     ]
-    [ targetProperties = propertyList(false) <CHECK_PROPERTIES> ]
     [ 
         whereToken = <WHERE>
         (
@@ -3371,10 +3164,6 @@ deleteBody() throws StandardException :
                                                        correlationName,
                                                        FromBaseTable.UpdateOrDelete.DELETE,
                                                        parserContext);
-
-        if (targetProperties != null) {
-            ((FromBaseTable)fromTable).setTableProperties(targetProperties);
-        }
 
         return getDeleteNode(fromTable, tableName, whereClause, returningList);
     }
@@ -3492,17 +3281,15 @@ updateBody() throws StandardException :
     TableName tableName = null;
     ValueNode whereClause = null;
     FromTable fromTable = null;
-    Properties targetProperties = null;
     Token whereToken = null;
     ResultColumnList returningList = null;
 }
 {
     tableName = qualifiedName()
     [
-        LOOKAHEAD( { (getToken(1).kind != SET) && !derbyPropertiesListFollows() } )
+        LOOKAHEAD( { (getToken(1).kind != SET) } )
         [ <AS> ] correlationName = identifier() 
     ]
-    [ targetProperties = propertyList(false) <CHECK_PROPERTIES> ] 
     <SET> columnList = setClauseList()
     [ 
         whereToken = <WHERE>
@@ -3531,9 +3318,6 @@ updateBody() throws StandardException :
                                                        FromBaseTable.UpdateOrDelete.UPDATE,
                                                        parserContext);
 
-        if (targetProperties != null) {
-            ((FromBaseTable)fromTable).setTableProperties(targetProperties);
-        }
         return getUpdateNode(fromTable, tableName, columnList, whereClause, returningList);
     }
 }
@@ -7816,7 +7600,6 @@ nullSpecification() throws StandardException :
 StatementNode
 insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
 {
-    Properties targetProperties = null;
     ResultSetNode queryExpression;
     ResultColumnList columnList = null;
     OrderByList orderCols = null;
@@ -7834,7 +7617,6 @@ insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
         LOOKAHEAD( { getToken(1).kind == LEFT_PAREN && ! subqueryFollows() } )
         <LEFT_PAREN> columnList = insertColumnList() <RIGHT_PAREN>
     ]
-    [ targetProperties = propertyList(false) <CHECK_PROPERTIES>]
     queryExpression = queryExpression(null, NO_SET_OP)
     [ orderCols = orderByClause() ]
     ( offsetOrFetchFirstClause(offsetAndFetchFirst) )*
@@ -7876,7 +7658,7 @@ insertColumnsAndSource(QueryTreeNode targetTable) throws StandardException :
                                                   targetTable,
                                                   columnList,
                                                   queryExpression,
-                                                  targetProperties,
+                                                  null /*properties*/,
                                                   orderCols,
                                                   offsetAndFetchFirst[0],
                                                   offsetAndFetchFirst[1],
@@ -8329,25 +8111,12 @@ fromClause() throws StandardException :
 }
 {
     <FROM> { beginToken = getToken(1); }
-    [ fromListProperties(fromList) ]
     tableReferences(fromList)
     ( <COMMA> tableReferences(fromList) )* { endToken = getToken(0); }
     {
         fromList.setBeginOffset(beginToken.beginOffset);
         fromList.setEndOffset(endToken.endOffset);
         return fromList;
-    }
-}
-
-void
-fromListProperties(FromList fromList) throws StandardException :
-{
-    Properties properties;
-}
-{
-    properties = propertyList(true) <CHECK_PROPERTIES>
-    {
-        fromList.setProperties(properties);
     }
 }
 
@@ -8384,19 +8153,11 @@ Object[]
 optionalTableClauses() throws StandardException :
 {
     Object[] otc = null;
-    Properties tableProperties = null;
     ResultColumnList derivedRCL = null;
     String correlationName = null;
     IndexHintList indexHints = null;
 }
 {
-    otc = optionalTableProperties() 
-    {
-        otc[OPTIONAL_TABLE_DERIVED_RCL] = derivedRCL;
-        otc[OPTIONAL_TABLE_CORRELATION_NAME] = correlationName;
-        return otc;
-    }
-|
     LOOKAHEAD( { indexHintFollows(1) } )
     indexHints = indexHints()
     {
@@ -8410,29 +8171,13 @@ optionalTableClauses() throws StandardException :
         correlationName = identifier()
         [ <LEFT_PAREN> derivedRCL = derivedColumnList() <RIGHT_PAREN> ] 
         [ indexHints = indexHints() ]
-        [ tableProperties = propertyList(true) <CHECK_PROPERTIES> ] 
     ]
     {
         otc = new Object[OPTIONAL_TABLE_NCLAUSES];
-        otc[OPTIONAL_TABLE_PROPERTIES] = tableProperties;
+        otc[OPTIONAL_TABLE_PROPERTIES] = null;
         otc[OPTIONAL_TABLE_DERIVED_RCL] = derivedRCL;
         otc[OPTIONAL_TABLE_CORRELATION_NAME] = correlationName;
         otc[OPTIONAL_TABLE_MYSQL_INDEX_HINTS] = indexHints;
-        return otc;
-    }
-}
-
-Object[]
-optionalTableProperties() throws StandardException :
-{
-    Object[] otc = null;
-    Properties tableProperties = null;
-}
-{
-    tableProperties = propertyList(true) <CHECK_PROPERTIES> 
-    {
-        otc = new Object[OPTIONAL_TABLE_NCLAUSES];
-        otc[OPTIONAL_TABLE_PROPERTIES] = tableProperties;
         return otc;
     }
 }
@@ -8597,7 +8342,6 @@ tableFactor() throws StandardException :
     derivedTable = derivedTable() 
     [ <AS> ] correlationName = identifier()
     [ <LEFT_PAREN> derivedRCL = derivedColumnList() <RIGHT_PAREN> ]
-    [ optionalTableClauses = optionalTableProperties() ]
     {
         fromTable = (FromTable)nodeFactory.getNode(NodeTypes.FROM_SUBQUERY,
                                                    derivedTable.getResultSet(),
@@ -9846,7 +9590,6 @@ tableDefinition() throws StandardException :
 {
     TableName tableName;
     TableElementList tableElementList;
-    Properties properties = null;
     char lockGranularity = CreateTableNode.DEFAULT_LOCK_GRANULARITY;
     ResultColumnList resultColumns = null;
     CursorNode queryExpression;
@@ -9865,12 +9608,11 @@ tableDefinition() throws StandardException :
                      getToken(3).kind != COMMA && getToken(3).kind != RIGHT_PAREN } )
         tableElementList = tableElementList()
         [ <STORAGE_FORMAT> storage = storageFormat() ]
-        [ properties = propertyList(false)<CHECK_PROPERTIES>]
     {
         return (StatementNode)nodeFactory.getNode(NodeTypes.CREATE_TABLE_NODE,
                                                   tableName,
                                                   tableElementList,
-                                                  properties,
+                                                  null /*properties*/,
                                                   new Character(lockGranularity),
                                                   cond,
                                                   storage,
@@ -9923,65 +9665,6 @@ tableColumnList() throws StandardException :
     }
 }
 
-/*
- * This method is called when a comment starting with --derby-properties is found.
- * Such a comment is a special directive to Derby and allows a sql to pass optimizer
- * overrides. Derby looks for propertyName=value [,propertyName=value]* after
- * --derby-properties and returns these properties in a Properties object as a return 
- * value of this method.
- * The param propertiesUseAllowed true indicates that users are allowed to 
- * specify optimizer overrides in the given context. 
- * False means optimizer overrides in the given context are allowed internally 
- * only eg impl/load/import.java specifies property insertMode=replace/bulkInsert
- * in the insert statement. This same property will not be acceptable from an 
- * insert statement from a user sql.
- */
-Properties
-propertyList(boolean propertiesUseAllowed) throws StandardException :
-{
-    Properties properties = new Properties();
-    StringTokenizer commaSeparatedProperties;
-    StringTokenizer equalOperatorSeparatedProperty;
-}
-{
-    <DERBYDASHPROPERTIES> 
-    {
-        //first use StringTokenizer to get tokens which are delimited by ,s
-        commaSeparatedProperties = new StringTokenizer(getToken(1).image, ",");
-        while (commaSeparatedProperties.hasMoreTokens()) {
-            //Now verify that tokens delimited by ,s follow propertyName=value pattern
-            String currentProperty = commaSeparatedProperties.nextToken();
-            equalOperatorSeparatedProperty = new StringTokenizer(currentProperty,"=", true);
-            if (equalOperatorSeparatedProperty.countTokens() != 3)
-                throw new StandardException("Invalid properties syntax");
-            else {
-                String key = equalOperatorSeparatedProperty.nextToken().trim();
-                if (!equalOperatorSeparatedProperty.nextToken().equals("="))
-                    throw new StandardException("Invalid properties syntax");
-                String value = equalOperatorSeparatedProperty.nextToken().trim();
-                parserContext.checkStringLiteralLengthLimit(value);
-                /* Trim off the leading and trailing ', and compress all '' to ' */
-                if (value.startsWith("'") && value.endsWith("'"))
-                    value = trimAndCompressQuotes(value, 1, false);
-                /* Trim off the leading and trailing ", and compress all "" to " */
-                else if (value.startsWith("\"") && value.endsWith("\""))
-                    value = trimAndCompressQuotes(value, 1, false);
-                else 
-                    value = value.toUpperCase();
-                // Do not allow user to specify multiple values for the same key
-                if (properties.put(key, value) != null) {
-                    throw new StandardException("Duplicate property: " + key);
-                }
-            }
-        }
-        //if this property override is supported in internal mode only, then do that verification here.
-        if (!propertiesUseAllowed) {
-            // TODO: What to do?
-        }
-        return properties;
-    }
-}
-
 char
 DB2lockGranularityClause() throws StandardException :
 {
@@ -10014,7 +9697,6 @@ StatementNode
 indexDefinition() throws StandardException :
 {
     Boolean unique = Boolean.FALSE;
-    Properties properties = null;
     TableName indexName;
     TableName tableName;
     IndexColumnList indexColumnList = null;
@@ -10041,7 +9723,6 @@ indexDefinition() throws StandardException :
     [ LOOKAHEAD ( { groupFormat && getToken(1).kind == USING } )
       <USING> joinType = joinType() <JOIN> ]
     [ <STORAGE_FORMAT> storage = storageFormat() ]
-    [ properties = propertyList(false) <CHECK_PROPERTIES>]
     {
         /* User allowed to specify schema name on table and index.
          * If no schema name specified for index, then it "inherits" 
@@ -10071,7 +9752,7 @@ indexDefinition() throws StandardException :
                                                   tableName,
                                                   indexColumnList,
                                                   joinType,
-                                                  properties,
+                                                  null /*properties*/,
                                                   cond,
                                                   storage,
                                                   parserContext);
@@ -12382,19 +12063,13 @@ simpleCaseElseExpression(SimpleCaseNode caseExpr) throws StandardException :
 void
 tableConstraintDefinition(TableElementList tableElementList) throws StandardException :
 {
-    Properties properties = null;
     ConstraintDefinitionNode tcdn;
     TableName constraintName = null;
 }
 {
     [ constraintName = constraintNameDefinition() ] 
     tcdn = tableConstraint(constraintName) 
-    [ properties = propertyList(false) <CHECK_PROPERTIES>]
     {
-        if (properties != null) {
-            tcdn.setProperties(properties);
-        }
-
         tableElementList.addTableElement((TableElementNode)tcdn);
     }
 }
@@ -12703,7 +12378,6 @@ columnConstraint(TableName constraintName,
 {
     Token notNull = null;
     ConstraintDefinitionNode.ConstraintType constraintType;
-    Properties properties = null;
     ConstraintDefinitionNode tcdn;
     ResultColumnList refRcl = (ResultColumnList)nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST,
                                                                     parserContext);
@@ -12731,7 +12405,6 @@ columnConstraint(TableName constraintName,
     //exception if null constraint is defined for this column-level primary 
     //key constraint
     constraintType = uniqueSpecification(columnName)
-    [ properties = propertyList(false) <CHECK_PROPERTIES>]
     {
         ResultColumnList uniqueColumnList = (ResultColumnList)
             nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST,
@@ -12746,7 +12419,7 @@ columnConstraint(TableName constraintName,
                                                              constraintName,
                                                              constraintType,
                                                              uniqueColumnList,
-                                                             properties,
+                                                             null /*properties*/,
                                                              null,
                                                              null,
                                                              parserContext);
@@ -12760,7 +12433,6 @@ columnConstraint(TableName constraintName,
       { deferrable = (not == null); } ]
     [ <INITIALLY> ( deferred = <DEFERRED> | <IMMEDIATE> )
       { initiallyDeferred = (deferred != null); } ]
-    [ properties = propertyList(false)<CHECK_PROPERTIES>] 
     {
         ResultColumnList fkRcl = (ResultColumnList)
             nodeFactory.getNode(NodeTypes.RESULT_COLUMN_LIST,
@@ -12779,9 +12451,6 @@ columnConstraint(TableName constraintName,
                                                              (grouping == null) ? Boolean.FALSE : Boolean.TRUE,
                                                              deferrable, initiallyDeferred,
                                                              parserContext);
-        if (properties != null) {
-            tcdn.setProperties(properties);
-        }
         return tcdn;
     }
 |
