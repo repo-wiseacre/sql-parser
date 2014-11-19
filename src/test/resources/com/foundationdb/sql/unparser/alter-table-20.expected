@@ -1,0 +1,1 @@
+ALTER TABLE test.t ADD CONSTRAINT test.foo UNIQUE(c)
