@@ -310,6 +310,8 @@ public class NodeToString
             return modifyColumnNode((ModifyColumnNode)node);
         case NodeTypes.AT_DROP_INDEX_NODE:
             return alterDropIndexNode((AlterDropIndexNode)node);
+        case NodeTypes.NEW_INVOCATION_NODE:
+            return newInvocationNode((NewInvocationNode)node);
         default:
             return "**UNKNOWN(" + node.getNodeType() +")**";
         }
@@ -1879,15 +1881,27 @@ public class NodeToString
     protected String groupConcat(GroupConcatNode node) throws StandardException
     {
         StringBuilder ret = new StringBuilder("GROUP_CONCAT(");
-
-        ret.append(node.getOperand());
-
-        OrderByList orderBy = node.getOrderBy();
-        if (orderBy != null)
-            ret.append(this.toString(orderBy));
-
-        // i
-        ret.append("SEPARATOR \'").append(node.getSeparator()).append("\')");
+        if(node.isDistinct()) {
+            ret.append("DISTINCT ");
+        }
+        // GROUP_CONCAT comes through non-uniform:
+        // A single column is a raw ValueNode
+        // Multiple columns are a JavaToSQLValueNode containing a NewInvocationNode of CONCAT(a,b,...)
+        if(node.getOperand() instanceof JavaToSQLValueNode) {
+            JavaToSQLValueNode javaNode = (JavaToSQLValueNode)node.getOperand();
+            NewInvocationNode niNode = (NewInvocationNode)javaNode.getJavaValueNode();
+            ret.append(javaValueNodeArray(niNode.getMethodParameters()));
+        } else {
+            ret.append(toString(node.getOperand()));
+        }
+        ret.append(" ");
+        if (node.getOrderBy() != null) {
+            ret.append(toString(node.getOrderBy()));
+            ret.append(" ");
+        }
+        ret.append("SEPARATOR '");
+        ret.append(node.getSeparator());
+        ret.append("\')");
         return ret.toString();
     }
 
@@ -2002,6 +2016,29 @@ public class NodeToString
 
     protected String alterDropIndexNode(AlterDropIndexNode node) {
         return "DROP INDEX " + maybeQuote(node.getIndexName());
+    }
+
+    protected String newInvocationNode(NewInvocationNode node) throws StandardException {
+        StringBuilder str = new StringBuilder();
+        str.append(maybeQuote(node.getMethodName()));
+        str.append("(");
+        str.append(javaValueNodeArray(node.getMethodParameters()));
+        str.append(")");
+        return str.toString();
+    }
+
+    protected String javaValueNodeArray(JavaValueNode[] nodes) throws StandardException {
+        if(nodes == null || nodes.length == 0) {
+            return "";
+        }
+        StringBuilder str = new StringBuilder();
+        for(int i = 0; i < nodes.length; ++i) {
+            if(i > 0) {
+                str.append(", ");
+            }
+            str.append(toString(nodes[i]));
+        }
+        return str.toString();
     }
 
     protected String orderByListFetchFirstOffset(OrderByList orderByList,
