@@ -757,7 +757,7 @@ class SQLGrammar
                 }
 
                 // (SELECT ... ) shouldn't be considered a row-constructor
-                if (tokKind == SELECT)
+                if (nesting == 1 && tokKind == SELECT)
                     return false;
 
                 // There must be a COMMA at nesting level 1 (i.e. outside of

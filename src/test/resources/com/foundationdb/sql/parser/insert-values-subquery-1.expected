@@ -7,7 +7,6 @@ resultSet:
 	resultColumns: 		
 		com.foundationdb.sql.parser.ResultColumnList@2d675d70
 
-		
 		[0]:		
 		com.foundationdb.sql.parser.ResultColumn@5cc4211b
 		exposedName: null
@@ -38,7 +37,8 @@ resultSet:
 						type: CHAR(1) NOT NULL
 				fromList: 					
 					com.foundationdb.sql.parser.FromList@4c5cba16
-                [1]:		
+
+		[1]:		
 		com.foundationdb.sql.parser.ResultColumn@5d277b59
 		exposedName: null
 		name: null
@@ -49,7 +49,6 @@ resultSet:
 			com.foundationdb.sql.parser.CharConstantNode@4b133fd6
 			value: d
 			type: CHAR(1) NOT NULL
-
 targetTableName: 	
 	com.foundationdb.sql.parser.TableName@e3e
 	t2
