@@ -1,0 +1,1 @@
+INSERT INTO t2 VALUES ((SELECT 'q' AS anon1))
