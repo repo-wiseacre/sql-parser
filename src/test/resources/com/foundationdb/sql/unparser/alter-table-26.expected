@@ -1,0 +1,1 @@
+ALTER TABLE test.t DROP UNIQUE foo

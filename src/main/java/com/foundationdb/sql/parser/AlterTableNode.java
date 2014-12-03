@@ -289,6 +289,10 @@ public class AlterTableNode extends DDLStatementNode
         return existenceCheck;
     }
 
+    public TableElementList getTableElementList() {
+        return tableElementList;
+    }
+
     /**
      * Accept the visitor for all visitable children of this node.
      * 

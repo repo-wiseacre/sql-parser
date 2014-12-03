@@ -72,6 +72,10 @@ public class GenerationClauseNode extends ValueNode
         return expressionText; 
     }
 
+    public ValueNode getGEnerationExpression() {
+        return generationExpression;
+    }
+
     protected boolean isEquivalent(ValueNode other) throws StandardException {
         if (!(other instanceof GenerationClauseNode)) { 
             return false; 

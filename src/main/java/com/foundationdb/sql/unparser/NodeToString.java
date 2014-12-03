@@ -18,6 +18,7 @@ package com.foundationdb.sql.unparser;
 
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.*;
+import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -36,9 +37,11 @@ public class NodeToString
         case NodeTypes.CREATE_VIEW_NODE:
             return createViewNode((CreateViewNode)node);
         case NodeTypes.DROP_TABLE_NODE:
+            return dropTableNode((DropTableNode)node);
         case NodeTypes.DROP_VIEW_NODE:
+            return dropViewNode((DropViewNode)node);
         case NodeTypes.DROP_TRIGGER_NODE:
-            return qualifiedDDLNode((DDLStatementNode)node);
+            return dropTriggerNode((DropTriggerNode)node);
         case NodeTypes.DROP_INDEX_NODE:
             return dropIndexNode((DropIndexNode)node);
         case NodeTypes.EXPLAIN_STATEMENT_NODE:
@@ -291,6 +294,24 @@ public class NodeToString
             return deallocateStatementNode((DeallocateStatementNode)node);
         case NodeTypes.COPY_STATEMENT_NODE:
             return copyStatementNode((CopyStatementNode)node);
+        case NodeTypes.CREATE_SCHEMA_NODE:
+            return createSchemaNode((CreateSchemaNode)node);
+        case NodeTypes.DROP_SEQUENCE_NODE:
+            return dropSequenceNode((DropSequenceNode)node);
+        case NodeTypes.ALTER_TABLE_NODE:
+            return alterTableNode((AlterTableNode)node);
+        case NodeTypes.AT_RENAME_COLUMN_NODE:
+            return alterTableRenameColumnNode((AlterTableRenameColumnNode)node);
+        case NodeTypes.DROP_COLUMN_NODE:
+        case NodeTypes.MODIFY_COLUMN_TYPE_NODE:
+        case NodeTypes.MODIFY_COLUMN_DEFAULT_NODE:
+        case NodeTypes.MODIFY_COLUMN_CONSTRAINT_NODE:
+        case NodeTypes.MODIFY_COLUMN_CONSTRAINT_NOT_NULL_NODE:
+            return modifyColumnNode((ModifyColumnNode)node);
+        case NodeTypes.AT_DROP_INDEX_NODE:
+            return alterDropIndexNode((AlterDropIndexNode)node);
+        case NodeTypes.NEW_INVOCATION_NODE:
+            return newInvocationNode((NewInvocationNode)node);
         default:
             return "**UNKNOWN(" + node.getNodeType() +")**";
         }
@@ -339,8 +360,30 @@ public class NodeToString
         return str.toString();
     }
 
+    protected String createSchemaNode(CreateSchemaNode node) throws StandardException {
+        StringBuilder str = new StringBuilder("CREATE SCHEMA ");
+        str.append(existenceCheck(node.getExistenceCheck()));
+        str.append(maybeQuote(node.getSchemaName()));
+        if(node.getAuthorizationID() != null) {
+            str.append(" AUTHORIZATION ");
+            str.append(maybeQuote(node.getAuthorizationID()));
+        }
+        if(node.getDefaultCharacterAttributes() != null) {
+            if(node.getDefaultCharacterAttributes().getCharacterSet() != null) {
+                str.append(" DEFAULT CHARACTER SET ");
+                str.append(maybeQuote(node.getDefaultCharacterAttributes().getCharacterSet()));
+            }
+            if(node.getDefaultCharacterAttributes().getCollation() != null) {
+                str.append(" DEFAULT COLLATION ");
+                str.append(maybeQuote(node.getDefaultCharacterAttributes().getCollation()));
+            }
+        }
+        return str.toString();
+    }
+
     protected String createTableNode(CreateTableNode node) throws StandardException {
         StringBuilder str = new StringBuilder("CREATE TABLE ");
+        str.append(existenceCheck(node.getExistenceCheck()));
         str.append(toString(node.getObjectName()));
         if (node.getTableElementList() != null) {
             str.append("(");
@@ -361,6 +404,7 @@ public class NodeToString
 
     protected String createViewNode(CreateViewNode node) throws StandardException {
         StringBuilder str = new StringBuilder("CREATE VIEW ");
+        str.append(existenceCheck(node.getExistenceCheck()));
         str.append(toString(node.getObjectName()));
         if (node.getResultColumns() != null) {
             str.append("(");
@@ -392,19 +436,56 @@ public class NodeToString
 
     protected String constraintDefinitionNode(ConstraintDefinitionNode node)
             throws StandardException {
+        StringBuilder str = new StringBuilder();
+        if (node.getConstraintName() != null) {
+            str.append("CONSTRAINT ");
+            str.append(toString(node.getConstraintName()));
+            str.append(" ");
+        }
         switch (node.getConstraintType()) {
         case PRIMARY_KEY:
-            return "PRIMARY KEY(" + toString(node.getColumnList()) + ")";
+            str.append("PRIMARY KEY(");
+            str.append(toString(node.getColumnList()));
+            str.append(")");
+            break;
         case UNIQUE:
-            return "UNIQUE(" + toString(node.getColumnList()) + ")";
+            str.append("UNIQUE(");
+            str.append(toString(node.getColumnList()));
+            str.append(")");
+            break;
+        case DROP:
+            if(node.getVerifyType() == ConstraintType.DROP) {
+                str.insert(0, "DROP ");
+            } else {
+                str.setLength(0);
+                str.append("DROP ");
+                str.append(node.getVerifyType().name().replace("_", " "));
+                if(node.getConstraintName() != null) {
+                    str.append(" ");
+                    str.append(toString(node.getConstraintName()));
+                }
+            }
+            break;
         default:
-            return "**UNKNOWN(" + node.getConstraintType() + ")";
+            str.append("**UNKNOWN(");
+            str.append(node.getConstraintType());
+            str.append(")");
         }
+        if(node.getExistenceCheck() != null) {
+            str.append(" ");
+            str.append(existenceCheck(node.getExistenceCheck()));
+        }
+        return str.toString().trim();
     }
 
     protected String fkConstraintDefinitionNode(FKConstraintDefinitionNode node)
             throws StandardException {
         StringBuilder str = new StringBuilder();
+        if (node.getConstraintName() != null) {
+            str.append("CONSTRAINT ");
+            str.append(toString(node.getConstraintName()));
+            str.append(" ");
+        }
         if (node.isGrouping())
             str.append("GROUPING ");
         str.append("FOREIGN KEY(");
@@ -427,17 +508,7 @@ public class NodeToString
             str.append("UNIQUE ");
         str.append("INDEX");
         str.append(" ");
-
-        switch (node.getExistenceCheck())
-        {
-            case IF_EXISTS:
-                str.append("IF EXISTS ");
-                break;
-            case IF_NOT_EXISTS:
-                str.append("IF NOT EXISTS ");
-                break;
-        }
-
+        str.append(existenceCheck(node.getExistenceCheck()));
         str.append(toString(node.getIndexName()));
         str.append(" ON ");
         str.append(node.getIndexTableName());
@@ -549,6 +620,7 @@ public class NodeToString
     protected String dropIndexNode(DropIndexNode node) throws StandardException {
         StringBuilder str = new StringBuilder(node.statementToString());
         str.append(" ");
+        str.append(existenceCheck(node.getExistenceCheck()));
         if (node.getObjectName() != null) {
             str.append(toString(node.getObjectName()));
             str.append(".");
@@ -1570,8 +1642,23 @@ public class NodeToString
         return "CALL " + javaToSQLValueNode(node.methodCall());
     }
 
-    protected String qualifiedDDLNode(DDLStatementNode node) throws StandardException {
-        return node.statementToString() + " " + node.getObjectName();
+    protected String dropTableNode(DropTableNode node) throws StandardException {
+        return ddlStatementNode(node, node.getExistenceCheck());
+    }
+
+    protected String dropViewNode(DropViewNode node) throws StandardException {
+        return ddlStatementNode(node, node.getExistenceCheck());
+    }
+
+    protected String dropTriggerNode(DropTriggerNode node) throws StandardException {
+        return ddlStatementNode(node, null);
+    }
+
+    protected String ddlStatementNode(DDLStatementNode node, ExistenceCheck existenceCheck) throws StandardException {
+        return node.statementToString() +
+            " " +
+            existenceCheck(existenceCheck) +
+            toString(node.getObjectName());
     }
 
     protected String explainStatementNode(ExplainStatementNode node)
@@ -1794,16 +1881,164 @@ public class NodeToString
     protected String groupConcat(GroupConcatNode node) throws StandardException
     {
         StringBuilder ret = new StringBuilder("GROUP_CONCAT(");
-
-        ret.append(node.getOperand());
-
-        OrderByList orderBy = node.getOrderBy();
-        if (orderBy != null)
-            ret.append(this.toString(orderBy));
-
-        // i
-        ret.append("SEPARATOR \'").append(node.getSeparator()).append("\')");
+        if(node.isDistinct()) {
+            ret.append("DISTINCT ");
+        }
+        // GROUP_CONCAT comes through non-uniform:
+        // A single column is a raw ValueNode
+        // Multiple columns are a JavaToSQLValueNode containing a NewInvocationNode of CONCAT(a,b,...)
+        if(node.getOperand() instanceof JavaToSQLValueNode) {
+            JavaToSQLValueNode javaNode = (JavaToSQLValueNode)node.getOperand();
+            NewInvocationNode niNode = (NewInvocationNode)javaNode.getJavaValueNode();
+            ret.append(javaValueNodeArray(niNode.getMethodParameters()));
+        } else {
+            ret.append(toString(node.getOperand()));
+        }
+        ret.append(" ");
+        if (node.getOrderBy() != null) {
+            ret.append(toString(node.getOrderBy()));
+            ret.append(" ");
+        }
+        ret.append("SEPARATOR '");
+        ret.append(node.getSeparator());
+        ret.append("\')");
         return ret.toString();
+    }
+
+    protected String dropSequenceNode(DropSequenceNode node) throws StandardException {
+        StringBuilder str = new StringBuilder("DROP SEQUENCE ");
+        if(node.getExistenceCheck() != null) {
+            str.append(existenceCheck(node.getExistenceCheck()));
+        }
+        str.append(toString(node.getObjectName()));
+        str.append(statementTypeDrop(node.getDropBehavior()));
+        return str.toString();
+    }
+
+    protected String alterTableNode(AlterTableNode node) throws StandardException {
+        StringBuilder str = new StringBuilder();
+        str.append(node.isTruncateTable() ? "TRUNCATE" : "ALTER");
+        str.append(" TABLE ");
+        str.append(existenceCheck(node.getExistenceCheck()));
+        str.append(toString(node.getObjectName()));
+        if(node.getTableElementList() != null) {
+            for(int i = 0; i < node.getTableElementList().size(); ++i) {
+                str.append(" ");
+                if(i > 0) {
+                    str.append(",");
+                }
+                // Handle ones that aren't unique to AlterTableNode
+                TableElementNode elementNode = node.getTableElementList().get(i);
+                switch(elementNode.getNodeType()) {
+                    case NodeTypes.COLUMN_DEFINITION_NODE:
+                        str.append("ADD COLUMN ");
+                        break;
+                    case NodeTypes.CONSTRAINT_DEFINITION_NODE:
+                        ConstraintDefinitionNode cdn = (ConstraintDefinitionNode)elementNode;
+                        if(cdn.getConstraintType() != ConstraintType.DROP) {
+                            str.append("ADD ");
+                        }
+                        break;
+                    case NodeTypes.INDEX_DEFINITION_NODE:
+                    case NodeTypes.FK_CONSTRAINT_DEFINITION_NODE:
+                        str.append("ADD ");
+                        break;
+                }
+                str.append(toString(elementNode));
+            }
+        }
+        return str.toString();
+    }
+
+    protected String alterTableRenameColumnNode(AlterTableRenameColumnNode node) {
+        return "RENAME COLUMN " +
+            maybeQuote(node.oldName()) +
+            " TO " +
+            maybeQuote(node.newName());
+    }
+
+    protected String modifyColumnNode(ModifyColumnNode node) throws StandardException {
+        if(node.getNodeType() == NodeTypes.DROP_COLUMN_NODE) {
+            return "DROP COLUMN " +
+                    existenceCheck(node.getExistenceCheck()) +
+                    maybeQuote(node.getColumnName());
+        }
+
+        StringBuilder str = new StringBuilder("ALTER COLUMN ");
+        str.append(maybeQuote(node.getColumnName()));
+        switch(node.getNodeType()) {
+            case NodeTypes.MODIFY_COLUMN_TYPE_NODE:
+                str.append(" SET DATA TYPE ");
+                str.append(node.getType());
+                break;
+            case NodeTypes.MODIFY_COLUMN_DEFAULT_NODE:
+                if(node.getAutoinc_create_or_modify_Start_Increment() == ModifyColumnNode.MODIFY_AUTOINCREMENT_INC_VALUE) {
+                    str.append(" SET INCREMENT BY ");
+                    str.append(node.getAutoincrementIncrement());
+                } else if(node.getAutoinc_create_or_modify_Start_Increment() == ModifyColumnNode.MODIFY_AUTOINCREMENT_RESTART_VALUE) {
+                    str.append(" RESTART WITH ");
+                    str.append(node.getAutoincrementStart());
+                } else {
+                    if(node.isAutoincrementColumn() || (node.getGenerationClauseNode() != null)) {
+                        str.append(" SET");
+                        str.append(" GENERATED ");
+                        str.append(node.getDefaultNode() != null ? "BY DEFAULT" : "ALWAYS");
+                        str.append(" AS ");
+                        if(node.getGenerationClauseNode() != null) {
+                            str.append("(");
+                            str.append(toString(node.getGenerationClauseNode().getGEnerationExpression()));
+                            str.append(")");
+                        } else {
+                            str.append("IDENTITY (");
+                            str.append("START WITH ");
+                            str.append(node.getAutoincrementStart());
+                            str.append(", INCREMENT BY ");
+                            str.append(node.getAutoincrementIncrement());
+                            str.append(")");
+                        }
+                    } else if(node.getDefaultNode() != null) {
+                        str.append(" SET");
+                        str.append(defaultNode(node.getDefaultNode()));
+                    } else {
+                        str.append(" DROP DEFAULT");
+                    }
+                }
+                break;
+            case NodeTypes.MODIFY_COLUMN_CONSTRAINT_NODE:
+                str.append(" NULL");
+                break;
+            case NodeTypes.MODIFY_COLUMN_CONSTRAINT_NOT_NULL_NODE:
+                str.append(" NOT NULL");
+                break;
+        }
+        return str.toString();
+    }
+
+    protected String alterDropIndexNode(AlterDropIndexNode node) {
+        return "DROP INDEX " + maybeQuote(node.getIndexName());
+    }
+
+    protected String newInvocationNode(NewInvocationNode node) throws StandardException {
+        StringBuilder str = new StringBuilder();
+        str.append(maybeQuote(node.getMethodName()));
+        str.append("(");
+        str.append(javaValueNodeArray(node.getMethodParameters()));
+        str.append(")");
+        return str.toString();
+    }
+
+    protected String javaValueNodeArray(JavaValueNode[] nodes) throws StandardException {
+        if(nodes == null || nodes.length == 0) {
+            return "";
+        }
+        StringBuilder str = new StringBuilder();
+        for(int i = 0; i < nodes.length; ++i) {
+            if(i > 0) {
+                str.append(", ");
+            }
+            str.append(toString(nodes[i]));
+        }
+        return str.toString();
     }
 
     protected String orderByListFetchFirstOffset(OrderByList orderByList,
@@ -1820,5 +2055,34 @@ public class NodeToString
             result += " OFFSET " + toString(offset);
         }
         return result;
+    }
+
+    protected String existenceCheck(ExistenceCheck existenceCheck) {
+        if(existenceCheck == null) {
+            return "";
+        }
+        switch (existenceCheck) {
+            case NO_CONDITION:
+                return "";
+            case IF_EXISTS:
+                return "IF EXISTS ";
+            case IF_NOT_EXISTS:
+                return "IF NOT EXISTS ";
+            default:
+                throw new IllegalArgumentException("existenceCheck: " + existenceCheck);
+        }
+    }
+
+    protected String statementTypeDrop(int dropBehavior) {
+        switch(dropBehavior) {
+            case StatementType.DROP_CASCADE:
+                return " CASCADE";
+            case StatementType.DROP_RESTRICT:
+                return " RESTRICT";
+            case StatementType.DROP_DEFAULT:
+                return "";
+            default:
+                throw new IllegalArgumentException("dropBehavior: " + dropBehavior);
+        }
     }
 }

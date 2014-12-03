@@ -43,4 +43,8 @@ public class AlterTableRenameColumnNode extends TableElementNode
     {
         return newName;
     }
+
+    public String oldName() {
+        return oldName;
+    }
 }

@@ -1,0 +1,1 @@
+RENAME COLUMN IF EXISTS test.t.c1 TO c2
