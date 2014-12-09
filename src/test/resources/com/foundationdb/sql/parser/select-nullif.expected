@@ -1,0 +1,68 @@
+com.foundationdb.sql.parser.CursorNode@7239c5c6
+name: null
+updateMode: UNSPECIFIED
+statementType: SELECT
+resultSet: 	
+	com.foundationdb.sql.parser.SelectNode@2ee784c0
+	isDistinct: false
+	resultColumns: 		
+		com.foundationdb.sql.parser.ResultColumnList@61bc714e
+
+		[0]:		
+		com.foundationdb.sql.parser.ResultColumn@1ab2ea03
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.JavaToSQLValueNode@582178a6
+			type: null
+			javaNode: 				
+				com.foundationdb.sql.parser.StaticMethodCallNode@7d78077d
+				javaClassName: null
+				methodName: NULLIF
+				methodParms[0] :					
+					com.foundationdb.sql.parser.SQLToJavaValueNode@5333dfe5
+
+					value: 						
+						com.foundationdb.sql.parser.NumericConstantNode@72b05e0f
+						value: 1
+						type: INTEGER NOT NULL
+				methodParms[1] :					
+					com.foundationdb.sql.parser.SQLToJavaValueNode@18ef659c
+
+					value: 						
+						com.foundationdb.sql.parser.NumericConstantNode@cf7f18e
+						value: 1
+						type: INTEGER NOT NULL
+		[1]:		
+		com.foundationdb.sql.parser.ResultColumn@6a13a848
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+		expression: 			
+			com.foundationdb.sql.parser.JavaToSQLValueNode@308d4560
+			type: null
+			javaNode: 				
+				com.foundationdb.sql.parser.StaticMethodCallNode@ac5ba87
+				javaClassName: null
+				methodName: NULLIF
+				methodParms[0] :					
+					com.foundationdb.sql.parser.SQLToJavaValueNode@3b58fa97
+
+					value: 						
+						com.foundationdb.sql.parser.NumericConstantNode@4eabedf1
+						value: 1
+						type: INTEGER NOT NULL
+				methodParms[1] :					
+					com.foundationdb.sql.parser.SQLToJavaValueNode@79929190
+
+					value: 						
+						com.foundationdb.sql.parser.NumericConstantNode@592c34b
+						value: 1
+						type: INTEGER NOT NULL
+	fromList: 		
+		com.foundationdb.sql.parser.FromList@665373c8

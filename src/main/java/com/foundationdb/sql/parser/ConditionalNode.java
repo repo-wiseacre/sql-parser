@@ -53,10 +53,6 @@ public class ConditionalNode extends ValueNode
     private ValueNode testCondition;
     private ValueNodeList thenElseList;
 
-    // True means we are here for NULLIF(V1,V2), false means we are here for following
-    // CASE WHEN BooleanExpression THEN thenExpression ELSE elseExpression END
-    private boolean thisIsNullIfNode;
-
     /**
      * Initializer for a ConditionalNode
      *
@@ -64,10 +60,9 @@ public class ConditionalNode extends ValueNode
      * @param thenElseList ValueNodeList with then and else expressions
      */
 
-    public void init(Object testCondition, Object thenElseList, Object thisIsNullIfNode) {
+    public void init(Object testCondition, Object thenElseList) {
         this.testCondition = (ValueNode)testCondition;
         this.thenElseList = (ValueNodeList)thenElseList;
-        this.thisIsNullIfNode = ((Boolean)thisIsNullIfNode).booleanValue();
     }
 
     /**
@@ -81,7 +76,6 @@ public class ConditionalNode extends ValueNode
             getNodeFactory().copyNode(other.testCondition, getParserContext());
         this.thenElseList = (ValueNodeList)
             getNodeFactory().copyNode(other.thenElseList, getParserContext());
-        this.thisIsNullIfNode = other.thisIsNullIfNode;
     }
 
     public ValueNode getTestCondition() {
@@ -110,10 +104,6 @@ public class ConditionalNode extends ValueNode
 
     public void setElseNode(ValueNode elseNode) {
         thenElseList.set(1, elseNode);
-    }
-
-    public boolean isNullIfNode() {
-        return thisIsNullIfNode;
     }
 
     /**

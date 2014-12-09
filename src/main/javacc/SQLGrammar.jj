@@ -573,6 +573,7 @@ class SQLGrammar
         case ABSVAL:
         case SQRT:
         case MOD:
+        case NULLIF:
         case COALESCE:
         case VALUE:
         case IDENTITY_VAL_LOCAL:
@@ -1578,6 +1579,22 @@ class SQLGrammar
             assert false : "Unexpected joinType: " + joinType;
             return null;
         }
+    }
+
+    /**
+     * @param routineName TableName or String
+     */
+    private ValueNode newRoutineInvocationNode(Object routineName,
+                                               List<ValueNode> arguments) throws StandardException {
+        MethodCallNode methodNode = (MethodCallNode)nodeFactory.getNode(NodeTypes.STATIC_METHOD_CALL_NODE,
+                                                                        routineName,
+                                                                        null,
+                                                                        parserContext);
+
+        methodNode.addParms(arguments);
+        return (ValueNode)nodeFactory.getNode(NodeTypes.JAVA_TO_SQL_VALUE_NODE,
+                                              methodNode,
+                                              parserContext);
     }
 
     // TODO: What is this about?
@@ -5725,22 +5742,7 @@ escapedSYSFUNFunction() throws StandardException :
                                                                 new Integer(0),
                                                                 new Integer(0),
                                                                 parserContext);
-         
-        MethodCallNode methodNode = (MethodCallNode)nodeFactory.getNode(NodeTypes.STATIC_METHOD_CALL_NODE,
-                                                                        functionName,
-                                                                        null,
-                                                                        parserContext);
-
-        methodNode.addParms(parameterList);
-
-        /*
-        ** Assume this is being returned to the SQL domain.  If it turns
-        ** out that this is being returned to the Java domain, we will
-        ** get rid of this node.
-        */
-        return (ValueNode)nodeFactory.getNode(NodeTypes.JAVA_TO_SQL_VALUE_NODE,
-                                              methodNode,
-                                              parserContext);
+        return newRoutineInvocationNode(functionName, parameterList);
     }
 }
 
@@ -6367,6 +6369,11 @@ miscBuiltinsCore(boolean isJDBCEscape) throws StandardException :
     }
 |
     value = dataTypeScalarFunction()
+    {
+        return value;
+    }
+|
+    <NULLIF> value = twoArgRoutineInvocation(getToken(0).image)
     {
         return value;
     }
@@ -7138,27 +7145,28 @@ routineInvocation() throws StandardException :
 {
     List<ValueNode> parameterList = new ArrayList<ValueNode>();
     TableName routineName;
-    MethodCallNode methodNode;
 }
 {
     routineName = qualifiedName()
     methodCallParameterList(parameterList)
     {
-        methodNode = (MethodCallNode)nodeFactory.getNode(NodeTypes.STATIC_METHOD_CALL_NODE,
-                                                         routineName,
-                                                         null,
-                                                         parserContext);
+        return newRoutineInvocationNode(routineName, parameterList);
+    }
+}
 
-        methodNode.addParms(parameterList);
-
-        /*
-        ** Assume this is being returned to the SQL domain.  If it turns
-        ** out that this is being returned to the Java domain, we will
-        ** get rid of this node.
-        */
-        return (ValueNode)nodeFactory.getNode(NodeTypes.JAVA_TO_SQL_VALUE_NODE,
-                                              methodNode,
-                                              parserContext);
+ValueNode
+twoArgRoutineInvocation(Object routineName) throws StandardException :
+{
+    List<ValueNode> arguments = new ArrayList<ValueNode>();
+}
+{
+    <LEFT_PAREN>
+    methodParameter(arguments)
+    <COMMA>
+    methodParameter(arguments)
+    <RIGHT_PAREN>
+    {
+        return newRoutineInvocationNode(routineName, arguments);
     }
 }
 
@@ -11894,28 +11902,6 @@ valueSpecification() throws StandardException :
         return value;
     }
 |
-    <NULLIF> <LEFT_PAREN> leftExpression = additiveExpression() 
-    <COMMA> rightExpression = additiveExpression() <RIGHT_PAREN>
-    {
-        // "NULLIF(L, R)" is the same as "L=R ? untyped NULL : L"
-        // An impl assumption here is that Derby can promote CHAR to any comparable datatypes such as numeric
-        ValueNodeList thenElseList = (ValueNodeList)nodeFactory.getNode(NodeTypes.VALUE_NODE_LIST, parserContext);
-
-        //Use untyped null for then clause at this point. At the bind time, we will cast it to the datatype of L 
-        thenElseList.addValueNode((ValueNode)nodeFactory.getNode(NodeTypes.UNTYPED_NULL_CONSTANT_NODE,
-                                                                 parserContext));
-        thenElseList.addValueNode(leftExpression);
-
-        return (ValueNode)nodeFactory.getNode(NodeTypes.CONDITIONAL_NODE,
-                                              (ValueNode)nodeFactory.getNode(NodeTypes.BINARY_EQUALS_OPERATOR_NODE,
-                                                                             leftExpression,
-                                                                             rightExpression,
-                                                                             parserContext),
-                                              thenElseList,
-                                              Boolean.TRUE,//this node is for nullif 
-                                              parserContext);
-    }
-|
     <CASE> value = caseExpression()
     {
         return value;
@@ -11960,7 +11946,6 @@ whenThenExpression() throws StandardException :
         return((ValueNode)nodeFactory.getNode(NodeTypes.CONDITIONAL_NODE,
                                               expr,
                                               thenElseList,
-                                              Boolean.FALSE,
                                               parserContext));
     }
 }
