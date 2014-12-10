@@ -2359,6 +2359,7 @@ TOKEN [IGNORE_CASE] :
 | <SHOW: "show">
 | <SHUTDOWN: "shutdown">
 | <SIMPLE: "simple">
+| <SNAPSHOT: "snapshot">
 | <SPECIFIC: "specific">
 | <SQLID: "sqlid">
 | <SQRT: "sqrt">
@@ -11557,20 +11558,29 @@ levelOfIsolation() :
     {
         return IsolationLevel.SERIALIZABLE_ISOLATION_LEVEL;
     }
+|
+    <SNAPSHOT>
+    {
+        return IsolationLevel.SNAPSHOT_ISOLATION_LEVEL;
+    }
 }
 
 IsolationLevel
 levelOfIsolationRead() :
-{}
+{
+    boolean snapshot = false;
+}
 {
     <UNCOMMITTED> 
     {
         return IsolationLevel.READ_UNCOMMITTED_ISOLATION_LEVEL;
     }
 |
-    <COMMITTED> 
+    <COMMITTED>
+    [ <NO> <SNAPSHOT> { snapshot = true; } ]
     {
-        return IsolationLevel.READ_COMMITTED_ISOLATION_LEVEL;
+        return snapshot ? IsolationLevel.READ_COMMITTED_NO_SNAPSHOT_ISOLATION_LEVEL
+                        : IsolationLevel.READ_COMMITTED_ISOLATION_LEVEL;
     }
 }
 
@@ -14342,6 +14352,7 @@ nonReservedKeyword() :
 | tok = <SHOW>
 | tok = <SHUTDOWN>
 | tok = <SIMPLE>
+| tok = <SNAPSHOT>
 | tok = <SPACE> // SQL92 reserved, SQL2003 non-reserved
 | tok = <SPECIFIC>
 | tok = <SQLID>

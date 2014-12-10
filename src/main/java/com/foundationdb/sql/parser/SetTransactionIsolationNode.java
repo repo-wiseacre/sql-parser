@@ -98,9 +98,9 @@ public class SetTransactionIsolationNode extends TransactionStatementNode
 
     public String statementToString() {
         if (current)
-            return "SET TRANSACTION ISOLATION";
+            return "SET TRANSACTION ISOLATION LEVEL";
         else
-            return "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION";
+            return "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL";
     }
 
 }
