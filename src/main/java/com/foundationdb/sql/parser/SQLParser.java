@@ -42,7 +42,6 @@ public class SQLParser implements SQLParserContext {
     private int generatedColumnNameIndex;
 
     private StringCharStream charStream = null;
-    private SQLGrammarTokenManager tokenManager = null;
     private SQLGrammar parser = null;
 
     private int maxStringLiteralLength = 65535;
@@ -180,26 +179,20 @@ public class SQLParser implements SQLParserContext {
 
     protected void reinit(String sqlText) throws StandardException {
         this.sqlText = sqlText;
+        if (parser == null) {
+            // Construct parser + token manager with all references
+            // correct before anything real is parsed. Otherwise very
+            // first token might get NPE trying to check feature.
+            parser = new SQLGrammar(new StringCharStream(""));
+            parser.setParserContext(this);
+        }
         if (charStream == null) {
             charStream = new StringCharStream(sqlText);
         }
         else {
             charStream.ReInit(sqlText);
         }
-        if (tokenManager == null) {
-            tokenManager = new SQLGrammarTokenManager(null, charStream);
-        } 
-        else {
-            tokenManager.ReInit(charStream);
-        }
-        if (parser == null) {
-            parser = new SQLGrammar(tokenManager);
-            parser.setParserContext(this);
-        }
-        else {
-            parser.ReInit(tokenManager);
-        }
-        tokenManager.parser = parser;
+        parser.ReInit(charStream);
         parameterList = new ArrayList<ParameterNode>();
         returnParameterFlag = false;
         printedObjectsMap = null;
