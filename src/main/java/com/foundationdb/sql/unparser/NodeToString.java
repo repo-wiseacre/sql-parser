@@ -1140,7 +1140,7 @@ public class NodeToString
     }
 
     protected String virtualColumnNode(VirtualColumnNode node) throws StandardException {
-        return maybeQuote(node.getSourceColumn().getName());
+        return maybeQuote(node.getSourceResultColumn().getName());
     }
 
     protected String groupByList(GroupByList node) throws StandardException {
