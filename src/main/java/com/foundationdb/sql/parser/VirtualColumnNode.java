@@ -124,12 +124,8 @@ public class VirtualColumnNode extends ValueNode
         return sourceResultSet;
     }
 
-    /**
-     * Return the ResultColumn that is the source of this VirtualColumnNode.
-     *
-     * @return ResultColumn
-     */
-    public ResultColumn getSourceColumn() {
+    @Override
+    public ResultColumn getSourceResultColumn() {
         return sourceColumn;
     }
 

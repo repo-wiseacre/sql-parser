@@ -49,7 +49,7 @@ import com.foundationdb.sql.StandardException;
 public class AlterTableNode extends DDLStatementNode
 {
     // The alter table action
-    public TableElementList tableElementList = null;
+    private TableElementList tableElementList = null;
 
     /**
      * updateStatistics will indicate that we are here for updating the
