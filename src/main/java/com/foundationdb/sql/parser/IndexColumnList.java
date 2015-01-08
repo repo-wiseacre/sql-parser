@@ -28,7 +28,7 @@ public class IndexColumnList extends QueryTreeNodeList<IndexColumn>
 
     public static enum FunctionType
     {
-        Z_ORDER_LAT_LON, FULL_TEXT
+        GEO_LAT_LON, FULL_TEXT
         // ADD MORE AS NEEDED
     }
 
@@ -100,4 +100,10 @@ public class IndexColumnList extends QueryTreeNodeList<IndexColumn>
                             functionApplication.functionType, functionApplication.firstArgumentPosition, functionApplication.lastArgumentPosition)
             : super.toString();
     }
+
+    public static FunctionType functionType(String functionName)
+    {
+        return Enum.valueOf(FunctionType.class, functionName.trim().toUpperCase());
+    }
+
 }
