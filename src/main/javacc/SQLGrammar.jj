@@ -8447,8 +8447,8 @@ void indexItem(IndexColumnList columnList) throws StandardException :
     String firstName = null;
     String columnName = null;
     boolean asc = true;
-    int firstSpatialColumnPosition = -1;
-    int spatialColumnCount = -1;
+    int firstFunctionArgPosition = -1;
+    int functionArgCount = -1;
 }
 {
     firstName = identifier()
@@ -8456,14 +8456,14 @@ void indexItem(IndexColumnList columnList) throws StandardException :
         <LEFT_PAREN>
         columnName = identifier()
         {
-            firstSpatialColumnPosition = columnList.size();
+            firstFunctionArgPosition = columnList.size();
             IndexColumn lat = (IndexColumn)
                 nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
                                     columnName,
                                     Boolean.FALSE,
                                     parserContext);
             columnList.add(lat);
-            spatialColumnCount = 1;
+            functionArgCount = 1;
         }
         [
             <COMMA>
@@ -8475,14 +8475,14 @@ void indexItem(IndexColumnList columnList) throws StandardException :
                                         Boolean.FALSE,
                                         parserContext);
                 columnList.add(lon);
-                spatialColumnCount = 2;
+                functionArgCount = 2;
             }
         ]
         <RIGHT_PAREN>
         {
-            columnList.applyFunction(IndexColumnList.functionType(firstName),
-                                     firstSpatialColumnPosition,
-                                     spatialColumnCount);
+            columnList.applyFunction(firstName,
+                                     firstFunctionArgPosition,
+                                     functionArgCount);
         }
       )
       |
@@ -14437,21 +14437,21 @@ void groupIndexItem(IndexColumnList columnList) throws StandardException :
 {
     ColumnReference columnReference;
     String[] nameComponents;
-    int firstSpatialColumnPosition;
-    int spatialColumnCount;
+    int firstFunctionArgPosition;
+    int functionArgCount;
     boolean asc = true;
 }
 {
     nameComponents = groupIndexColumnNameComponents()
     ( (
         <LEFT_PAREN>
-        { firstSpatialColumnPosition = columnList.size(); }
+        { firstFunctionArgPosition = columnList.size(); }
         unorderedGroupIndexColumnItem(columnList)
-        { spatialColumnCount = 1; }
+        { functionArgCount = 1; }
         [
           <COMMA>
           unorderedGroupIndexColumnItem(columnList)
-          { spatialColumnCount = 2; }
+          { functionArgCount = 2; }
         ]
         <RIGHT_PAREN>
         {
@@ -14463,9 +14463,9 @@ void groupIndexItem(IndexColumnList columnList) throws StandardException :
                 }
                 throw new StandardException(functionName + " is not a valid function for use in index creation DDL.");
             }
-            columnList.applyFunction(IndexColumnList.functionType(functionName),
-                                     firstSpatialColumnPosition,
-                                     spatialColumnCount);
+            columnList.applyFunction(functionName,
+                                     firstFunctionArgPosition,
+                                     functionArgCount);
         }
       )
       |
@@ -14493,7 +14493,7 @@ void fullTextColumnItemList(IndexColumnList columnList) throws StandardException
       ( <COMMA> groupIndexColumnItem(columnList) )*
       <RIGHT_PAREN>
       {
-          columnList.applyFunction(IndexColumnList.FunctionType.FULL_TEXT,
+          columnList.applyFunction("FULL_TEXT",
                                    0, columnList.size());
       }
 }

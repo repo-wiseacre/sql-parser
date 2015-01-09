@@ -533,7 +533,7 @@ public class NodeToString
                 buffer.append(", ");
             }
             if (arg == firstFunctionArg) {
-                buffer.append(node.functionType());
+                buffer.append(node.functionName());
                 buffer.append('(');
             }
             buffer.append(toString(node.get(arg)));

@@ -26,38 +26,32 @@ public class IndexColumnList extends QueryTreeNodeList<IndexColumn>
 {
     private FunctionApplication functionApplication;
 
-    public static enum FunctionType
-    {
-        GEO_LAT_LON, FULL_TEXT
-        // ADD MORE AS NEEDED
-    }
-
     private static class FunctionApplication
     {
-        public FunctionApplication(FunctionType functionType,
+        public FunctionApplication(String functionName,
                                    int firstArgumentPosition,
                                    int nArguments)
         {
-            this.functionType = functionType;
+            this.functionName = functionName.trim().toUpperCase();
             this.firstArgumentPosition = firstArgumentPosition;
             this.lastArgumentPosition = firstArgumentPosition + nArguments - 1;
             this.nArguments = nArguments;
         }
 
-        public final FunctionType functionType;
+        public final String functionName;
         public final int firstArgumentPosition;
         public final int lastArgumentPosition;
         public final int nArguments;
     }
 
-    public void applyFunction(Object functionType,
+    public void applyFunction(String functionName,
                               int firstArgumentPosition,
                               int nArguments) throws StandardException
     {
         if (functionApplication != null) {
             throw new StandardException("Cannot use multiple functions in one index definition");
         }
-        functionApplication = new FunctionApplication((FunctionType) functionType,
+        functionApplication = new FunctionApplication(functionName,
                                                       firstArgumentPosition,
                                                       nArguments);
     }
@@ -78,9 +72,9 @@ public class IndexColumnList extends QueryTreeNodeList<IndexColumn>
             : functionApplication.lastArgumentPosition;
     }
 
-    public FunctionType functionType()
+    public String functionName()
     {
-        return functionApplication == null ? null : functionApplication.functionType;
+        return functionApplication == null ? null : functionApplication.functionName;
     }
 
     @Override
@@ -97,13 +91,7 @@ public class IndexColumnList extends QueryTreeNodeList<IndexColumn>
         return
             functionApplication != null
             ? String.format("\nmethodName: %s\nfirstArg: %s\nlastArg: %s\n",
-                            functionApplication.functionType, functionApplication.firstArgumentPosition, functionApplication.lastArgumentPosition)
+                            functionApplication.functionName, functionApplication.firstArgumentPosition, functionApplication.lastArgumentPosition)
             : super.toString();
     }
-
-    public static FunctionType functionType(String functionName)
-    {
-        return Enum.valueOf(FunctionType.class, functionName.trim().toUpperCase());
-    }
-
 }
