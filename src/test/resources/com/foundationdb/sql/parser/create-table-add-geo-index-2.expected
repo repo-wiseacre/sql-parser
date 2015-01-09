@@ -31,7 +31,7 @@ tableElementList:
 	indexColumnList: 		
 		com.foundationdb.sql.parser.IndexColumnList@63deebc8
 		
-		methodName: GEO_LAT_LON
+		methodName: geo_lat_lon
 		firstArg: 0
 		lastArg: 0
 		[0]:		

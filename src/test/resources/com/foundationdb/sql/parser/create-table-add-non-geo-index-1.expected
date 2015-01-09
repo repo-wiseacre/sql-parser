@@ -31,7 +31,7 @@ tableElementList:
 	indexColumnList: 		
 		com.foundationdb.sql.parser.IndexColumnList@63deebc8
 		
-		methodName: FUNK_SHUN
+		methodName: funk_shun
 		firstArg: 0
 		lastArg: 1
 		[0]:		

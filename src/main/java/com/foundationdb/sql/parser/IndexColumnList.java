@@ -32,7 +32,7 @@ public class IndexColumnList extends QueryTreeNodeList<IndexColumn>
                                    int firstArgumentPosition,
                                    int nArguments)
         {
-            this.functionName = functionName.trim().toUpperCase();
+            this.functionName = functionName.trim();
             this.firstArgumentPosition = firstArgumentPosition;
             this.lastArgumentPosition = firstArgumentPosition + nArguments - 1;
             this.nArguments = nArguments;
