@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx1 ON table1(funk_shun(c1, c2))

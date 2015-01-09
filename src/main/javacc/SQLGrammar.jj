@@ -2257,7 +2257,6 @@ TOKEN [IGNORE_CASE] :
 | <XMLPARSE:    "xmlparse">
 | <XMLQUERY:    "xmlquery">
 | <XMLSERIALIZE:    "xmlserialize">
-| <Z_ORDER_LAT_LON: "z_order_lat_lon">
 }
 
 /* This list should contain non-SQL92 keywords that are not reserved.
@@ -8445,58 +8444,59 @@ indexItemList(IndexColumnList columnList) throws StandardException :
 
 void indexItem(IndexColumnList columnList) throws StandardException :
 {
-    String columnName;
+    String firstName = null;
+    String columnName = null;
     boolean asc = true;
-    int spatialColumnCount;
+    int firstFunctionArgPosition = -1;
+    int functionArgCount = -1;
 }
 {
-    (
-      <Z_ORDER_LAT_LON>
-      <LEFT_PAREN>
-      columnName = identifier()
-      {
-          int latPosition = columnList.size();
-          IndexColumn lat = (IndexColumn)
-              nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
-                                  columnName,
-                                  Boolean.FALSE,
-                                  parserContext);
-          columnList.add(lat);
-          spatialColumnCount = 1;
-      }
-      [
-          <COMMA>
-          columnName = identifier()
-          {
-              IndexColumn lon = (IndexColumn)
-                  nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
-                                      columnName,
-                                      Boolean.FALSE,
-                                      parserContext);
-              columnList.add(lon);
-              spatialColumnCount = 2;
-          }
-      ]
-      <RIGHT_PAREN>
-      {
-          columnList.applyFunction(IndexColumnList.FunctionType.Z_ORDER_LAT_LON,
-                                   latPosition,
-                                   spatialColumnCount);
-      }
-    )
-    |
-    (
-      columnName = identifier() 
-      [ <ASC> | <DESC> { asc = false; } ]
-      {
-          IndexColumn indexColumn = (IndexColumn)
-              nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
-                                  columnName,
-                                  asc ? Boolean.TRUE : Boolean.FALSE,
-                                  parserContext);
-          columnList.add(indexColumn);
-    }
-    )
+    firstName = identifier()
+    ( (
+        <LEFT_PAREN>
+        columnName = identifier()
+        {
+            firstFunctionArgPosition = columnList.size();
+            IndexColumn lat = (IndexColumn)
+                nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
+                                    columnName,
+                                    Boolean.FALSE,
+                                    parserContext);
+            columnList.add(lat);
+            functionArgCount = 1;
+        }
+        [
+            <COMMA>
+            columnName = identifier()
+            {
+                IndexColumn lon = (IndexColumn)
+                    nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
+                                        columnName,
+                                        Boolean.FALSE,
+                                        parserContext);
+                columnList.add(lon);
+                functionArgCount = 2;
+            }
+        ]
+        <RIGHT_PAREN>
+        {
+            columnList.applyFunction(firstName,
+                                     firstFunctionArgPosition,
+                                     functionArgCount);
+        }
+      )
+      |
+      (
+        [ <ASC> | <DESC> { asc = false; } ]
+        {
+            IndexColumn indexColumn = (IndexColumn)
+                nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
+                                    firstName,
+                                    asc ? Boolean.TRUE : Boolean.FALSE,
+                                    parserContext);
+            columnList.add(indexColumn);
+        }
+    ) )
 }
 
 void
@@ -14435,30 +14435,53 @@ groupIndexItemList(IndexColumnList columnList) throws StandardException :
 
 void groupIndexItem(IndexColumnList columnList) throws StandardException :
 {
-    int latPosition;
-    int spatialColumnCount;
+    ColumnReference columnReference;
+    String[] nameComponents;
+    int firstFunctionArgPosition;
+    int functionArgCount;
+    boolean asc = true;
 }
 {
-    (
-      <Z_ORDER_LAT_LON>
-      <LEFT_PAREN>
-      { latPosition = columnList.size(); }
-      unorderedGroupIndexColumnItem(columnList)
-      { spatialColumnCount = 1; }
-      [
+    nameComponents = groupIndexColumnNameComponents()
+    ( (
+        <LEFT_PAREN>
+        { firstFunctionArgPosition = columnList.size(); }
+        unorderedGroupIndexColumnItem(columnList)
+        { functionArgCount = 1; }
+        [
           <COMMA>
           unorderedGroupIndexColumnItem(columnList)
-          { spatialColumnCount = 2; }
-      ]
-      <RIGHT_PAREN>
-      {
-          columnList.applyFunction(IndexColumnList.FunctionType.Z_ORDER_LAT_LON,
-                                   latPosition,
-                                   spatialColumnCount);
-      }
-    )
-    |
-      groupIndexColumnItem(columnList)
+          { functionArgCount = 2; }
+        ]
+        <RIGHT_PAREN>
+        {
+            String functionName = nameComponents[2];
+            if (nameComponents[1] != null) {
+                functionName = nameComponents[1] + "." + functionName;
+                if (nameComponents[0] != null) {
+                    functionName = nameComponents[0] + "." + functionName;
+                }
+                throw new StandardException(functionName + " is not a valid function for use in index creation DDL.");
+            }
+            columnList.applyFunction(functionName,
+                                     firstFunctionArgPosition,
+                                     functionArgCount);
+        }
+      )
+      |
+      (
+        [ <ASC> | <DESC> { asc = false; } ]        
+        {
+            columnReference = groupIndexColumnNameFromComponents(nameComponents);
+            IndexColumn indexColumn = (IndexColumn)
+                nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
+                                    columnReference.getTableNameNode(),
+                                    columnReference.getColumnName(),
+                                    asc ? Boolean.TRUE : Boolean.FALSE,
+                                    parserContext);
+            columnList.add(indexColumn);
+        }
+      ) )
 }
 
 void fullTextColumnItemList(IndexColumnList columnList) throws StandardException :
@@ -14470,7 +14493,7 @@ void fullTextColumnItemList(IndexColumnList columnList) throws StandardException
       ( <COMMA> groupIndexColumnItem(columnList) )*
       <RIGHT_PAREN>
       {
-          columnList.applyFunction(IndexColumnList.FunctionType.FULL_TEXT,
+          columnList.applyFunction("FULL_TEXT",
                                    0, columnList.size());
       }
 }
@@ -14482,7 +14505,7 @@ groupIndexColumnItem(IndexColumnList columnList) throws StandardException :
     ColumnReference groupIndexColumnName;
 }
 {
-    groupIndexColumnName = groupIndexColumnName(columnList)
+    groupIndexColumnName = groupIndexColumnName()
     [ <ASC> | <DESC> { asc = false; } ]
     {
         IndexColumn indexColumn = (IndexColumn)
@@ -14501,7 +14524,7 @@ unorderedGroupIndexColumnItem(IndexColumnList columnList) throws StandardExcepti
     ColumnReference groupIndexColumnName;
 }
 {
-    groupIndexColumnName = groupIndexColumnName(columnList)
+    groupIndexColumnName = groupIndexColumnName()
     {
         IndexColumn indexColumn = (IndexColumn)
             nodeFactory.getNode(NodeTypes.INDEX_COLUMN,
@@ -14514,48 +14537,67 @@ unorderedGroupIndexColumnItem(IndexColumnList columnList) throws StandardExcepti
 }
 
 ColumnReference
-groupIndexColumnName(IndexColumnList columnList) throws StandardException :
+groupIndexColumnName() throws StandardException :
 {
-    String firstName;
-    String secondName = null;
-    String thirdName = null;
+    String[] names;
 }
 {
-    firstName = identifierDeferCheckLength()
-    [ LOOKAHEAD( { getToken(1).kind == PERIOD } )
-      <PERIOD>
-      secondName = identifierDeferCheckLength()
-      [ LOOKAHEAD( { getToken(1).kind == PERIOD } )
-        <PERIOD>
-        thirdName = identifierDeferCheckLength() ] ]
     {
-        if (secondName == null) {
-            thirdName = firstName;
-            firstName = null;
-        }
-        else if (thirdName == null) {
-            thirdName = secondName;
-            secondName = firstName;
-            firstName = null;
-        }
-        if (firstName != null)
-            parserContext.checkIdentifierLengthLimit(firstName);
-        if (secondName != null)
-            parserContext.checkIdentifierLengthLimit(secondName);
-        parserContext.checkIdentifierLengthLimit(thirdName);
+        return groupIndexColumnNameFromComponents(groupIndexColumnNameComponents());
+    }
+}
+
+ColumnReference
+groupIndexColumnNameFromComponents(String[] names) throws StandardException :
+{
+}
+{
+    {
         TableName tableName = null;
-        if (secondName != null)
+        if (names[1] != null)
             tableName = (TableName)nodeFactory.getNode(NodeTypes.TABLE_NAME,
-                                                       firstName,
-                                                       secondName,
+                                                       names[0],
+                                                       names[1],
                                                        new Integer(nextToLastIdentifierToken.beginOffset),
                                                        new Integer(nextToLastIdentifierToken.endOffset),
                                                        parserContext);
         return (ColumnReference)nodeFactory.getNode(NodeTypes.COLUMN_REFERENCE,
-                                                    thirdName,
+                                                    names[2],
                                                     tableName,
                                                     new Integer(lastIdentifierToken.beginOffset),
                                                     new Integer(lastIdentifierToken.endOffset),
                                                     parserContext);
+    }
+}
+
+String[]
+groupIndexColumnNameComponents() throws StandardException :
+{
+    String[] names = new String[3];
+}
+{
+    names[0] = identifierDeferCheckLength()
+    [ LOOKAHEAD( { getToken(1).kind == PERIOD } )
+      <PERIOD>
+      names[1] = identifierDeferCheckLength()
+      [ LOOKAHEAD( { getToken(1).kind == PERIOD } )
+        <PERIOD>
+        names[2] = identifierDeferCheckLength() ] ]
+    {
+        if (names[1] == null) {
+            names[2] = names[0];
+            names[0] = null;
+        }
+        else if (names[2] == null) {
+            names[2] = names[1];
+            names[1] = names[0];
+            names[0] = null;
+        }
+        if (names[0] != null)
+            parserContext.checkIdentifierLengthLimit(names[0]);
+        if (names[1] != null)
+            parserContext.checkIdentifierLengthLimit(names[1]);
+        parserContext.checkIdentifierLengthLimit(names[2]);
+        return names;
     }
 }

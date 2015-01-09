@@ -31,11 +31,16 @@ tableElementList:
 	indexColumnList: 		
 		com.foundationdb.sql.parser.IndexColumnList@63deebc8
 		
-		methodName: geo_lat_lon
+		methodName: funk_shun
 		firstArg: 0
-		lastArg: 0
+		lastArg: 1
 		[0]:		
 		com.foundationdb.sql.parser.IndexColumn@4049cab1
 		columnName: c1
+		tableName: null
+		ascending
+		[1]:		
+		com.foundationdb.sql.parser.IndexColumn@2c9a4b70
+		columnName: c2
 		tableName: null
 		ascending
