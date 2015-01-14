@@ -85,7 +85,17 @@ public class ResultColumn extends ValueNode
     private int virtualColumnId;
 
     private boolean isNameGenerated;
-
+    
+    // tells us whether the user provided the alias names along with the query or 
+    // it is internally assigning the column name as the alias name by default.
+    // If the value is true then the user has provided the alias name 
+    // along with the query.
+    private boolean havingAlias;
+    
+    public boolean isHavingAlias(){
+       return this.havingAlias;
+    }
+    
     /**
      * Different types of initializer parameters indicate different
      * types of initialization. Parameters may be:
@@ -129,6 +139,11 @@ public class ResultColumn extends ValueNode
         if ((arg1 instanceof String) || (arg1 == null)) {
             this.name = (String)arg1;
             this.exposedName = this.name;
+            if(arg1==null || (String)arg1.equals("")){
+               this.havingAlias = false;
+            }else{
+               this.havingAlias = true;
+            }
             setExpression((ValueNode)arg2);
         }
         else if (arg1 instanceof ColumnReference) {
